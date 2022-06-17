@@ -1,6 +1,13 @@
-import _ from "lodash"
+import { humanizeAmount, zeroDecimalCurrencies } from "medusa-core-utils"
 import PayPal from "@paypal/checkout-server-sdk"
 import { PaymentService } from "medusa-interfaces"
+
+function roundToTwo(num, currency) {
+  if (zeroDecimalCurrencies.includes(currency.toLowerCase())) {
+    return `${num}`
+  }
+  return num.toFixed(2)
+}
 
 class PayPalProviderService extends PaymentService {
   static identifier = "paypal"
@@ -64,7 +71,6 @@ class PayPalProviderService extends PaymentService {
         return "requires_more"
       case "VOIDED":
         return "canceled"
-      // return "captured"
       default:
         return status
     }
@@ -101,7 +107,10 @@ class PayPalProviderService extends PaymentService {
           custom_id: cart.id,
           amount: {
             currency_code: currency_code.toUpperCase(),
-            value: (amount / 100).toFixed(2),
+            value: roundToTwo(
+              humanizeAmount(amount, currency_code),
+              currency_code
+            ),
           },
         },
       ],
@@ -193,7 +202,10 @@ class PayPalProviderService extends PaymentService {
           value: {
             amount: {
               currency_code: currency_code.toUpperCase(),
-              value: (cart.total / 100).toFixed(2),
+              value: roundToTwo(
+                humanizeAmount(cart.total, currency_code),
+                currency_code
+              ),
             },
           },
         },
@@ -254,7 +266,10 @@ class PayPalProviderService extends PaymentService {
       request.requestBody({
         amount: {
           currency_code: payment.currency_code.toUpperCase(),
-          value: (amountToRefund / 100).toFixed(2),
+          value: roundToTwo(
+            humanizeAmount(amountToRefund, payment.currency_code),
+            payment.currency_code
+          ),
         },
       })
 
@@ -267,11 +282,18 @@ class PayPalProviderService extends PaymentService {
   }
 
   /**
-   * Cancels payment for Stripe payment intent.
-   * @param {object} paymentData - payment method data from cart
+   * Cancels payment for paypal payment.
+   * @param {Payment} payment - payment object
    * @returns {Promise<object>} canceled payment intent
    */
   async cancelPayment(payment) {
+    const order = await this.retrievePayment(payment.data)
+    const isAlreadyCanceled = order.status === "VOIDED"
+    const isCanceledAndFullyRefund = order.status === "COMPLETED" && !!order.invoice_id
+    if (isAlreadyCanceled || isCanceledAndFullyRefund) {
+      return order
+    }
+
     try {
       const { purchase_units } = payment.data
       if (payment.captured_at) {
@@ -286,7 +308,7 @@ class PayPalProviderService extends PaymentService {
         await this.paypal_.execute(request)
       }
 
-      return this.retrievePayment(payment.data)
+      return await this.retrievePayment(payment.data)
     } catch (error) {
       throw error
     }

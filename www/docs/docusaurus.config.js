@@ -1,6 +1,3 @@
-const lightCodeTheme = require("prism-react-renderer/themes/github")
-const darkCodeTheme = require("prism-react-renderer/themes/dracula")
-
 const path = require("path")
 const docsPath = path.join(__dirname, "../../docs/content")
 
@@ -9,9 +6,9 @@ const algoliaApiKey = process.env.ALGOLIA_API_KEY || "temp"
 
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {
-  title: "Medusa Commerce",
+  title: "Medusa",
   tagline: "Explore and learn how to use Medusa",
-  url: "https://docs.medusa-commerce.com",
+  url: "https://docs.medusajs.com",
   baseUrl: "/",
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
@@ -28,46 +25,60 @@ module.exports = {
     ],
   ],
   themeConfig: {
-    disableSwitch: true,
+    colorMode: {
+      defaultMode: 'light',
+      disableSwitch: false,
+      respectPrefersColorScheme: true,
+    },
     algolia: {
       apiKey: algoliaApiKey,
       indexName: "medusa-commerce",
       placeholder: "Search docs...",
       appId: algoliaAppId,
+      contextualSearch: false,
+    },
+    prism: {
+      defaultLanguage: "js",
+      plugins: ["line-numbers", "show-language"],
+      theme: require("prism-react-renderer/themes/vsDark"),
+      darkTheme: require("prism-react-renderer/themes/vsDark"),
     },
     navbar: {
       hideOnScroll: true,
       logo: {
-        alt: "Medusa Commerce",
+        alt: "Medusa",
         src: "img/logo.svg",
-        srcDark: "img/logo.svg",
+        srcDark: "img/logo-dark.svg",
+        width: 100
       },
       items: [
         {
-          type: "search",
-          position: "left",
+          type: "docSidebar",
+          sidebarId: "tutorialSidebar",
+          label: "Docs"
         },
         {
-          type: "doc",
-          docId: "tutorial/set-up-your-development-environment",
-          position: "right",
-          label: "Tutorial",
+          type: "docSidebar",
+          sidebarId: "servicesSidebar",
+          label: "Services Reference",
         },
         {
-          href: `https://docs.medusa-commerce.com/api/store`,
+          href: `https://docs.medusajs.com/api/store`,
           target: "_self",
-          position: "right",
           label: "API Reference",
         },
         {
+          href: "https://github.com/medusajs/medusa",
           className: "navbar-github-link",
-          href: "https://github.com/medusajs/medusa/",
+          position: "right",
+        },
+        {
+          type: "search",
           position: "right",
         },
       ],
     },
     footer: {
-      style: "dark",
       links: [
         {
           title: "Docs",
@@ -87,7 +98,7 @@ module.exports = {
             },
             {
               label: "Discord",
-              href: "https://discord.gg/H6naACAK",
+              href: "https://discord.gg/medusajs",
             },
             {
               label: "Twitter",
@@ -99,12 +110,12 @@ module.exports = {
           title: "More",
           items: [
             {
-              label: "Contact",
-              href: "https://medusa-commere.com",
+              label: "Medusa Home",
+              href: "https://medusajs.com",
             },
             {
-              label: "Privacy & Terms",
-              href: "https://medusa-commere.com",
+              label: "Contact",
+              href: "https://ky5eo2x1u81.typeform.com/get-in-touch",
             },
             {
               label: "GitHub",
@@ -113,10 +124,7 @@ module.exports = {
           ],
         },
       ],
-      copyright: `© ${new Date().getFullYear()} Medusa Commerce`,
-    },
-    prism: {
-      theme: darkCodeTheme,
+      copyright: `© ${new Date().getFullYear()} Medusa`,
     },
   },
   presets: [
@@ -125,9 +133,12 @@ module.exports = {
       {
         docs: {
           sidebarPath: require.resolve("./sidebars.js"),
-          editUrl: "https://github.com/medusajs/medusa/edit/master/www/",
+          editUrl: "https://github.com/medusajs/medusa/edit/master/docs/content",
           path: docsPath,
           routeBasePath: "/",
+          remarkPlugins: [
+            [require('@docusaurus/remark-plugin-npm2yarn'), {sync: true}],
+          ]
         },
         theme: {
           customCss: require.resolve("./src/css/custom.css"),

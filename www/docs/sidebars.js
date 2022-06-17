@@ -13,129 +13,385 @@ module.exports = {
   tutorialSidebar: [
     {
       type: "doc",
-      id: "quickstart/quick-start",
-      label: "Quickstart",
+      id: "homepage",
+      label: "Overview",
     },
-    // {
-    //   type: 'category',
-    //   label: 'Quickstart',
-    //   items: [
-    //     {
-    //       type: 'doc',
-    //       id: 'quickstart/quick-start-docker',
-    //       label: 'Quickstart w. Docker (Coming soon!)',
-    //     },
-    //   ],
-    // },
+    {
+      type: "doc",
+      id: "introduction",
+      label: "Introduction",
+    },
+    {
+      type: "doc",
+      id: "quickstart/quick-start",
+      label: "Quickstart Guide",
+    },
     {
       type: "category",
-      label: "Tutorials",
+      collapsed: false,
+      label: "Usage Guides",
       items: [
         {
           type: "doc",
           id: "tutorial/set-up-your-development-environment",
-        },
-        {
-          type: "doc",
-          id: "tutorial/creating-your-medusa-server",
-        },
-        {
-          type: "doc",
-          id: "tutorial/adding-custom-functionality",
-        },
-        // {
-        //   type: "doc",
-        //   id: "tutorial/linking-your-local-project-with-medusa-cloud",
-        // },
-      ],
-    },
-    {
-      type: "category",
-      label: "How to",
-      items: [
-        {
-          type: "doc",
-          id: "how-to/plugins",
-        },
-        {
-          type: "doc",
-          id: "how-to/notification-api",
+          label: "Set Up your Development Environment"
         },
         {
           type: "category",
-          label: "Gatsby + Contentful + Medusa",
+          collapsed: true,
+          label: "Storefront Quickstart",
           items: [
             {
               type: "doc",
-              id: "how-to/headless-ecommerce-store-with-gatsby-contentful-medusa",
+              id: "starters/gatsby-medusa-starter",
+              label: "Gatsby Storefront Quickstart",
             },
             {
               type: "doc",
-              id: "how-to/making-your-store-more-powerful-with-contentful",
+              id: "starters/nextjs-medusa-starter",
+              label: "Next.js Storefront Quickstart",
             },
           ],
         },
         {
           type: "doc",
-          id: "how-to/setting-up-a-nextjs-storefront-for-your-medusa-project",
+          id: "admin/quickstart",
         },
         {
           type: "doc",
           id: "how-to/create-medusa-app",
         },
         {
-          type: "doc",
-          id: "how-to/uploading-images-to-spaces",
+          type: "category",
+          label: "Deployment",
+          items: [
+            {
+              type: "doc",
+              id: "how-to/deploying-on-heroku",
+              label: "Deploy: Heroku",
+            },
+            {
+              type: "doc",
+              id: "how-to/deploying-on-qovery",
+              label: "Deploy: Qovery",
+            },
+            {
+              type: "doc",
+              id: "how-to/deploying-on-digital-ocean",
+              label: "Deploy: DigitalOcean",
+            },
+            {
+              type: "doc",
+              id: "how-to/deploying-admin-on-netlify",
+              label: "Deploy: Admin on Netlify",
+            },
+            {
+              type: "doc",
+              id: "how-to/deploying-gatsby-on-netlify",
+              label: "Deploy: Gatsby on Netlify",
+            },
+          ],
+        },
+      ]
+    },
+    {
+      type: "category",
+      label: "Advanced Guide",
+      collapsed: false,
+      items: [
+        {
+          type: "category",
+          label: "Medusa Server",
+          collapsed: true,
+          items: [
+            {
+              type: "category",
+              label: 'Endpoints',
+              collapsed: true,
+              items: [
+                {
+                  type: "doc",
+                  id: "advanced/backend/endpoints/add-storefront",
+                  label: "Add Endpoint for Storefront"
+                },
+                {
+                  type: "doc",
+                  id: "advanced/backend/endpoints/add-admin",
+                  label: "Add Endpoint for Admin"
+                },
+              ]
+            },
+            {
+              type: "doc",
+              id: "advanced/backend/services/create-service",
+              label: "Create a Service"
+            },
+            {
+              type: "category",
+              label: 'Subscribers',
+              collapsed: false,
+              items: [
+                {
+                  type: "doc",
+                  id: "advanced/backend/subscribers/create-subscriber",
+                  label: "Create a Subscriber"
+                },
+                {
+                  type: "doc",
+                  id: "advanced/backend/subscribers/events-list",
+                  label: "List of Events"
+                },
+              ]
+            },
+            {
+              type: "category",
+              label: 'Shipping',
+              collapsed: true,
+              items: [
+                {
+                  type: "doc",
+                  id: "advanced/backend/shipping/overview",
+                  label: "Architecture Overview"
+                },
+                {
+                  type: "doc",
+                  id: "advanced/backend/shipping/add-fulfillment-provider",
+                  label: "Add Fulfillment Provider"
+                }
+              ]
+            },
+            {
+              type: "category",
+              label: 'Payment',
+              collapsed: true,
+              items: [
+                {
+                  type: "doc",
+                  id: "advanced/backend/payment/overview",
+                  label: "Architecture Overview"
+                },
+                {
+                  type: "doc",
+                  id: "advanced/backend/payment/how-to-create-payment-provider",
+                },
+                {
+                  type: "doc",
+                  id: "advanced/backend/payment/frontend-payment-flow-in-checkout",
+                },
+              ]
+            },
+            {
+              type: "doc",
+              id: "how-to/notification-api",
+            },
+            {
+              type: "doc",
+              id: "guides/plugins",
+            },
+            {
+              type: "doc",
+              id: "guides/carts-in-medusa",
+            },
+            {
+              type: "doc",
+              id: "advanced/backend/migrations",
+              label: "Migrations"
+            },
+            {
+              type: "category",
+              label: 'Upgrade Guides',
+              collapsed: true,
+              items: [
+                {
+                  type: "doc",
+                  id: "advanced/backend/upgrade-guides/1-3-0",
+                  label: "v1.3.0"
+                },
+              ]
+            },
+          ]
+        }
+      ]
+    },
+    {
+      type: "category",
+      label: "Integrations",
+      collapsed: false,
+      items: [
+        {
+          type: "category",
+          label: "Analytics",
+          items: [
+            {
+              type: "doc",
+              id: "add-plugins/segment",
+              label: "Segment",
+            },
+          ],
         },
         {
-          type: "doc",
-          id: "how-to/uploading-images-to-s3",
+          type: "category",
+          label: "Bot",
+          items: [
+            {
+              type: "doc",
+              id: "add-plugins/slack",
+              label: "Slack",
+            },
+          ],
+        },
+        {
+          type: "category",
+          label: "CMS",
+          items: [
+            {
+              type: "doc",
+              id: "add-plugins/contentful",
+              label: "Contentful",
+            },
+            {
+              type: "doc",
+              id: "add-plugins/strapi",
+              label: "Strapi",
+            },
+            {
+              type: "category",
+              label: "Gatsby + Contentful + Medusa",
+              items: [
+                {
+                  type: "doc",
+                  id: "how-to/headless-ecommerce-store-with-gatsby-contentful-medusa",
+                },
+                {
+                  type: "doc",
+                  id: "how-to/making-your-store-more-powerful-with-contentful",
+                },
+              ],
+            },
+          ],
+        },
+        {
+          type: "category",
+          label: "Notifications",
+          items: [
+            {
+              type: "doc",
+              id: "add-plugins/sendgrid",
+              label: "SendGrid",
+            },
+            {
+              type: "doc",
+              id: "add-plugins/mailchimp",
+              label: "Mailchimp",
+            },
+            {
+              type: "doc",
+              id: "add-plugins/twilio-sms",
+              label: "Twilio SMS",
+            },
+          ],
+        },
+        {
+          type: "category",
+          label: "Payment",
+          items: [
+            {
+              type: "doc",
+              id: "add-plugins/klarna",
+              label: "Klarna",
+            },
+            {
+              type: "doc",
+              id: "add-plugins/paypal",
+              label: "PayPal",
+            },
+            {
+              type: "doc",
+              id: "add-plugins/stripe",
+              label: "Stripe",
+            },
+          ],
+        },
+        {
+          type: "category",
+          label: "Search",
+          items: [
+            {
+              type: "doc",
+              id: "add-plugins/algolia",
+              label: "Algolia",
+            },
+            {
+              type: "doc",
+              id: "add-plugins/meilisearch",
+              label: "MeiliSearch",
+            },
+          ],
+        },
+        {
+          type: "category",
+          label: "Storage",
+          items: [
+            {
+              type: "doc",
+              id: "add-plugins/minio",
+              label: "MinIO",
+            },
+            {
+              type: "doc",
+              id: "add-plugins/s3",
+              label: "S3",
+            },
+            {
+              type: "doc",
+              id: "add-plugins/spaces",
+              label: "Spaces",
+            },
+          ],
         },
       ],
     },
     {
       type: "category",
-      label: "Guides",
+      label: "Troubleshooting",
       items: [
         {
           type: "doc",
-          id: "guides/fulfillment-api",
+          id: "troubleshooting/cors-issues",
+          label: "CORS issues",
         },
         {
           type: "doc",
-          id: "guides/checkouts",
+          id: "troubleshooting/transaction-error-in-checkout",
+          label: "Error 409 in checkout",
         },
         {
           type: "doc",
-          id: "guides/carts-in-medusa",
-        },
-      ],
-    },
-    {
-      type: "category",
-      label: "Deploy",
-      items: [
-        {
-          type: "doc",
-          id: "how-to/deploying-on-heroku",
+          id: "troubleshooting/missing-payment-providers",
+          label: "Payment provider (Stripe) not showing in checkout",
         },
         {
           type: "doc",
-          id: "how-to/deploying-on-qovery",
+          id: "troubleshooting/redis-events",
+          label: "Redis not emitting events",
         },
         {
           type: "doc",
-          id: "how-to/deploying-on-digital-ocean",
+          id: "troubleshooting/signing-in-to-admin",
+          label: "Signing in to Medusa Admin",
         },
         {
           type: "doc",
-          id: "how-to/deploying-admin-on-netlify",
-        },
-        {
-          type: "doc",
-          id: "how-to/deploying-gatsby-on-netlify",
+          id: "troubleshooting/documentation-error",
+          label: "Documentation Error",
         },
       ],
     },
   ],
+  servicesSidebar: [
+    {
+      type: 'autogenerated',
+      dirName: 'references/services/classes', // generate sidebar from the docs folder (or versioned_docs/<version>)
+    },
+  ]
 }

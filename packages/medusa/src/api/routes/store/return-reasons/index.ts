@@ -41,8 +41,7 @@ export type StoreReturnReasonsListRes = {
 }
 
 export type StoreReturnReasonsRes = {
-  return_reasons: ReturnReason
+  return_reason: ReturnReason
 }
 
 export * from "./get-reason"
-export * from "./list-reasons"

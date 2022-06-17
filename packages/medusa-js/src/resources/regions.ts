@@ -1,25 +1,27 @@
-import { AxiosPromise } from "axios"
+import { ResponsePromise } from "../typings"
 import { StoreRegionsListRes, StoreRegionsRes } from "@medusajs/medusa"
 import BaseResource from "./base"
 
 class RegionsResource extends BaseResource {
   /**
    * @description Retrieves a list of regions
-   * @return {AxiosPromise<StoreRegionsListRes>}
+   * @param customHeaders
+   * @return {ResponsePromise<StoreRegionsListRes>}
    */
-  list(): AxiosPromise<StoreRegionsListRes> {
+  list(customHeaders: Record<string, any> = {}): ResponsePromise<StoreRegionsListRes> {
     const path = `/store/regions`
-    return this.client.request("GET", path)
+    return this.client.request("GET", path, {}, {}, customHeaders)
   }
 
   /**
    * @description Retrieves a region
    * @param {string} id is required
-   * @return {AxiosPromise<StoreRegionsRes>}
+   * @param customHeaders
+   * @return {ResponsePromise<StoreRegionsRes>}
    */
-  retrieve(id: string): AxiosPromise<StoreRegionsRes> {
+  retrieve(id: string, customHeaders: Record<string, any> = {}): ResponsePromise<StoreRegionsRes> {
     const path = `/store/regions/${id}`
-    return this.client.request("GET", path)
+    return this.client.request("GET", path, {}, {}, customHeaders)
   }
 }
 

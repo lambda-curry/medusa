@@ -1,12 +1,13 @@
-import { Flex, Box, Link, Select } from "@theme-ui/components"
+import { Box, Flex, Link, Select } from "@theme-ui/components"
 import React, { useContext } from "react"
-import { navigate } from "gatsby-link"
 
+import ChevronDown from "./icons/chevron-down"
+import ColorModeToggler from "./ColorModeToggler"
 import GitHub from "../components/icons/github"
 import NavigationContext from "../context/navigation-context"
-import { convertToKebabCase } from "../utils/convert-to-kebab-case"
-import ChevronDown from "./icons/chevron-down"
 import Search from "./search"
+import { convertToKebabCase } from "../utils/convert-to-kebab-case"
+import { navigate } from "gatsby-link"
 
 const Topbar = ({ data, api }) => {
   const { goTo, reset, currentSection } = useContext(NavigationContext)
@@ -15,7 +16,10 @@ const Topbar = ({ data, api }) => {
     const parts = e.target.value.split(" ")
 
     if (parts[0] === api) {
-      goTo({ section: parts[1] })
+      //find section
+      let sectionObj = data.sections.find((s) => convertToKebabCase(s.section.section_name) === parts[1]);
+      sectionObj = sectionObj ? sectionObj.section : {};
+      goTo({ section: parts[1], sectionObj })
     } else {
       reset()
       navigate(`/api/${api === "admin" ? "store" : "admin"}`)
@@ -37,7 +41,6 @@ const Topbar = ({ data, api }) => {
           left: "0",
           right: "0",
           zIndex: "100",
-          backgroundColor: "light",
         },
       }}
     >
@@ -61,7 +64,6 @@ const Topbar = ({ data, api }) => {
               fontWeight: "500",
               flexGrow: "1",
               px: "0",
-              backgroundColor: "light",
               transition: "all .1s ease-in-out",
               "&:focus": {
                 outline: "none !important",
@@ -100,7 +102,7 @@ const Topbar = ({ data, api }) => {
           justifyContent: "flex-end",
         }}
       >
-        <Link variant="topbar" mr={3} href="https://docs.medusa-commerce.com">
+        <Link variant="topbar" mr={3} href="https://docs.medusajs.com">
           Docs
         </Link>
         <Link
@@ -112,7 +114,8 @@ const Topbar = ({ data, api }) => {
         >
           <GitHub />
         </Link>
-        <Search />
+        <Search data={data} />
+        <ColorModeToggler />
       </Flex>
     </Flex>
   )

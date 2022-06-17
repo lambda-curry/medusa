@@ -1,5 +1,5 @@
 ---
-title: 2. Adding custom functionality
+title: Adding custom functionality
 ---
 
 # Adding custom functionality
@@ -16,14 +16,14 @@ The custom functionality will do a number of things:
 
 ## Services
 
-We will begin our custom implementation by adding a custom service. In you project create a new file at `/src/services/welcome.js`. Open the newly created file and add a class:
+We will begin our custom implementation by adding a custom service. In your project create a new file at `/src/services/welcome.js`. Open the newly created file and add a class:
 
 ```javascript
-import { BaseService } from "medusa-interfaces";
+import { BaseService } from "medusa-interfaces"
 
 class WelcomeService extends BaseService {
   constructor({}) {
-    super();
+    super()
   }
 
   async registerOptin(cartId, optin) {}
@@ -31,7 +31,7 @@ class WelcomeService extends BaseService {
   async sendWelcome(orderId) {}
 }
 
-export default WelcomeService;
+export default WelcomeService
 ```
 
 We will be filling out each of the methods in turn, but before we get to that it should be noted that placing files in `/src/services` has a special meaning in Medusa projects. When Medusa starts up it will look for files in this folder and register exports from these files to the global container. The global container holds all services and repositories in your Medusa project allowing for dependency injection. Dependency injection is a software development technique in which objects only receive other objects that it depends upon.
@@ -52,7 +52,11 @@ constructor({ cartService, orderService }) {
 
 In the constructor we specify that our `WelcomeService` will depend upon the `cartService` and `orderService` and Medusa will make sure to provide those as the first argument to the constructor when starting up Medusa. We then keep a reference to these services within the `WelcomeService` so that we can use them later on.
 
-> Note: Just like we can depend on the `cartService` and `orderService` other services will be able to depend on our newly created `WelcomeService`. The registration name of our service is the camelCased version of our file name with the registration type appended. I.e. `/src/services/welcome.js` -> `welcomeService`.
+:::note
+
+Just like we can depend on the `cartService` and `orderService` other services will be able to depend on our newly created `WelcomeService`. The registration name of our service is the camelCased version of our file name with the registration type appended. I.e. `/src/services/welcome.js` -> `welcomeService`.
+
+:::
 
 ### `registerOptin`
 
@@ -72,7 +76,12 @@ async registerOptin(cartId, optin) {
 
 The `registerOptin` implementation simply validates that the provided argument is of the correct type and calls the CartService function `update`. `update` takes two arguments: the first is the id of the cart to update and the second is an object that with the key/value pairs that we want to update. In this case we are updating the metadata on the cart. The `metadata` field on the cart is itself an object so we need to pass an object when updating this field.
 
-> Note: Most entities in Medusa have a `metadata` field that can be used for customizations or integrations when it is necessary to persist some data relating to the entity. Metadata cannot be overridden by other plugins.
+:::note
+
+Most entities in Medusa have a `metadata` field that can be used for customizations or integrations when it is necessary to persist some data relating to the entity. Metadata cannot be overridden by other 
+plugins.
+
+:::
 
 ### `sendWelcome`
 
@@ -115,7 +124,11 @@ We then check if the number of previous orders is greater than 1, indicating tha
 
 The final part of the implementation checks if the `welcome_optin` metadata has been set to true. If the customer has opted in we use `someEmailService.send` to trigger and email dispatch to the email stored on the order. In this case `someEmailSender` could be any email service for example Sendgrid, SES, Mailgun, etc.
 
-> Note: If you have `medusa-plugin-sendgrid` installed you can use `sendgridService` in your constructor to use it later in `sendWelcome`. You will then be able to do `sendgridService.send({ ... })`.
+:::note
+
+If you have `medusa-plugin-sendgrid` installed you can use `sendgridService` in your constructor to use it later in `sendWelcome`. You will then be able to do `sendgridService.send({ ... })`.
+
+:::
 
 We have completed the implementation of our custom service and we will now be able to call it from elsewhere in our project.
 
@@ -126,18 +139,18 @@ Similarly to the `/src/services` directory, the `/src/api` directory has a speci
 Create a new file at `/src/api/index.js` and add the following controller:
 
 ```javascript
-import { Router } from "express";
-import bodyParser from "body-parser";
+import { Router } from "express"
+import bodyParser from "body-parser"
 
 export default () => {
-  const app = Router();
+  const app = Router()
 
   app.post("/welcome/:cart_id", bodyParser.json(), async (req, res) => {
     // TODO
-  });
+  })
 
-  return app;
-};
+  return app
+}
 ```
 
 ### Controller implementation
@@ -146,33 +159,33 @@ Our endpoint controller's implementation will be very simple. It will extract th
 
 ```javascript
 app.post("/welcome/:cart_id", bodyParser.json(), async (req, res) => {
-  const { cart_id } = req.params;
-  const { optin } = req.body;
+  const { cart_id } = req.params
+  const { optin } = req.body
 
   // Validate that the optin value was provided.
   // If not respond with a Bad Request status
   if (typeof optin !== "boolean") {
     res.status(400).json({
       message: "You must provide an boolean optin value in the request body",
-    });
-    return;
+    })
+    return
   }
 
-  const welcomeService = req.scope.resolve("welcomeService");
+  const welcomeService = req.scope.resolve("welcomeService")
 
   try {
-    await welcomeService.registerOptin(cart_id, optin);
+    await welcomeService.registerOptin(cart_id, optin)
 
     res.status(200).json({
       success: true,
-    });
+    })
   } catch (err) {
     // This is not supposed to happen.
     res.status(500).json({
       message: "Something unexpected happened.",
-    });
+    })
   }
-});
+})
 ```
 
 In the implementation above we are first validating that the request body is structured correctly so that we can proceed with our opt-in registration. If the validation fails we respond with 400 Bad Request which is an HTTP code that indicates that the client that sent the request has not provided the correct values.
@@ -223,17 +236,17 @@ The final thing that we will add in this part of the tutorial is the subscriber 
 ```javascript
 class WelcomeSubscriber {
   constructor({ welcomeService, eventBusService }) {
-    this.welcomeService_ = welcomeService;
+    this.welcomeService_ = welcomeService
 
-    eventBusService.subscribe("order.placed", this.handleWelcome);
+    eventBusService.subscribe("order.placed", this.handleWelcome)
   }
 
   handleWelcome = async (data) => {
-    return await this.welcomeService_.sendWelcome(data.id);
-  };
+    return await this.welcomeService_.sendWelcome(data.id)
+  }
 }
 
-export default WelcomeSubscriber;
+export default WelcomeSubscriber
 ```
 
 The implementation above is all that is needed to automate the `sendWelcome` function to be called every time a new order is created. The subscriber class here delegates all of the business logic to the `sendWelcome` function, where we are checking for opt-in and first time buyers.
@@ -252,4 +265,4 @@ You have now learned how to add custom functionality to your Medusa server, whic
 
 You have now been introduced to many of the key parts of Medusa and with your knowledge of customization you can now begin creating some really powerful commerce experiences. If you have an idea for a cool customization go ahead and make it right now! If you are not completely ready yet you can browse the reference docs further.
 
-<!-- In the next part of this tutorial we will look into linking your local project with Medusa Cloud to make develpment smoother while leveraging the powerful management tools that merchants use to manage their Medusa store. -->
+<!-- In the next part of this tutorial we will look into linking your local project with Medusa Cloud to make development smoother while leveraging the powerful management tools that merchants use to manage their Medusa store. -->

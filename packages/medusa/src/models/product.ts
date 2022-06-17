@@ -1,22 +1,16 @@
+import _ from "lodash"
 import {
-  Entity,
-  Index,
   BeforeInsert,
   Column,
-  DeleteDateColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
-  PrimaryColumn,
-  OneToOne,
-  OneToMany,
-  ManyToOne,
-  ManyToMany,
+  Entity,
+  Index,
   JoinColumn,
   JoinTable,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
 } from "typeorm"
-import { ulid } from "ulid"
-import { resolveDbType, DbAwareColumn } from "../utils/db-aware-column"
-
+import { DbAwareColumn } from "../utils/db-aware-column"
 import { Image } from "./image"
 import { ProductCollection } from "./product-collection"
 import { ProductOption } from "./product-option"
@@ -24,7 +18,8 @@ import { ProductTag } from "./product-tag"
 import { ProductType } from "./product-type"
 import { ProductVariant } from "./product-variant"
 import { ShippingProfile } from "./shipping-profile"
-import _ from "lodash"
+import { SoftDeletableEntity } from "../interfaces/models/soft-deletable-entity"
+import { generateEntityId } from "../utils/generate-entity-id"
 
 export enum Status {
   DRAFT = "draft",
@@ -34,10 +29,7 @@ export enum Status {
 }
 
 @Entity()
-export class Product {
-  @PrimaryColumn()
-  id: string
-
+export class Product extends SoftDeletableEntity {
   @Column()
   title: string
 
@@ -74,17 +66,12 @@ export class Product {
   @Column({ nullable: true })
   thumbnail: string
 
-  @OneToMany(
-    () => ProductOption,
-    productOption => productOption.product
-  )
+  @OneToMany(() => ProductOption, (productOption) => productOption.product)
   options: ProductOption[]
 
-  @OneToMany(
-    () => ProductVariant,
-    variant => variant.product,
-    { cascade: true }
-  )
+  @OneToMany(() => ProductVariant, (variant) => variant.product, {
+    cascade: true,
+  })
   variants: ProductVariant[]
 
   @Index()
@@ -120,7 +107,7 @@ export class Product {
   material: string
 
   @Column({ nullable: true })
-  collection_id: string
+  collection_id: string | null
 
   @ManyToOne(() => ProductCollection)
   @JoinColumn({ name: "collection_id" })
@@ -150,24 +137,17 @@ export class Product {
   @Column({ default: true })
   discountable: boolean
 
-  @CreateDateColumn({ type: resolveDbType("timestamptz") })
-  created_at: Date
-
-  @UpdateDateColumn({ type: resolveDbType("timestamptz") })
-  updated_at: Date
-
-  @DeleteDateColumn({ type: resolveDbType("timestamptz") })
-  deleted_at: Date
+  @Column({ nullable: true })
+  external_id: string
 
   @DbAwareColumn({ type: "jsonb", nullable: true })
-  metadata: any
+  metadata: Record<string, unknown>
 
   @BeforeInsert()
-  private beforeInsert() {
+  private beforeInsert(): void {
     if (this.id) return
-    const id = ulid()
-    this.id = `prod_${id}`
 
+    this.id = generateEntityId(this.id, "prod")
     if (!this.handle) {
       this.handle = _.kebabCase(this.title)
     }

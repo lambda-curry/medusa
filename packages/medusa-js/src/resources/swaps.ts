@@ -1,4 +1,4 @@
-import { AxiosPromise } from "axios"
+import { ResponsePromise } from "../typings"
 import { StoreSwapsRes, StorePostSwapsReq } from "@medusajs/medusa"
 import BaseResource from "./base"
 
@@ -6,21 +6,23 @@ class SwapsResource extends BaseResource {
   /**
    * @description Creates a swap from a cart
    * @param {StorePostSwapsReq} payload
-   * @return {AxiosPromise<StoreSwapsRes>}
+   * @param customHeaders
+   * @return {ResponsePromise<StoreSwapsRes>}
    */
-  create(payload: StorePostSwapsReq): AxiosPromise<StoreSwapsRes> {
+  create(payload: StorePostSwapsReq, customHeaders: Record<string, any> = {}): ResponsePromise<StoreSwapsRes> {
     const path = `/store/swaps`
-    return this.client.request("POST", path, payload)
+    return this.client.request("POST", path, payload, {}, customHeaders)
   }
 
   /**
    * @description Retrieves a swap by cart id
    * @param {string} cart_id id of cart
-   * @return {AxiosPromise<StoreSwapsRes>}
+   * @param customHeaders
+   * @return {ResponsePromise<StoreSwapsRes>}
    */
-  retrieveByCartId(cart_id: string): AxiosPromise<StoreSwapsRes> {
+  retrieveByCartId(cart_id: string, customHeaders: Record<string, any> = {}): ResponsePromise<StoreSwapsRes> {
     const path = `/store/swaps/${cart_id}`
-    return this.client.request("GET", path)
+    return this.client.request("GET", path, {}, {}, customHeaders)
   }
 }
 

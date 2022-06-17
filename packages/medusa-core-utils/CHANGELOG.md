@@ -3,6 +3,36 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.31](https://github.com/medusajs/medusa/compare/medusa-core-utils@1.1.30...medusa-core-utils@1.1.31) (2021-12-08)
+
+### Bug Fixes
+
+- **medusa:** migrate cart service to typescript ([#884](https://github.com/medusajs/medusa/issues/884)) ([ed04132](https://github.com/medusajs/medusa/commit/ed041325332e47c5939a301dfd8ace8ad6dbc28d))
+
+### Features
+
+- medusa-source-shopify loader ([#563](https://github.com/medusajs/medusa/issues/563)) ([577bcc2](https://github.com/medusajs/medusa/commit/577bcc23d44c87b91b2b685fd4ddfc5d21a0aa47))
+
+## [1.1.30](https://github.com/medusajs/medusa/compare/medusa-core-utils@1.1.29...medusa-core-utils@1.1.30) (2021-11-23)
+
+### Bug Fixes
+
+- bumps class-transformer to 0.5.1 ([#837](https://github.com/medusajs/medusa/issues/837)) ([38b0e29](https://github.com/medusajs/medusa/commit/38b0e295b23eccd281288d854d5876ff418de91d))
+
+## [1.1.29](https://github.com/medusajs/medusa/compare/medusa-core-utils@1.1.28...medusa-core-utils@1.1.29) (2021-11-22)
+
+**Note:** Version bump only for package medusa-core-utils
+
+## [1.1.28](https://github.com/medusajs/medusa/compare/medusa-core-utils@1.1.27...medusa-core-utils@1.1.28) (2021-11-19)
+
+**Note:** Version bump only for package medusa-core-utils
+
+## [1.1.27](https://github.com/medusajs/medusa/compare/medusa-core-utils@1.1.26...medusa-core-utils@1.1.27) (2021-11-19)
+
+### Features
+
+- Typescript for API layer ([#817](https://github.com/medusajs/medusa/issues/817)) ([373532e](https://github.com/medusajs/medusa/commit/373532ecbc8196f47e71af95a8cf82a14a4b1f9e))
+
 ## [1.1.26](https://github.com/medusajs/medusa/compare/medusa-core-utils@1.1.25...medusa-core-utils@1.1.26) (2021-10-18)
 
 **Note:** Version bump only for package medusa-core-utils

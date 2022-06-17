@@ -1,6 +1,8 @@
 import { Router } from "express"
-import { Product } from "../../../.."
-import { DeleteResponse, PaginatedResponse } from "../../../../types/common"
+import "reflect-metadata"
+import { PricedProduct } from "../../../../types/pricing"
+import { Product, ProductTag, ProductType } from "../../../.."
+import { PaginatedResponse } from "../../../../types/common"
 import middlewares from "../../../middlewares"
 
 const route = Router()
@@ -16,6 +18,11 @@ export default (app) => {
     middlewares.wrap(require("./list-tag-usage-count").default)
   )
 
+  route.get(
+    "/:id/variants",
+    middlewares.normalizeQuery(),
+    middlewares.wrap(require("./list-variants").default)
+  )
   route.post(
     "/:id/variants",
     middlewares.wrap(require("./create-variant").default)
@@ -72,6 +79,8 @@ export const defaultAdminProductFields = [
   "id",
   "title",
   "subtitle",
+  "status",
+  "external_id",
   "description",
   "handle",
   "is_giftcard",
@@ -90,13 +99,18 @@ export const defaultAdminProductFields = [
   "material",
   "created_at",
   "updated_at",
+  "deleted_at",
   "metadata",
 ]
+
+export const defaultAdminGetProductsVariantsFields = ["id", "product_id"]
 
 export const allowedAdminProductFields = [
   "id",
   "title",
   "subtitle",
+  "status",
+  "external_id",
   "description",
   "handle",
   "is_giftcard",
@@ -115,6 +129,7 @@ export const allowedAdminProductFields = [
   "material",
   "created_at",
   "updated_at",
+  "deleted_at",
   "metadata",
 ]
 
@@ -127,13 +142,6 @@ export const allowedAdminProductRelations = [
   "type",
   "collection",
 ]
-
-export enum ProductStatus {
-  DRAFT = "draft",
-  PROPOSED = "proposed",
-  PUBLISHED = "published",
-  REJECTED = "rejected",
-}
 
 export type AdminProductsDeleteOptionRes = {
   option_id: string
@@ -156,9 +164,33 @@ export type AdminProductsDeleteRes = {
 }
 
 export type AdminProductsListRes = PaginatedResponse & {
-  products: Product[]
+  products: (PricedProduct | Product)[]
+}
+
+export type AdminProductsListTypesRes = {
+  types: ProductType[]
+}
+
+export type AdminProductsListTagsRes = {
+  tags: ProductTag[]
 }
 
 export type AdminProductsRes = {
   product: Product
 }
+
+export * from "./add-option"
+export * from "./create-product"
+export * from "./create-variant"
+export * from "./delete-option"
+export * from "./delete-product"
+export * from "./delete-variant"
+export * from "./get-product"
+export * from "./list-variants"
+export * from "./list-products"
+export * from "./list-tag-usage-count"
+export * from "./list-types"
+export * from "./set-metadata"
+export * from "./update-option"
+export * from "./update-product"
+export * from "./update-variant"

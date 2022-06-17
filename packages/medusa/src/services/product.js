@@ -1,6 +1,7 @@
 import { MedusaError } from "medusa-core-utils"
 import { BaseService } from "medusa-interfaces"
-import { Brackets } from "typeorm"
+import { defaultAdminProductsVariantsRelations } from "../api/routes/admin/products"
+import { formatException } from "../utils/exception-formatter"
 
 /**
  * Provides layer to manipulate products.
@@ -21,7 +22,6 @@ class ProductService extends BaseService {
     productOptionRepository,
     eventBusService,
     productVariantService,
-    productCollectionService,
     productTypeRepository,
     productTagRepository,
     imageRepository,
@@ -48,9 +48,6 @@ class ProductService extends BaseService {
     this.productVariantService_ = productVariantService
 
     /** @private @const {ProductCollectionService} */
-    this.productCollectionService_ = productCollectionService
-
-    /** @private @const {ProductCollectionService} */
     this.productTypeRepository_ = productTypeRepository
 
     /** @private @const {ProductCollectionService} */
@@ -75,7 +72,6 @@ class ProductService extends BaseService {
       productOptionRepository: this.productOptionRepository_,
       eventBusService: this.eventBus_,
       productVariantService: this.productVariantService_,
-      productCollectionService: this.productCollectionService_,
       productTagRepository: this.productTagRepository_,
       productTypeRepository: this.productTypeRepository_,
       imageRepository: this.imageRepository_,
@@ -94,7 +90,15 @@ class ProductService extends BaseService {
    *   returned
    * @return {Promise<Product[]>} the result of the find operation
    */
-  async list(selector = {}, config = { relations: [], skip: 0, take: 20 }) {
+  async list(
+    selector = {},
+    config = {
+      relations: [],
+      skip: 0,
+      take: 20,
+      include_discount_prices: false,
+    }
+  ) {
     const productRepo = this.manager_.getCustomRepository(
       this.productRepository_
     )
@@ -102,16 +106,16 @@ class ProductService extends BaseService {
     const { q, query, relations } = this.prepareListQuery_(selector, config)
 
     if (q) {
-      const qb = this.getFreeTextQueryBuilder_(productRepo, query, q)
-      const raw = await qb.getMany()
-      return productRepo.findWithRelations(
-        relations,
-        raw.map((i) => i.id),
-        query.withDeleted ?? false
+      const [products] = await productRepo.getFreeTextSearchResultsAndCount(
+        q,
+        query,
+        relations
       )
+
+      return products
     }
 
-    return productRepo.findWithRelations(relations, query)
+    return await productRepo.findWithRelations(relations, query)
   }
 
   /**
@@ -121,13 +125,18 @@ class ProductService extends BaseService {
    *   by
    * @param {object} config - object that defines the scope for what should be
    *   returned
-   * @return {[Promise<Product[]>, number]} an array containing the products as
+   * @return {Promise<[Product[], number]>} an array containing the products as
    *   the first element and the total count of products that matches the query
    *   as the second element.
    */
   async listAndCount(
     selector = {},
-    config = { relations: [], skip: 0, take: 20 }
+    config = {
+      relations: [],
+      skip: 0,
+      take: 20,
+      include_discount_prices: false,
+    }
   ) {
     const productRepo = this.manager_.getCustomRepository(
       this.productRepository_
@@ -136,15 +145,11 @@ class ProductService extends BaseService {
     const { q, query, relations } = this.prepareListQuery_(selector, config)
 
     if (q) {
-      const qb = this.getFreeTextQueryBuilder_(productRepo, query, q)
-      const [raw, count] = await qb.getManyAndCount()
-
-      const products = await productRepo.findWithRelations(
-        relations,
-        raw.map((i) => i.id),
-        query.withDeleted ?? false
+      return await productRepo.getFreeTextSearchResultsAndCount(
+        q,
+        query,
+        relations
       )
-      return [products, count]
     }
 
     return await productRepo.findWithRelationsAndCount(relations, query)
@@ -171,7 +176,7 @@ class ProductService extends BaseService {
    *   query response
    * @return {Promise<Product>} the result of the find one operation.
    */
-  async retrieve(productId, config = {}) {
+  async retrieve(productId, config = { include_discount_prices: false }) {
     const productRepo = this.manager_.getCustomRepository(
       this.productRepository_
     )
@@ -202,12 +207,92 @@ class ProductService extends BaseService {
   }
 
   /**
+   * Gets a product by handle.
+   * Throws in case of DB Error and if product was not found.
+   * @param {string} productHandle - handle of the product to get.
+   * @param {object} config - details about what to get from the product
+   * @return {Promise<Product>} the result of the find one operation.
+   */
+  async retrieveByHandle(productHandle, config = {}) {
+    const productRepo = this.manager_.getCustomRepository(
+      this.productRepository_
+    )
+
+    const query = { where: { handle: productHandle } }
+
+    if (config.relations && config.relations.length > 0) {
+      query.relations = config.relations
+    }
+
+    if (config.select && config.select.length > 0) {
+      query.select = config.select
+    }
+
+    const rels = query.relations
+    delete query.relations
+    const product = await productRepo.findOneWithRelations(rels, query)
+
+    if (!product) {
+      throw new MedusaError(
+        MedusaError.Types.NOT_FOUND,
+        `Product with handle: ${productHandle} was not found`
+      )
+    }
+
+    return product
+  }
+
+  /**
+   * Gets a product by external id.
+   * Throws in case of DB Error and if product was not found.
+   * @param {string} externalId - handle of the product to get.
+   * @param {object} config - details about what to get from the product
+   * @return {Promise<Product>} the result of the find one operation.
+   */
+  async retrieveByExternalId(externalId, config = {}) {
+    const productRepo = this.manager_.getCustomRepository(
+      this.productRepository_
+    )
+
+    const query = { where: { external_id: externalId } }
+
+    if (config.relations && config.relations.length > 0) {
+      query.relations = config.relations
+    }
+
+    if (config.select && config.select.length > 0) {
+      query.select = config.select
+    }
+
+    const rels = query.relations
+    delete query.relations
+    const product = await productRepo.findOneWithRelations(rels, query)
+
+    if (!product) {
+      throw new MedusaError(
+        MedusaError.Types.NOT_FOUND,
+        `Product with exteral_id: ${externalId} was not found`
+      )
+    }
+
+    return product
+  }
+
+  /**
    * Gets all variants belonging to a product.
    * @param {string} productId - the id of the product to get variants from.
+   * @param {FindConfig<Product>} config - The config to select and configure relations etc...
    * @return {Promise} an array of variants
    */
-  async retrieveVariants(productId) {
-    const product = await this.retrieve(productId, { relations: ["variants"] })
+  async retrieveVariants(
+    productId,
+    config = {
+      skip: 0,
+      take: 50,
+      relations: defaultAdminProductsVariantsRelations,
+    }
+  ) {
+    const product = await this.retrieve(productId, config)
     return product.variants
   }
 
@@ -254,7 +339,9 @@ class ProductService extends BaseService {
       return existing.id
     }
 
-    const created = productTypeRepository.create(type)
+    const created = productTypeRepository.create({
+      value: type.value,
+    })
     const result = await productTypeRepository.save(created)
 
     return result.id
@@ -306,38 +393,44 @@ class ProductService extends BaseService {
         rest.discountable = false
       }
 
-      let product = productRepo.create(rest)
+      try {
+        let product = productRepo.create(rest)
 
-      if (images) {
-        product.images = await this.upsertImages_(images)
-      }
+        if (images) {
+          product.images = await this.upsertImages_(images)
+        }
 
-      if (tags) {
-        product.tags = await this.upsertProductTags_(tags)
-      }
+        if (tags) {
+          product.tags = await this.upsertProductTags_(tags)
+        }
 
-      if (typeof type !== `undefined`) {
-        product.type_id = await this.upsertProductType_(type)
-      }
+        if (typeof type !== `undefined`) {
+          product.type_id = await this.upsertProductType_(type)
+        }
 
-      product = await productRepo.save(product)
+        product = await productRepo.save(product)
 
-      product.options = await Promise.all(
-        options.map(async (o) => {
-          const res = optionRepo.create({ ...o, product_id: product.id })
-          await optionRepo.save(res)
-          return res
+        product.options = await Promise.all(
+          options.map(async (o) => {
+            const res = optionRepo.create({ ...o, product_id: product.id })
+            await optionRepo.save(res)
+            return res
+          })
+        )
+
+        const result = await this.retrieve(product.id, {
+          relations: ["options"],
         })
-      )
 
-      const result = await this.retrieve(product.id, { relations: ["options"] })
-
-      await this.eventBus_
-        .withTransaction(manager)
-        .emit(ProductService.Events.CREATED, {
-          id: result.id,
-        })
-      return result
+        await this.eventBus_
+          .withTransaction(manager)
+          .emit(ProductService.Events.CREATED, {
+            id: result.id,
+          })
+        return result
+      } catch (error) {
+        throw formatException(error)
+      }
     })
   }
 
@@ -454,6 +547,7 @@ class ProductService extends BaseService {
       }
 
       const result = await productRepo.save(product)
+
       await this.eventBus_
         .withTransaction(manager)
         .emit(ProductService.Events.UPDATED, {
@@ -478,11 +572,11 @@ class ProductService extends BaseService {
       // Should not fail, if product does not exist, since delete is idempotent
       const product = await productRepo.findOne(
         { id: productId },
-        { relations: ["variants"] }
+        { relations: ["variants", "variants.prices", "variants.options"] }
       )
 
       if (!product) {
-        return Promise.resolve()
+        return
       }
 
       await productRepo.softRemove(product)
@@ -657,7 +751,7 @@ class ProductService extends BaseService {
       if (!productOption) {
         throw new MedusaError(
           MedusaError.Types.NOT_FOUND,
-          `Option with id: ${optionId} does not exists`
+          `Option with id: ${optionId} does not exist`
         )
       }
 
@@ -721,7 +815,7 @@ class ProductService extends BaseService {
       if (!equalsFirst.every((v) => v)) {
         throw new MedusaError(
           MedusaError.Types.INVALID_DATA,
-          `To delete an option, first delete all variants, such that when option is deleted, no duplicate variants will exist.`
+          `To delete an option, first delete all variants, such that when an option is deleted, no duplicate variants will exist.`
         )
       }
 
@@ -740,20 +834,18 @@ class ProductService extends BaseService {
    * @param {string} productId - the productId to decorate.
    * @param {string[]} fields - the fields to include.
    * @param {string[]} expandFields - fields to expand.
+   * @param {object} config - retrieve config for price calculation.
    * @return {Product} return the decorated product.
    */
-  async decorate(productId, fields = [], expandFields = []) {
+  async decorate(productId, fields = [], expandFields = [], config = {}) {
     const requiredFields = ["id", "metadata"]
 
     fields = fields.concat(requiredFields)
 
-    const product = await this.retrieve(productId, {
+    return await this.retrieve(productId, {
       select: fields,
       relations: expandFields,
     })
-
-    // const final = await this.runDecorators_(decorated)
-    return product
   }
 
   /**
@@ -788,42 +880,6 @@ class ProductService extends BaseService {
       relations: rels,
       q,
     }
-  }
-
-  /**
-   * Creates a QueryBuilder that can fetch products based on free text.
-   * @param {ProductRepository} productRepo - an instance of a ProductRepositry
-   * @param {FindOptions<Product>} query - the query to get products by
-   * @param {string} q - the text to perform free text search from
-   * @return {QueryBuilder<Product>} a query builder that can fetch products
-   */
-  getFreeTextQueryBuilder_(productRepo, query, q) {
-    const where = query.where
-
-    delete where.description
-    delete where.title
-
-    let qb = productRepo
-      .createQueryBuilder("product")
-      .leftJoinAndSelect("product.variants", "variant")
-      .leftJoinAndSelect("product.collection", "collection")
-      .select(["product.id"])
-      .where(where)
-      .andWhere(
-        new Brackets((qb) => {
-          qb.where(`product.description ILIKE :q`, { q: `%${q}%` })
-            .orWhere(`product.title ILIKE :q`, { q: `%${q}%` })
-            .orWhere(`variant.title ILIKE :q`, { q: `%${q}%` })
-            .orWhere(`variant.sku ILIKE :q`, { q: `%${q}%` })
-            .orWhere(`collection.title ILIKE :q`, { q: `%${q}%` })
-        })
-      )
-
-    if (query.withDeleted) {
-      qb = qb.withDeleted()
-    }
-
-    return qb
   }
 }
 

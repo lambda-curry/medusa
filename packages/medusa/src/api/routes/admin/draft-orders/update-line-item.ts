@@ -7,6 +7,7 @@ import {
   defaultAdminDraftOrdersFields,
 } from "."
 import { DraftOrder } from "../../../.."
+import { LineItemUpdate } from "../../../../types/cart"
 import { CartService, DraftOrderService } from "../../../../services"
 import { validator } from "../../../../utils/validator"
 /**
@@ -112,15 +113,6 @@ export default async (req, res) => {
   })
 }
 
-class LineItemUpdate {
-  title?: string
-  unit_price?: number
-  quantity?: number
-  metadata?: object = {}
-  region_id?: string
-  variant_id?: string
-}
-
 export class AdminPostDraftOrdersDraftOrderLineItemsItemReq {
   @IsString()
   @IsOptional()
@@ -136,5 +128,5 @@ export class AdminPostDraftOrdersDraftOrderLineItemsItemReq {
 
   @IsObject()
   @IsOptional()
-  metadata?: object = {}
+  metadata?: Record<string, unknown> = {}
 }

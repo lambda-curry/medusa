@@ -1,47 +1,44 @@
 import { StoreGetOrdersParams, StoreOrdersRes } from "@medusajs/medusa"
-import { AxiosPromise } from "axios"
+import qs from "qs"
+import { ResponsePromise } from "../typings"
 import BaseResource from "./base"
 
 class OrdersResource extends BaseResource {
   /**
    * @description Retrieves an order
    * @param {string} id is required
-   * @return {AxiosPromise<StoreOrdersRes>}
+   * @param customHeaders
+   * @return {ResponsePromise<StoreOrdersRes>}
    */
-  retrieve(id: string): AxiosPromise<StoreOrdersRes> {
+  retrieve(id: string, customHeaders: Record<string, any> = {}): ResponsePromise<StoreOrdersRes> {
     const path = `/store/orders/${id}`
-    return this.client.request("GET", path)
+    return this.client.request("GET", path, {}, {}, customHeaders)
   }
 
   /**
    * @description Retrieves an order by cart id
    * @param {string} cart_id is required
-   * @return {AxiosPromise<StoreOrdersRes>}
+   * @param customHeaders
+   * @return {ResponsePromise<StoreOrdersRes>}
    */
-  retrieveByCartId(cart_id: string): AxiosPromise<StoreOrdersRes> {
+  retrieveByCartId(cart_id: string, customHeaders: Record<string, any> = {}): ResponsePromise<StoreOrdersRes> {
     const path = `/store/orders/cart/${cart_id}`
-    return this.client.request("GET", path)
+    return this.client.request("GET", path, {}, {}, customHeaders)
   }
 
   /**
    * @description Look up an order using order details
    * @param {StoreGetOrdersParams} payload details used to look up the order
-   * @return {AxiosPromise<StoreOrdersRes>}
+   * @param customHeaders
+   * @return {ResponsePromise<StoreOrdersRes>}
    */
-  lookupOrder(payload: StoreGetOrdersParams): AxiosPromise<StoreOrdersRes> {
+  lookupOrder(payload: StoreGetOrdersParams, customHeaders: Record<string, any> = {}): ResponsePromise<StoreOrdersRes> {
     let path = `/store/orders?`
 
-    const queryString = Object.entries(payload).map(([key, value]) => {
-      let val = value
-      if (Array.isArray(value)) {
-        val = value.join(",")
-      }
+    const queryString = qs.stringify(payload)
+    path = `/store/orders?${queryString}`
 
-      return `${key}=${encodeURIComponent(val)}`
-    })
-    path = `/store/orders?${queryString.join("&")}`
-
-    return this.client.request("GET", path, payload)
+    return this.client.request("GET", path, payload, {}, customHeaders)
   }
 }
 

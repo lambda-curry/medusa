@@ -86,8 +86,6 @@ import {
   AfterLoad,
   BeforeInsert,
   Column,
-  CreateDateColumn,
-  DeleteDateColumn,
   Entity,
   Index,
   JoinColumn,
@@ -96,10 +94,7 @@ import {
   ManyToOne,
   OneToMany,
   OneToOne,
-  PrimaryColumn,
-  UpdateDateColumn,
 } from "typeorm"
-import { ulid } from "ulid"
 import { DbAwareColumn, resolveDbType } from "../utils/db-aware-column"
 import { Address } from "./address"
 import { Customer } from "./customer"
@@ -110,6 +105,8 @@ import { Payment } from "./payment"
 import { PaymentSession } from "./payment-session"
 import { Region } from "./region"
 import { ShippingMethod } from "./shipping-method"
+import { SoftDeletableEntity } from "../interfaces/models/soft-deletable-entity"
+import { generateEntityId } from "../utils/generate-entity-id"
 
 export enum CartType {
   DEFAULT = "default",
@@ -120,9 +117,8 @@ export enum CartType {
 }
 
 @Entity()
-export class Cart {
-  @PrimaryColumn()
-  id: string
+export class Cart extends SoftDeletableEntity {
+  readonly object = "cart"
 
   @Column({ nullable: true })
   email: string
@@ -145,7 +141,7 @@ export class Cart {
     cascade: ["insert", "remove", "soft-remove"],
   })
   @JoinColumn({ name: "shipping_address_id" })
-  shipping_address: Address
+  shipping_address: Address | null
 
   @OneToMany(() => LineItem, (lineItem) => lineItem.cart, {
     cascade: ["insert", "remove"],
@@ -172,7 +168,7 @@ export class Cart {
       referencedColumnName: "id",
     },
   })
-  discounts: Discount
+  discounts: Discount[]
 
   @ManyToMany(() => GiftCard)
   @JoinTable({
@@ -186,7 +182,7 @@ export class Cart {
       referencedColumnName: "id",
     },
   })
-  gift_cards: GiftCard
+  gift_cards: GiftCard[]
 
   @Index()
   @Column({ nullable: true })
@@ -196,7 +192,7 @@ export class Cart {
   @JoinColumn({ name: "customer_id" })
   customer: Customer
 
-  payment_session: PaymentSession
+  payment_session: PaymentSession | null
 
   @OneToMany(() => PaymentSession, (paymentSession) => paymentSession.cart, {
     cascade: true,
@@ -217,7 +213,7 @@ export class Cart {
   shipping_methods: ShippingMethod[]
 
   @DbAwareColumn({ type: "enum", enum: CartType, default: "default" })
-  type: boolean
+  type: CartType
 
   @Column({ type: resolveDbType("timestamptz"), nullable: true })
   completed_at: Date
@@ -225,47 +221,33 @@ export class Cart {
   @Column({ type: resolveDbType("timestamptz"), nullable: true })
   payment_authorized_at: Date
 
-  @CreateDateColumn({ type: resolveDbType("timestamptz") })
-  created_at: Date
-
-  @UpdateDateColumn({ type: resolveDbType("timestamptz") })
-  updated_at: Date
-
-  @DeleteDateColumn({ type: resolveDbType("timestamptz") })
-  deleted_at: Date
-
-  @DbAwareColumn({ type: "jsonb", nullable: true })
-  metadata: any
-
   @Column({ nullable: true })
   idempotency_key: string
 
   @DbAwareColumn({ type: "jsonb", nullable: true })
-  context: any
+  context: Record<string, unknown>
 
-  // Total fields
-  shipping_total: number
-  discount_total: number
-  tax_total: number
-  refunded_total: number
-  total: number
-  subtotal: number
-  refundable_amount: number
-  gift_card_total: number
+  @DbAwareColumn({ type: "jsonb", nullable: true })
+  metadata: Record<string, unknown>
 
-  @BeforeInsert()
-  private beforeInsert(): undefined | void {
-    if (this.id) {
-      return
-    }
-    const id = ulid()
-    this.id = `cart_${id}`
-  }
+  shipping_total?: number
+  discount_total?: number
+  tax_total?: number | null
+  refunded_total?: number
+  total?: number
+  subtotal?: number
+  refundable_amount?: number
+  gift_card_total?: number
 
   @AfterLoad()
   private afterLoad(): void {
     if (this.payment_sessions) {
       this.payment_session = this.payment_sessions.find((p) => p.is_selected)!
     }
+  }
+
+  @BeforeInsert()
+  private beforeInsert(): void {
+    this.id = generateEntityId(this.id, "cart")
   }
 }

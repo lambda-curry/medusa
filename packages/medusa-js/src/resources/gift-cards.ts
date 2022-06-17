@@ -1,16 +1,17 @@
 import { StoreGiftCardsRes } from "@medusajs/medusa"
-import { AxiosPromise } from "axios"
+import { ResponsePromise } from "../typings"
 import BaseResource from "./base"
 
 class GiftCardsResource extends BaseResource {
   /**
    * @description Retrieves a single GiftCard
    * @param {string} code code of the gift card
-   * @return {AxiosPromise<StoreGiftCardsRes>}
+   * @param customHeaders
+   * @return {ResponsePromise<StoreGiftCardsRes>}
    */
-  retrieve(code: string): AxiosPromise<StoreGiftCardsRes> {
+  retrieve(code: string, customHeaders: Record<string, any> = {}): ResponsePromise<StoreGiftCardsRes> {
     const path = `/store/gift-cards/${code}`
-    return this.client.request("GET", path)
+    return this.client.request("GET", path, {}, {}, customHeaders)
   }
 }
 

@@ -9,7 +9,6 @@ import {
   IsOptional,
   IsString,
   NotEquals,
-  Validate,
   ValidateIf,
   ValidateNested,
 } from "class-validator"
@@ -18,8 +17,8 @@ import {
   defaultAdminProductRelations,
   ProductStatus,
 } from "."
-import { ProductService } from "../../../../services"
-import { XorConstraint } from "../../../../types/validators/xor"
+import { ProductService, PricingService } from "../../../../services"
+import { ProductVariantPricesUpdateReq } from "../../../../types/product-variant"
 import { validator } from "../../../../utils/validator"
 
 /**
@@ -211,13 +210,15 @@ export default async (req, res) => {
   const validated = await validator(AdminPostProductsProductReq, req.body)
 
   const productService: ProductService = req.scope.resolve("productService")
+  const pricingService: PricingService = req.scope.resolve("pricingService")
 
   await productService.update(id, validated)
 
-  const product = await productService.retrieve(id, {
+  const rawProduct = await productService.retrieve(id, {
     select: defaultAdminProductFields,
     relations: defaultAdminProductRelations,
   })
+  const [product] = await pricingService.setProductPrices([rawProduct])
 
   res.json({ product })
 }
@@ -246,21 +247,6 @@ class ProductVariantOptionReq {
 
   @IsString()
   option_id: string
-}
-
-class ProductVariantPricesReq {
-  @Validate(XorConstraint, ["currency_code"])
-  region_id?: string
-
-  @Validate(XorConstraint, ["region_id"])
-  currency_code?: string
-
-  @IsInt()
-  amount: number
-
-  @IsOptional()
-  @IsInt()
-  sale_amount?: number
 }
 
 class ProductVariantReq {
@@ -339,8 +325,8 @@ class ProductVariantReq {
   @IsArray()
   @IsOptional()
   @ValidateNested({ each: true })
-  @Type(() => ProductVariantPricesReq)
-  prices: ProductVariantPricesReq[]
+  @Type(() => ProductVariantPricesUpdateReq)
+  prices: ProductVariantPricesUpdateReq[]
 
   @IsOptional()
   @Type(() => ProductVariantOptionReq)

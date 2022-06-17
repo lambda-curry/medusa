@@ -3,6 +3,72 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.3.0](https://github.com/medusajs/medusa/compare/medusa-interfaces@1.2.1...medusa-interfaces@1.3.0) (2022-05-01)
+
+
+### Bug Fixes
+
+* ensures no duplicate tax lines when completing cart ([#1262](https://github.com/medusajs/medusa/issues/1262)) ([607a382](https://github.com/medusajs/medusa/commit/607a382b4ee190c25eafa345674b55b74a7d6349))
+
+
+
+
+
+## [1.2.1](https://github.com/medusajs/medusa/compare/medusa-interfaces@1.1.34...medusa-interfaces@1.2.1) (2022-02-28)
+
+
+### Bug Fixes
+
+* atomic phase error handler ([#1104](https://github.com/medusajs/medusa/issues/1104)) ([f983cfa](https://github.com/medusajs/medusa/commit/f983cfada675b9c2ad89f1dea37f862673383f54))
+
+
+
+
+
+# [1.2.0](https://github.com/medusajs/medusa/compare/medusa-interfaces@1.1.34...medusa-interfaces@1.2.0) (2022-02-25)
+
+
+### Bug Fixes
+
+* atomic phase error handler ([#1104](https://github.com/medusajs/medusa/issues/1104)) ([62c263c](https://github.com/medusajs/medusa/commit/62c263c36080541023fda5ae33a458c58cbaeb1e))
+
+
+
+
+
+## [1.1.34](https://github.com/medusajs/medusa/compare/medusa-interfaces@1.1.33...medusa-interfaces@1.1.34) (2022-02-06)
+
+### Bug Fixes
+
+- release ([fc3fbc8](https://github.com/medusajs/medusa/commit/fc3fbc897fad5c8a5d3eea828ac7277fba9d70af))
+
+## [1.1.33](https://github.com/medusajs/medusa/compare/medusa-interfaces@1.1.32...medusa-interfaces@1.1.33) (2022-02-06)
+
+**Note:** Version bump only for package medusa-interfaces
+
+## [1.1.32](https://github.com/medusajs/medusa/compare/medusa-interfaces@1.1.31...medusa-interfaces@1.1.32) (2021-12-08)
+
+**Note:** Version bump only for package medusa-interfaces
+
+## [1.1.31](https://github.com/medusajs/medusa/compare/medusa-interfaces@1.1.30...medusa-interfaces@1.1.31) (2021-11-23)
+
+**Note:** Version bump only for package medusa-interfaces
+
+## [1.1.30](https://github.com/medusajs/medusa/compare/medusa-interfaces@1.1.29...medusa-interfaces@1.1.30) (2021-11-22)
+
+**Note:** Version bump only for package medusa-interfaces
+
+## [1.1.29](https://github.com/medusajs/medusa/compare/medusa-interfaces@1.1.28...medusa-interfaces@1.1.29) (2021-11-19)
+
+**Note:** Version bump only for package medusa-interfaces
+
+## [1.1.28](https://github.com/medusajs/medusa/compare/medusa-interfaces@1.1.27...medusa-interfaces@1.1.28) (2021-11-19)
+
+### Features
+
+- Allow retrieval of soft-deleted products ([#723](https://github.com/medusajs/medusa/issues/723)) ([1e50aee](https://github.com/medusajs/medusa/commit/1e50aee4feb55092560dd4a9c51a0671363e8576))
+- Typescript for API layer ([#817](https://github.com/medusajs/medusa/issues/817)) ([373532e](https://github.com/medusajs/medusa/commit/373532ecbc8196f47e71af95a8cf82a14a4b1f9e))
+
 ## [1.1.27](https://github.com/medusajs/medusa/compare/medusa-interfaces@1.1.26...medusa-interfaces@1.1.27) (2021-10-18)
 
 **Note:** Version bump only for package medusa-interfaces

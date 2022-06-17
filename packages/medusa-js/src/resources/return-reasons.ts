@@ -3,26 +3,28 @@ import {
   StoreReturnReasonsListRes,
   StoreReturnReasonsRes,
 } from "@medusajs/medusa"
-import { AxiosPromise } from "axios"
+import { ResponsePromise } from "../typings"
 
 class ReturnReasonsResource extends BaseResource {
   /**
    * @description Retrieves a single Return Reason
    * @param {string} id is required
-   * @return {AxiosPromise<StoreReturnReasonsRes>}
+   * @param customHeaders
+   * @return {ResponsePromise<StoreReturnReasonsRes>}
    */
-  retrieve(id: string): AxiosPromise<StoreReturnReasonsRes> {
+  retrieve(id: string, customHeaders: Record<string, any> = {}): ResponsePromise<StoreReturnReasonsRes> {
     const path = `/store/return-reasons/${id}`
-    return this.client.request("GET", path)
+    return this.client.request("GET", path, {}, {}, customHeaders)
   }
 
   /**
    * Lists return reasons defined in Medusa Admin
-   * @return {AxiosPromise<StoreReturnReasonsListRes>}
+   * @param customHeaders
+   * @return {ResponsePromise<StoreReturnReasonsListRes>}
    */
-  list(): AxiosPromise<StoreReturnReasonsListRes> {
+  list(customHeaders: Record<string, any> = {}): ResponsePromise<StoreReturnReasonsListRes> {
     const path = `/store/return-reasons`
-    return this.client.request("GET", path)
+    return this.client.request("GET", path, {}, {}, customHeaders)
   }
 }
 

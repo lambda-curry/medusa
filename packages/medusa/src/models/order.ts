@@ -1,7 +1,6 @@
 import {
   BeforeInsert,
   Column,
-  CreateDateColumn,
   Entity,
   Generated,
   Index,
@@ -11,10 +10,8 @@ import {
   ManyToOne,
   OneToMany,
   OneToOne,
-  PrimaryColumn,
-  UpdateDateColumn,
 } from "typeorm"
-import { ulid } from "ulid"
+import { BaseEntity } from "../interfaces/models/base-entity"
 import {
   DbAwareColumn,
   resolveDbGenerationStrategy,
@@ -38,6 +35,7 @@ import { Region } from "./region"
 import { Return } from "./return"
 import { ShippingMethod } from "./shipping-method"
 import { Swap } from "./swap"
+import { generateEntityId } from "../utils/generate-entity-id"
 
 export enum OrderStatus {
   PENDING = "pending",
@@ -70,9 +68,8 @@ export enum PaymentStatus {
 }
 
 @Entity()
-export class Order {
-  @PrimaryColumn()
-  id: string
+export class Order extends BaseEntity {
+  readonly object = "order"
 
   @DbAwareColumn({ type: "enum", enum: OrderStatus, default: "pending" })
   status: OrderStatus
@@ -142,8 +139,8 @@ export class Order {
   @JoinColumn({ name: "currency_code", referencedColumnName: "code" })
   currency: Currency
 
-  @Column({ type: "int" })
-  tax_rate: number
+  @Column({ type: "real", nullable: true })
+  tax_rate: number | null
 
   @ManyToMany(() => Discount, { cascade: ["insert"] })
   @JoinTable({
@@ -216,20 +213,17 @@ export class Order {
   @Column({ nullable: true, type: resolveDbType("timestamptz") })
   canceled_at: Date
 
-  @CreateDateColumn({ type: resolveDbType("timestamptz") })
-  created_at: Date
-
-  @UpdateDateColumn({ type: resolveDbType("timestamptz") })
-  updated_at: Date
-
   @DbAwareColumn({ type: "jsonb", nullable: true })
-  metadata: any
+  metadata: Record<string, unknown>
 
   @Column({ type: "boolean", nullable: true })
   no_notification: boolean
 
   @Column({ nullable: true })
   idempotency_key: string
+
+  @Column({ type: "varchar", nullable: true })
+  external_id: string | null
 
   // Total fields
   shipping_total: number
@@ -244,10 +238,7 @@ export class Order {
 
   @BeforeInsert()
   private async beforeInsert(): Promise<void> {
-    if (!this.id) {
-      const id = ulid()
-      this.id = `order_${id}`
-    }
+    this.id = generateEntityId(this.id, "order")
 
     if (process.env.NODE_ENV === "development" && !this.display_id) {
       const disId = await manualAutoIncrement("order")
@@ -304,7 +295,7 @@ export class Order {
  *   currency_code:
  *     type: string
  *   tax_rate:
- *     type: integer
+ *     type: number
  *   discounts:
  *     type: array
  *     items:

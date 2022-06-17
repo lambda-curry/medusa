@@ -1,28 +1,34 @@
-import { Router } from "express"
 import cors from "cors"
-
+import { Router } from "express"
 import middlewares from "../../middlewares"
+import appRoutes from "./apps"
 import authRoutes from "./auth"
+import collectionRoutes from "./collections"
+import customerGroupRoutes from "./customer-groups"
+import customerRoutes from "./customers"
+import discountRoutes from "./discounts"
+import draftOrderRoutes from "./draft-orders"
+import giftCardRoutes from "./gift-cards"
+import inviteRoutes, { unauthenticatedInviteRoutes } from "./invites"
+import noteRoutes from "./notes"
+import notificationRoutes from "./notifications"
+import orderRoutes from "./orders"
+import priceListRoutes from "./price-lists"
+import batchRoutes from "./batch"
+import productTagRoutes from "./product-tags"
+import productTypesRoutes from "./product-types"
 import productRoutes from "./products"
-import userRoutes from "./users"
 import regionRoutes from "./regions"
+import returnReasonRoutes from "./return-reasons"
+import returnRoutes from "./returns"
 import shippingOptionRoutes from "./shipping-options"
 import shippingProfileRoutes from "./shipping-profiles"
-import discountRoutes from "./discounts"
-import giftCardRoutes from "./gift-cards"
-import orderRoutes from "./orders"
-import returnReasonRoutes from "./return-reasons"
 import storeRoutes from "./store"
-import uploadRoutes from "./uploads"
-import customerRoutes from "./customers"
-import appRoutes from "./apps"
 import swapRoutes from "./swaps"
-import returnRoutes from "./returns"
+import taxRateRoutes from "./tax-rates"
+import uploadRoutes from "./uploads"
+import userRoutes, { unauthenticatedUserRoutes } from "./users"
 import variantRoutes from "./variants"
-import draftOrderRoutes from "./draft-orders"
-import collectionRoutes from "./collections"
-import notificationRoutes from "./notifications"
-import noteRoutes from "./notes"
 
 const route = Router()
 
@@ -40,6 +46,12 @@ export default (app, container, config) => {
   // Unauthenticated routes
   authRoutes(route)
 
+  // reset password
+  unauthenticatedUserRoutes(route)
+
+  // accept invite
+  unauthenticatedInviteRoutes(route)
+
   const middlewareService = container.resolve("middlewareService")
   // Calls all middleware that has been registered to run before authentication.
   middlewareService.usePreAuthentication(app)
@@ -52,6 +64,7 @@ export default (app, container, config) => {
 
   appRoutes(route)
   productRoutes(route)
+  batchRoutes(route)
   userRoutes(route)
   regionRoutes(route)
   shippingOptionRoutes(route)
@@ -69,7 +82,13 @@ export default (app, container, config) => {
   collectionRoutes(route)
   notificationRoutes(route)
   returnReasonRoutes(route)
+  productTagRoutes(route)
+  productTypesRoutes(route)
   noteRoutes(route)
+  inviteRoutes(route)
+  taxRateRoutes(route)
+  customerGroupRoutes(route)
+  priceListRoutes(route)
 
   return app
 }

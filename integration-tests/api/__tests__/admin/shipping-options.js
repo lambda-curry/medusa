@@ -124,7 +124,7 @@ describe("/admin/shipping-options", () => {
       expect(res.data.message).toEqual("ID does not exist")
     })
 
-    it("it succesfully updates a set of existing requirements", async () => {
+    it("it successfully updates a set of existing requirements", async () => {
       const api = useApi()
 
       const payload = {
@@ -156,7 +156,7 @@ describe("/admin/shipping-options", () => {
       expect(res.status).toEqual(200)
     })
 
-    it("it succesfully updates a set of existing requirements by updating one and deleting the other", async () => {
+    it("it successfully updates a set of existing requirements by updating one and deleting the other", async () => {
       const api = useApi()
 
       const payload = {
@@ -182,7 +182,7 @@ describe("/admin/shipping-options", () => {
       expect(res.status).toEqual(200)
     })
 
-    it("succesfully updates a set of requirements because max. subtotal >= min. subtotal", async () => {
+    it("successfully updates a set of requirements because max. subtotal >= min. subtotal", async () => {
       const api = useApi()
 
       const payload = {
@@ -381,6 +381,97 @@ describe("/admin/shipping-options", () => {
           "Max. subtotal must be greater than Min. subtotal"
         )
       }
+    })
+  })
+  describe("GET /admin/shipping-options", () => {
+    beforeEach(async () => {
+      try {
+        await adminSeeder(dbConnection)
+        await shippingOptionSeeder(dbConnection)
+      } catch (err) {
+        console.error(err)
+        throw err
+      }
+    })
+
+    afterEach(async () => {
+      const db = useDb()
+      await db.teardown()
+    })
+
+    it("lists shipping options", async () => {
+      const api = useApi()
+      const res = await api.get(`/admin/shipping-options`, {
+        headers: {
+          Authorization: "Bearer test_token",
+        },
+      })
+
+      expect(res.status).toEqual(200)
+    })
+
+    it("lists admin only shipping options", async () => {
+      const api = useApi()
+      const res = await api.get(`/admin/shipping-options?admin_only=true`, {
+        headers: {
+          Authorization: "Bearer test_token",
+        },
+      })
+
+      expect(res.status).toEqual(200)
+      expect(res.data.shipping_options).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            id: "test-option-req-admin-only",
+            admin_only: true,
+          }),
+        ])
+      )
+    })
+
+    it("lists return shipping options", async () => {
+      const api = useApi()
+      const res = await api.get(`/admin/shipping-options?is_return=true`, {
+        headers: {
+          Authorization: "Bearer test_token",
+        },
+      })
+
+      expect(res.status).toEqual(200)
+      expect(res.data.shipping_options).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            id: "test-option-req-return",
+            is_return: true,
+          }),
+        ])
+      )
+    })
+
+    it("lists shipping options without return and admin options", async () => {
+      const api = useApi()
+      const res = await api.get(
+        `/admin/shipping-options?is_return=false&admin_only=true`,
+        {
+          headers: {
+            Authorization: "Bearer test_token",
+          },
+        }
+      )
+
+      expect(res.status).toEqual(200)
+      expect(res.data.shipping_options).not.toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            id: "test-option-req-return",
+            is_return: true,
+          }),
+          expect.objectContaining({
+            id: "test-option-req-admin-only",
+            admin_only: true,
+          }),
+        ])
+      )
     })
   })
 })
