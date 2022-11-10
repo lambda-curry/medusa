@@ -1,19 +1,23 @@
 const path = require("path")
-require("dotenv").config({ path: path.join(__dirname, "../.env") })
 
-const { dropDatabase, createDatabase } = require("pg-god")
+const { dropDatabase } = require("pg-god")
 const { createConnection } = require("typeorm")
+const dbFactory = require("./use-template-db")
 
-const DB_USERNAME = process.env.DB_USERNAME || "postgres"
-const DB_PASSWORD = process.env.DB_PASSWORD || ""
-const DB_URL = `postgres://${DB_USERNAME}:${DB_PASSWORD}@localhost/medusa-integration`
+const DB_HOST = process.env.DB_HOST
+const DB_USERNAME = process.env.DB_USERNAME
+const DB_PASSWORD = process.env.DB_PASSWORD
+const DB_NAME = process.env.DB_TEMP_NAME
+const DB_URL = `postgres://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}/${DB_NAME}`
 
 const pgGodCredentials = {
   user: DB_USERNAME,
   password: DB_PASSWORD,
+  host: DB_HOST,
 }
 
 const keepTables = [
+  "store",
   "staged_job",
   "shipping_profile",
   "fulfillment_provider",
@@ -35,7 +39,9 @@ const DbTestUtil = {
     this.db_.synchronize(true)
   },
 
-  teardown: async function () {
+  teardown: async function ({ forceDelete } = {}) {
+    forceDelete = forceDelete || []
+
     const entities = this.db_.entityMetadatas
     const manager = this.db_.manager
 
@@ -46,7 +52,10 @@ const DbTestUtil = {
     }
 
     for (const entity of entities) {
-      if (keepTables.includes(entity.tableName)) {
+      if (
+        keepTables.includes(entity.tableName) &&
+        !forceDelete.includes(entity.tableName)
+      ) {
         continue
       }
 
@@ -61,8 +70,7 @@ const DbTestUtil = {
 
   shutdown: async function () {
     await this.db_.close()
-    const databaseName = "medusa-integration"
-    return await dropDatabase({ databaseName }, pgGodCredentials)
+    return await dropDatabase({ DB_NAME }, pgGodCredentials)
   },
 }
 
@@ -71,6 +79,19 @@ const instance = DbTestUtil
 module.exports = {
   initDb: async function ({ cwd }) {
     const configPath = path.resolve(path.join(cwd, `medusa-config.js`))
+    const { projectConfig, featureFlags } = require(configPath)
+
+    const featureFlagsLoader = require(path.join(
+      cwd,
+      `node_modules`,
+      `@medusajs`,
+      `medusa`,
+      `dist`,
+      `loaders`,
+      `feature-flags`
+    )).default
+
+    const featureFlagsRouter = featureFlagsLoader({ featureFlags })
 
     const modelsLoader = require(path.join(
       cwd,
@@ -81,9 +102,9 @@ module.exports = {
       `loaders`,
       `models`
     )).default
+
     const entities = modelsLoader({}, { register: false })
 
-    const { projectConfig } = require(configPath)
     if (projectConfig.database_type === "sqlite") {
       connectionType = "sqlite"
       const dbConnection = await createConnection({
@@ -96,6 +117,9 @@ module.exports = {
       instance.setDb(dbConnection)
       return dbConnection
     } else {
+      await dbFactory.createFromTemplate(DB_NAME)
+
+      // get migraitons with enabled featureflags
       const migrationDir = path.resolve(
         path.join(
           cwd,
@@ -103,27 +127,39 @@ module.exports = {
           `@medusajs`,
           `medusa`,
           `dist`,
-          `migrations`
+          `migrations`,
+          `*.js`
         )
       )
 
-      const databaseName = "medusa-integration"
-      await createDatabase({ databaseName }, pgGodCredentials)
+      const { getEnabledMigrations } = require(path.join(
+        cwd,
+        `node_modules`,
+        `@medusajs`,
+        `medusa`,
+        `dist`,
+        `commands`,
+        `utils`,
+        `get-migrations`
+      ))
 
-      const connection = await createConnection({
-        type: "postgres",
-        url: DB_URL,
-        migrations: [`${migrationDir}/*.js`],
-      })
+      const enabledMigrations = await getEnabledMigrations(
+        [migrationDir],
+        (flag) => featureFlagsRouter.isFeatureEnabled(flag)
+      )
 
-      await connection.runMigrations()
-      await connection.close()
+      const enabledEntities = entities.filter(
+        (e) => typeof e.isFeatureEnabled === "undefined" || e.isFeatureEnabled()
+      )
 
       const dbConnection = await createConnection({
         type: "postgres",
         url: DB_URL,
-        entities,
+        entities: enabledEntities,
+        migrations: enabledMigrations,
       })
+
+      await dbConnection.runMigrations()
 
       instance.setDb(dbConnection)
       return dbConnection

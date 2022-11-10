@@ -1,17 +1,21 @@
-import { Type } from "class-transformer"
 import {
   IsArray,
-  IsOptional,
-  ValidateNested,
   IsBoolean,
-  IsObject,
-  IsString,
+  IsEnum,
   IsInt,
   IsNotEmpty,
-  IsEnum,
+  IsObject,
+  IsOptional,
+  IsString,
+  ValidateNested,
 } from "class-validator"
+import { defaultAdminOrdersFields, defaultAdminOrdersRelations } from "."
+import { ClaimReason, ClaimType } from "../../../../models"
+
+import { Type } from "class-transformer"
 import { MedusaError } from "medusa-core-utils"
-import { defaultAdminOrdersRelations, defaultAdminOrdersFields } from "."
+import { EntityManager } from "typeorm"
+import { ClaimTypeValue } from "../../../../types/claim"
 import { AddressPayload } from "../../../../types/common"
 import { validator } from "../../../../utils/validator"
 
@@ -22,7 +26,7 @@ import { validator } from "../../../../utils/validator"
  * description: "Creates a Claim."
  * x-authenticated: true
  * parameters:
- *   - (path) id=* {string} The id of the Order.
+ *   - (path) id=* {string} The ID of the Order.
  * requestBody:
  *   content:
  *     application/json:
@@ -41,9 +45,12 @@ import { validator } from "../../../../utils/validator"
  *             description: The Claim Items that the Claim will consist of.
  *             type: array
  *             items:
+ *               required:
+ *                 - item_id
+ *                 - quantity
  *               properties:
  *                 item_id:
- *                   description: The id of the Line Item that will be claimed.
+ *                   description: The ID of the Line Item that will be claimed.
  *                   type: string
  *                 quantity:
  *                   description: The number of items that will be returned
@@ -68,55 +75,96 @@ import { validator } from "../../../../utils/validator"
  *                   description: A list of image URL's that will be associated with the Claim
  *                   items:
  *                     type: string
- *            return_shipping:
+ *           return_shipping:
  *              description: Optional details for the Return Shipping Method, if the items are to be sent back.
  *              type: object
  *              properties:
  *                option_id:
  *                  type: string
- *                  description: The id of the Shipping Option to create the Shipping Method from.
+ *                  description: The ID of the Shipping Option to create the Shipping Method from.
  *                price:
  *                  type: integer
  *                  description: The price to charge for the Shipping Method.
- *            additional_items:
+ *           additional_items:
  *              description: The new items to send to the Customer when the Claim type is Replace.
  *              type: array
  *              items:
+ *                required:
+ *                  - variant_id
+ *                  - quantity
  *                properties:
  *                  variant_id:
- *                    description: The id of the Product Variant to ship.
+ *                    description: The ID of the Product Variant to ship.
  *                    type: string
  *                  quantity:
  *                    description: The quantity of the Product Variant to ship.
  *                    type: integer
- *            shipping_methods:
+ *           shipping_methods:
  *              description: The Shipping Methods to send the additional Line Items with.
  *              type: array
  *              items:
  *                 properties:
  *                   id:
- *                     description: The id of an existing Shipping Method
+ *                     description: The ID of an existing Shipping Method
  *                     type: string
  *                   option_id:
- *                     description: The id of the Shipping Option to create a Shipping Method from
+ *                     description: The ID of the Shipping Option to create a Shipping Method from
  *                     type: string
  *                   price:
  *                     description: The price to charge for the Shipping Method
  *                     type: integer
- *            shipping_address:
+ *           shipping_address:
  *              type: object
  *              description: "An optional shipping address to send the claim to. Defaults to the parent order's shipping address"
- *            refund_amount:
+ *              $ref: "#/components/schemas/address"
+ *           refund_amount:
  *              description: The amount to refund the Customer when the Claim type is `refund`.
  *              type: integer
- *            no_notification:
+ *           no_notification:
  *              description: If set to true no notification will be send related to this Claim.
  *              type: boolean
- *            metadata:
+ *           metadata:
  *              description: An optional set of key-value pairs to hold additional information.
  *              type: object
+ * x-codeSamples:
+ *   - lang: JavaScript
+ *     label: JS Client
+ *     source: |
+ *       import Medusa from "@medusajs/medusa-js"
+ *       const medusa = new Medusa({ baseUrl: MEDUSA_BACKEND_URL, maxRetries: 3 })
+ *       // must be previously logged in or use api token
+ *       medusa.admin.orders.createClaim(order_id, {
+ *         type: 'refund',
+ *         claim_items: [
+ *           {
+ *             item_id,
+ *             quantity: 1
+ *           }
+ *         ]
+ *       })
+ *       .then(({ order }) => {
+ *         console.log(order.id);
+ *       });
+ *   - lang: Shell
+ *     label: cURL
+ *     source: |
+ *       curl --location --request POST 'https://medusa-url.com/admin/orders/{id}/claims' \
+ *       --header 'Authorization: Bearer {api_token}' \
+ *       --header 'Content-Type: application/json' \
+ *       --data-raw '{
+ *           "type": "refund",
+ *           "claim_items": [
+ *             {
+ *               "item_id": "asdsd",
+ *               "quantity": 1
+ *             }
+ *           ]
+ *       }'
+ * security:
+ *   - api_token: []
+ *   - cookie_auth: []
  * tags:
- *   - Order
+ *   - Claim
  * responses:
  *   200:
  *     description: OK
@@ -126,6 +174,18 @@ import { validator } from "../../../../utils/validator"
  *           properties:
  *             order:
  *               $ref: "#/components/schemas/order"
+ *   "400":
+ *     $ref: "#/components/responses/400_error"
+ *   "401":
+ *     $ref: "#/components/responses/unauthorized"
+ *   "404":
+ *     $ref: "#/components/responses/not_found_error"
+ *   "409":
+ *     $ref: "#/components/responses/invalid_state_error"
+ *   "422":
+ *     $ref: "#/components/responses/invalid_request_error"
+ *   "500":
+ *     $ref: "#/components/responses/500_error"
  */
 
 export default async (req, res) => {
@@ -134,17 +194,17 @@ export default async (req, res) => {
   const value = await validator(AdminPostOrdersOrderClaimsReq, req.body)
 
   const idempotencyKeyService = req.scope.resolve("idempotencyKeyService")
+  const manager: EntityManager = req.scope.resolve("manager")
 
   const headerKey = req.get("Idempotency-Key") || ""
 
   let idempotencyKey
   try {
-    idempotencyKey = await idempotencyKeyService.initializeRequest(
-      headerKey,
-      req.method,
-      req.params,
-      req.path
-    )
+    await manager.transaction(async (transactionManager) => {
+      idempotencyKey = await idempotencyKeyService
+        .withTransaction(transactionManager)
+        .initializeRequest(headerKey, req.method, req.params, req.path)
+    })
   } catch (error) {
     res.status(409).send("Failed to create idempotency key")
     return
@@ -163,133 +223,146 @@ export default async (req, res) => {
   while (inProgress) {
     switch (idempotencyKey.recovery_point) {
       case "started": {
-        const { key, error } = await idempotencyKeyService.workStage(
-          idempotencyKey.idempotency_key,
-          async (manager) => {
-            const order = await orderService
-              .withTransaction(manager)
-              .retrieve(id, {
-                relations: ["items", "discounts", "discounts.rule"],
+        await manager
+          .transaction("SERIALIZABLE", async (transactionManager) => {
+            idempotencyKey = await idempotencyKeyService
+              .withTransaction(transactionManager)
+              .workStage(idempotencyKey.idempotency_key, async (manager) => {
+                const order = await orderService
+                  .withTransaction(manager)
+                  .retrieve(id, {
+                    relations: [
+                      "customer",
+                      "shipping_address",
+                      "region",
+                      "items",
+                      "items.tax_lines",
+                      "discounts",
+                      "discounts.rule",
+                      "claims",
+                      "claims.additional_items",
+                      "claims.additional_items.tax_lines",
+                      "swaps",
+                      "swaps.additional_items",
+                      "swaps.additional_items.tax_lines",
+                    ],
+                  })
+
+                await claimService.withTransaction(manager).create({
+                  idempotency_key: idempotencyKey.idempotency_key,
+                  order,
+                  type: value.type,
+                  shipping_address: value.shipping_address,
+                  claim_items: value.claim_items,
+                  return_shipping: value.return_shipping,
+                  additional_items: value.additional_items,
+                  shipping_methods: value.shipping_methods,
+                  no_notification: value.no_notification,
+                  metadata: value.metadata,
+                })
+
+                return {
+                  recovery_point: "claim_created",
+                }
               })
-
-            await claimService.withTransaction(manager).create({
-              idempotency_key: idempotencyKey.idempotency_key,
-              order,
-              type: value.type,
-              shipping_address: value.shipping_address,
-              claim_items: value.claim_items,
-              return_shipping: value.return_shipping,
-              additional_items: value.additional_items,
-              shipping_methods: value.shipping_methods,
-              no_notification: value.no_notification,
-              metadata: value.metadata,
-            })
-
-            return {
-              recovery_point: "claim_created",
-            }
-          }
-        )
-
-        if (error) {
-          inProgress = false
-          err = error
-        } else {
-          idempotencyKey = key
-        }
+          })
+          .catch((e) => {
+            inProgress = false
+            err = e
+          })
         break
       }
 
       case "claim_created": {
-        const { key, error } = await idempotencyKeyService.workStage(
-          idempotencyKey.idempotency_key,
-          async (manager) => {
-            let claim = await claimService.withTransaction(manager).list({
-              idempotency_key: idempotencyKey.idempotency_key,
-            })
+        await manager
+          .transaction("SERIALIZABLE", async (transactionManager) => {
+            idempotencyKey = await idempotencyKeyService
+              .withTransaction(transactionManager)
+              .workStage(idempotencyKey.idempotency_key, async (manager) => {
+                let claim = await claimService.withTransaction(manager).list({
+                  idempotency_key: idempotencyKey.idempotency_key,
+                })
 
-            if (!claim.length) {
-              throw new MedusaError(
-                MedusaError.Types.INVALID_DATA,
-                `Claim not found`
-              )
-            }
+                if (!claim.length) {
+                  throw new MedusaError(
+                    MedusaError.Types.INVALID_DATA,
+                    `Claim not found`
+                  )
+                }
 
-            claim = claim[0]
+                claim = claim[0]
 
-            if (claim.type === "refund") {
-              await claimService
-                .withTransaction(manager)
-                .processRefund(claim.id)
-            }
+                if (claim.type === "refund") {
+                  await claimService
+                    .withTransaction(manager)
+                    .processRefund(claim.id)
+                }
 
-            return {
-              recovery_point: "refund_handled",
-            }
-          }
-        )
-
-        if (error) {
-          inProgress = false
-          err = error
-        } else {
-          idempotencyKey = key
-        }
+                return {
+                  recovery_point: "refund_handled",
+                }
+              })
+          })
+          .catch((e) => {
+            inProgress = false
+            err = e
+          })
         break
       }
 
       case "refund_handled": {
-        const { key, error } = await idempotencyKeyService.workStage(
-          idempotencyKey.idempotency_key,
-          async (manager) => {
-            let order = await orderService
-              .withTransaction(manager)
-              .retrieve(id, {
-                relations: ["items", "discounts"],
+        await manager
+          .transaction("SERIALIZABLE", async (transactionManager) => {
+            idempotencyKey = await idempotencyKeyService
+              .withTransaction(transactionManager)
+              .workStage(idempotencyKey.idempotency_key, async (manager) => {
+                let order = await orderService
+                  .withTransaction(manager)
+                  .retrieve(id, {
+                    relations: ["items", "discounts"],
+                  })
+
+                let claim = await claimService.withTransaction(manager).list(
+                  {
+                    idempotency_key: idempotencyKey.idempotency_key,
+                  },
+                  {
+                    relations: ["return_order"],
+                  }
+                )
+
+                if (!claim.length) {
+                  throw new MedusaError(
+                    MedusaError.Types.INVALID_DATA,
+                    `Claim not found`
+                  )
+                }
+
+                claim = claim[0]
+
+                if (claim.return_order) {
+                  await returnService
+                    .withTransaction(manager)
+                    .fulfill(claim.return_order.id)
+                }
+
+                order = await orderService
+                  .withTransaction(manager)
+                  .retrieve(id, {
+                    select: defaultAdminOrdersFields,
+                    relations: defaultAdminOrdersRelations,
+                  })
+
+                return {
+                  response_code: 200,
+                  response_body: { order },
+                }
               })
-
-            let claim = await claimService.withTransaction(manager).list(
-              {
-                idempotency_key: idempotencyKey.idempotency_key,
-              },
-              {
-                relations: ["return_order"],
-              }
-            )
-
-            if (!claim.length) {
-              throw new MedusaError(
-                MedusaError.Types.INVALID_DATA,
-                `Claim not found`
-              )
-            }
-
-            claim = claim[0]
-
-            if (claim.return_order) {
-              await returnService
-                .withTransaction(manager)
-                .fulfill(claim.return_order.id)
-            }
-
-            order = await orderService.withTransaction(manager).retrieve(id, {
-              select: defaultAdminOrdersFields,
-              relations: defaultAdminOrdersRelations,
-            })
-
-            return {
-              response_code: 200,
-              response_body: { order },
-            }
-          }
-        )
-
-        if (error) {
-          inProgress = false
-          err = error
-        } else {
-          idempotencyKey = key
-        }
+          })
+          .catch((e) => {
+            inProgress = false
+            err = e
+          })
         break
       }
 
@@ -299,14 +372,15 @@ export default async (req, res) => {
       }
 
       default:
-        idempotencyKey = await idempotencyKeyService.update(
-          idempotencyKey.idempotency_key,
-          {
-            recovery_point: "finished",
-            response_code: 500,
-            response_body: { message: "Unknown recovery point" },
-          }
-        )
+        await manager.transaction(async (transactionManager) => {
+          idempotencyKey = await idempotencyKeyService
+            .withTransaction(transactionManager)
+            .update(idempotencyKey.idempotency_key, {
+              recovery_point: "finished",
+              response_code: 500,
+              response_body: { message: "Unknown recovery point" },
+            })
+        })
         break
     }
   }
@@ -318,22 +392,10 @@ export default async (req, res) => {
   res.status(idempotencyKey.response_code).json(idempotencyKey.response_body)
 }
 
-enum ClaimTypes {
-  replace = "replace",
-  refund = "refund",
-}
-
-enum ClaimItemReason {
-  missing_item = "missing_item",
-  wrong_item = "wrong_item",
-  production_failure = "production_failure",
-  other = "other",
-}
-
 export class AdminPostOrdersOrderClaimsReq {
-  @IsEnum(ClaimTypes)
+  @IsEnum(ClaimType)
   @IsNotEmpty()
-  type: ClaimTypes
+  type: ClaimTypeValue
 
   @IsArray()
   @IsNotEmpty()
@@ -374,7 +436,7 @@ export class AdminPostOrdersOrderClaimsReq {
 
   @IsObject()
   @IsOptional()
-  metadata?: object
+  metadata?: Record<string, unknown>
 }
 
 class ReturnShipping {
@@ -414,9 +476,9 @@ class Item {
   @IsOptional()
   note?: string
 
-  @IsEnum(ClaimItemReason)
+  @IsEnum(ClaimReason)
   @IsOptional()
-  reason?: ClaimItemReason
+  reason?: ClaimReason
 
   @IsArray()
   @IsOptional()

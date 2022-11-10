@@ -19,6 +19,8 @@ describe("InviteService", () => {
       userRepository: {},
       inviteRepository: inviteRepo,
       eventBusService: EventBusServiceMock,
+    }, {
+      projectConfig: { jwt_secret: 'superSecret' }
     })
 
     it("calls invite repository find", async () => {
@@ -40,6 +42,8 @@ describe("InviteService", () => {
       userRepository: {},
       inviteRepository: {},
       eventBusService: EventBusServiceMock,
+    }, {
+      projectConfig: { jwt_secret: 'superSecret' }
     })
 
     it("validating a signed token succeeds", () => {
@@ -108,6 +112,8 @@ describe("InviteService", () => {
       userRepository: userRepo,
       inviteRepository: inviteRepo,
       eventBusService: EventBusServiceMock,
+    }, {
+      projectConfig: { jwt_secret: 'superSecret' }
     })
 
     beforeEach(() => jest.clearAllMocks())
@@ -132,7 +138,6 @@ describe("InviteService", () => {
     it("fails to accept an with an invalid token", async () => {
       expect.assertions(2)
       await inviteService.accept("totally.valid.token", {}).catch((err) => {
-        console.log(err)
         expect(err.message).toEqual("Token is not valid")
         expect(err.type).toEqual("invalid_data")
       })
@@ -200,6 +205,8 @@ describe("InviteService", () => {
       userRepository: {},
       inviteRepository: inviteRepo,
       eventBusService: EventBusServiceMock,
+    }, {
+      projectConfig: { jwt_secret: 'superSecret' }
     })
 
     inviteService.generateToken = jest.fn()

@@ -1,49 +1,116 @@
-# Quickstart: Gatsby
+# Gatsby Storefront Quickstart
 
-**Create a new Gatsby project using the Medusa starter template**
+This document guides you to install and set up the Gatsby Storefront for your Medusa Server.
 
-```bash
-gatsby new my-medusa-store https://github.com/medusajs/gatsby-starter-medusa
+![Gatsby Storefront Quick Look](https://res.cloudinary.com/dza7lstvk/image/upload/v1668003111/Medusa%20Docs/Screenshots/LcAsi8r_yivcro.gif)
+
+## Instant Deployment to Netlify
+
+Instead of manually following this guide to install then later deploy the Gatsby Storefront, you can deploy the Gatsby Storefront to Netlify with this button:
+
+<a href="https://app.netlify.com/start/deploy?repository=https://github.com/medusajs/gatsby-starter-medusa" class="img-url">
+    <img src="https://www.netlify.com/img/deploy/button.svg" alt="Deploy to Netlify" class="no-zoom-img" />
+</a>
+
+## Prerequisites
+
+This document assumes you already have a Medusa server installed. If you don’t, please follow the [Quickstart guide for the Medusa server](../quickstart/quick-start.md) to learn how to do it.
+
+You should also have the Gatsby CLI installed:
+
+```bash npm2yarn
+npm install gatsby-cli -g
 ```
 
-**Set up environment variables**
-Navigate into your projects directory and get your environment variables ready:
+## Installation
 
-```shell
+1\. Create a new Gatsby project using the [Medusa starter template](https://github.com/medusajs/gatsby-starter-medusa):
+
+```bash
+gatsby new my-medusa-storefront https://github.com/medusajs/gatsby-starter-medusa
+```
+
+2\. Change to the newly created directory `my-medusa-storefront` and rename the template environment variable file to use environment variables in development:
+
+```bash
+cd my-medusa-storefront
 mv .env.template .env.development
 ```
 
-**Install dependencies**
-Use your favourite package manager to install dependencies:
+3\. Make sure the Medusa server is running, then run the local Gatsby server:
 
-```shell
-yarn
-# or
-npm install
+```bash npm2yarn
+npm run start
 ```
 
-**Start developing.**
-Start up the local server:
+Your Gatsby storefront is now running at `localhost:8000`!
 
-```shell
-yarn start
+## Development Notes
+
+### Customization
+
+To customize the components, pages, and UI of your Gatsby storefront, just edit files under the `src` directory.
+
+### Data Refresh
+
+The Gatsby storefront uses the [gatsby-source-medusa](https://github.com/medusajs/medusa/tree/master/packages/gatsby-source-medusa) plugin to source data from your Medusa server. This data includes products, collections, and regions, and as a result, you can query this data in the storefront starter using GraphQL queries. You can also explore the data in your store on `localhost:8000/___graphql`.
+
+Because of this, you must rebuild the site every time you update any of this data for it to be reflected in your storefront. The Medusa team will soon be releasing a new version of the plugin which adds incremental builds, which will improve build times.
+
+### Change Port
+
+By default, the Gatsby storefront runs on port `8000`.
+
+To change the port, change the `develop` command in `package.json` to the following:
+
+```json
+"scripts": {
+    //other scripts
+    "develop": "gatsby develop --port=<PORT>"
+}
 ```
 
-Your site is now running at http://localhost:8000!
+Make sure to replace `<PORT>` with the port number you want the storefront to run on. For example, `3000`.
 
-Edit `src/pages/index.js` to see your site update in real-time!
+Then, on your server, update the environment variable `STORE_CORS` to the URL with the new port:
 
-**Learn more about Medusa**
+```bash
+STORE_CORS=http://localhost:<PORT>
+```
 
-- [Website](https://www.medusa-commerce.com/)
-- [GitHub](https://github.com/medusajs)
-- [Documentation](https://docs.medusa-commerce.com/)
+:::info
 
-**Learn more about Gatsby**
+For more details about the Store Cross-Origin Resource Sharing (CORS) configuration, check out the [Configure your Server documentation](../usage/configurations.md#storefront-cors).
 
-- [Documentation](https://www.gatsbyjs.com/docs/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter)
-- [Tutorials](https://www.gatsbyjs.com/tutorial/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter)
-- [Guides](https://www.gatsbyjs.com/tutorial/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter)
-- [API Reference](https://www.gatsbyjs.com/docs/api-reference/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter)
-- [Plugin Library](https://www.gatsbyjs.com/plugins?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter)
-- [Cheat Sheet](https://www.gatsbyjs.com/docs/cheat-sheet/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter)
+:::
+
+### Development Resources
+
+If you’re not familiar with Gatsby, you can learn more about it through the following resources:
+
+- [Documentation](https://www.gatsbyjs.com/docs)
+- [Plugin Library](https://www.gatsbyjs.com/plugins/)
+- [Cheat Sheet](https://www.gatsbyjs.com/docs/cheat-sheet/)
+
+## Storefront Features
+
+The Gatsby storefront comes with a lot of features out of the box including:
+
+- View all products and manage your cart.
+
+    ![Products Page](https://res.cloudinary.com/dza7lstvk/image/upload/v1668003126/Medusa%20Docs/Screenshots/P0Mpvxh_qznct6.png)
+- Customer authentication.
+
+    ![Sign In Page](https://res.cloudinary.com/dza7lstvk/image/upload/v1668003139/Medusa%20Docs/Screenshots/0sVcZeS_z6cftp.png)
+- Full checkout workflow.
+
+    ![One-Page Checkout](https://res.cloudinary.com/dza7lstvk/image/upload/v1668003152/Medusa%20Docs/Screenshots/5wSs3yZ_iivxrh.png)
+- Request swaps and returns using a customer’s order ID and Email.
+
+    ![Request Return for Order](https://res.cloudinary.com/dza7lstvk/image/upload/v1668003162/Medusa%20Docs/Screenshots/mAChp3f_ubd89n.png)
+
+## What’s Next
+
+- Check the [Storefront API reference](https://docs.medusajs.com/api/store) for a full list of REST APIs to use on your storefront.
+- Learn how to [deploy the Gatsby storefront on Netlify](../deployments/storefront/deploying-gatsby-on-netlify.md).
+- Learn how to add [Stripe as a payment provider](../add-plugins/stripe.md#gatsby-storefront).

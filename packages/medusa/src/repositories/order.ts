@@ -1,11 +1,11 @@
 import { flatten, groupBy, map, merge } from "lodash"
-import { EntityRepository, Repository, FindManyOptions } from "typeorm"
-import { Order } from "../models/order"
+import { EntityRepository, FindManyOptions, Repository } from "typeorm"
+import { Order } from "../models"
 
 @EntityRepository(Order)
 export class OrderRepository extends Repository<Order> {
   public async findWithRelations(
-    relations: Array<keyof Order> = [],
+    relations: string[] = [],
     optionsWithoutRelations: Omit<FindManyOptions<Order>, "relations"> = {}
   ): Promise<Order[]> {
     const entities = await this.find(optionsWithoutRelations)
@@ -22,7 +22,7 @@ export class OrderRepository extends Repository<Order> {
     }
 
     const entitiesIdsWithRelations = await Promise.all(
-      Object.entries(groupedRelations).map(([_, rels]) => {
+      Object.entries(groupedRelations).map(async ([_, rels]) => {
         return this.findByIds(entitiesIds, {
           select: ["id"],
           relations: rels as string[],
@@ -38,7 +38,7 @@ export class OrderRepository extends Repository<Order> {
   }
 
   public async findOneWithRelations(
-    relations: Array<keyof Order> = [],
+    relations: string[] = [],
     optionsWithoutRelations: Omit<FindManyOptions<Order>, "relations"> = {}
   ): Promise<Order> {
     // Limit 1

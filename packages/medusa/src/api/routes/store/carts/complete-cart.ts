@@ -1,12 +1,7 @@
-import { MedusaError } from "medusa-core-utils"
-import {
-  CartService,
-  IdempotencyKeyService,
-  OrderService,
-  SwapService,
-} from "../../../../services"
-
-import { Order } from "../../../../models/order"
+import { EntityManager } from "typeorm"
+import { AbstractCartCompletionStrategy } from "../../../../interfaces"
+import { IdempotencyKey } from "../../../../models/idempotency-key"
+import { IdempotencyKeyService } from "../../../../services"
 
 /**
  * @oas [post] /carts/{id}/complete
@@ -20,6 +15,20 @@ import { Order } from "../../../../models/order"
  *   will generate one for the request."
  * parameters:
  *   - (path) id=* {String} The Cart id.
+ * x-codeSamples:
+ *   - lang: JavaScript
+ *     label: JS Client
+ *     source: |
+ *       import Medusa from "@medusajs/medusa-js"
+ *       const medusa = new Medusa({ baseUrl: MEDUSA_BACKEND_URL, maxRetries: 3 })
+ *       medusa.carts.complete(cart_id)
+ *       .then(({ cart }) => {
+ *         console.log(cart.id);
+ *       });
+ *   - lang: Shell
+ *     label: cURL
+ *     source: |
+ *       curl --location --request POST 'https://medusa-url.com/store/carts/{id}/complete'
  * tags:
  *   - Cart
  * responses:
@@ -31,37 +40,58 @@ import { Order } from "../../../../models/order"
  *     content:
  *       application/json:
  *         schema:
- *           oneOf:
- *            - type: object
- *              properties:
- *                order:
- *                  $ref: "#/components/schemas/order"
- *            - type: object
- *              properties:
- *                cart:
- *                  $ref: "#/components/schemas/cart"
- *            - type: object
- *              properties:
- *                cart:
- *                  $ref: "#/components/schemas/swap"
+ *           properties:
+ *             type:
+ *               type: string
+ *               description: The type of the data property.
+ *               enum: [order, cart, swap]
+ *             data:
+ *               type: object
+ *               description: The data of the result object. Its type depends on the type field.
+ *               oneOf:
+ *                 - type: object
+ *                   description: Cart was successfully authorized and order was placed successfully.
+ *                   properties:
+ *                     order:
+ *                       $ref: "#/components/schemas/order"
+ *                 - type: object
+ *                   description: Cart was successfully authorized but requires further actions.
+ *                   properties:
+ *                     cart:
+ *                       $ref: "#/components/schemas/cart"
+ *                 - type: object
+ *                   description: When cart is used for a swap and it has been completed successfully.
+ *                   properties:
+ *                     cart:
+ *                       $ref: "#/components/schemas/swap"
+ *   "400":
+ *     $ref: "#/components/responses/400_error"
+ *   "404":
+ *     $ref: "#/components/responses/not_found_error"
+ *   "409":
+ *     $ref: "#/components/responses/invalid_state_error"
+ *   "422":
+ *     $ref: "#/components/responses/invalid_request_error"
+ *   "500":
+ *     $ref: "#/components/responses/500_error"
  */
 export default async (req, res) => {
   const { id } = req.params
 
+  const manager: EntityManager = req.scope.resolve("manager")
   const idempotencyKeyService: IdempotencyKeyService = req.scope.resolve(
     "idempotencyKeyService"
   )
 
   const headerKey = req.get("Idempotency-Key") || ""
 
-  let idempotencyKey
+  let idempotencyKey: IdempotencyKey
   try {
-    idempotencyKey = await idempotencyKeyService.initializeRequest(
-      headerKey,
-      req.method,
-      req.params,
-      req.path
-    )
+    idempotencyKey = await manager.transaction(async (transactionManager) => {
+      return await idempotencyKeyService
+        .withTransaction(transactionManager)
+        .initializeRequest(headerKey, req.method, req.params, req.path)
+    })
   } catch (error) {
     console.log(error)
     res.status(409).send("Failed to create idempotency key")
@@ -71,231 +101,15 @@ export default async (req, res) => {
   res.setHeader("Access-Control-Expose-Headers", "Idempotency-Key")
   res.setHeader("Idempotency-Key", idempotencyKey.idempotency_key)
 
-  const cartService: CartService = req.scope.resolve("cartService")
-  const orderService: OrderService = req.scope.resolve("orderService")
-  const swapService: SwapService = req.scope.resolve("swapService")
+  const completionStrat: AbstractCartCompletionStrategy = req.scope.resolve(
+    "cartCompletionStrategy"
+  )
 
-  let inProgress = true
-  let err = false
+  const { response_code, response_body } = await completionStrat.complete(
+    id,
+    idempotencyKey,
+    req.request_context
+  )
 
-  while (inProgress) {
-    switch (idempotencyKey.recovery_point) {
-      case "started": {
-        const { key, error } = await idempotencyKeyService.workStage(
-          idempotencyKey.idempotency_key,
-          async (manager) => {
-            let cart = await cartService.withTransaction(manager).retrieve(id)
-
-            if (cart.completed_at) {
-              return {
-                response_code: 409,
-                response_body: {
-                  code: MedusaError.Codes.CART_INCOMPATIBLE_STATE,
-                  message: "Cart has already been completed",
-                  type: MedusaError.Types.NOT_ALLOWED,
-                },
-              }
-            }
-
-            cart = await cartService
-              .withTransaction(manager)
-              .authorizePayment(id, {
-                ...req.request_context,
-                idempotency_key: idempotencyKey.idempotency_key,
-              })
-
-            if (cart.payment_session) {
-              if (
-                cart.payment_session.status === "requires_more" ||
-                cart.payment_session.status === "pending"
-              ) {
-                return {
-                  response_code: 200,
-                  response_body: {
-                    data: cart,
-                    payment_status: cart.payment_session.status,
-                    type: "cart",
-                  },
-                }
-              }
-            }
-
-            return {
-              recovery_point: "payment_authorized",
-            }
-          }
-        )
-
-        if (error) {
-          inProgress = false
-          err = error
-        } else {
-          idempotencyKey = key
-        }
-        break
-      }
-
-      case "payment_authorized": {
-        const { key, error } = await idempotencyKeyService.workStage(
-          idempotencyKey.idempotency_key,
-          async (manager) => {
-            const cart = await cartService
-              .withTransaction(manager)
-              .retrieve(id, {
-                select: ["total"],
-                relations: ["payment", "payment_sessions"],
-              })
-
-            let order: Order
-
-            // If cart is part of swap, we register swap as complete
-            switch (cart.type) {
-              case "swap": {
-                try {
-                  const swapId = cart.metadata?.swap_id
-                  let swap = await swapService
-                    .withTransaction(manager)
-                    .registerCartCompletion(swapId)
-
-                  swap = await swapService
-                    .withTransaction(manager)
-                    .retrieve(swap.id, { relations: ["shipping_address"] })
-
-                  return {
-                    response_code: 200,
-                    response_body: { data: swap, type: "swap" },
-                  }
-                } catch (error) {
-                  if (
-                    error &&
-                    error.code === MedusaError.Codes.INSUFFICIENT_INVENTORY
-                  ) {
-                    return {
-                      response_code: 409,
-                      response_body: {
-                        message: error.message,
-                        type: error.type,
-                        code: error.code,
-                      },
-                    }
-                  } else {
-                    throw error
-                  }
-                }
-              }
-              // case "payment_link":
-              default: {
-                if (typeof cart.total === "undefined") {
-                  return {
-                    response_code: 500,
-                    response_body: {
-                      message: "Unexpected state",
-                    },
-                  }
-                }
-
-                if (!cart.payment && cart.total > 0) {
-                  throw new MedusaError(
-                    MedusaError.Types.INVALID_DATA,
-                    `Cart payment not authorized`
-                  )
-                }
-
-                try {
-                  order = await orderService
-                    .withTransaction(manager)
-                    .createFromCart(cart.id)
-                } catch (error) {
-                  if (
-                    error &&
-                    error.message === "Order from cart already exists"
-                  ) {
-                    order = await orderService
-                      .withTransaction(manager)
-                      .retrieveByCartId(id, {
-                        select: [
-                          "subtotal",
-                          "tax_total",
-                          "shipping_total",
-                          "discount_total",
-                          "total",
-                        ],
-                        relations: ["shipping_address", "items", "payments"],
-                      })
-
-                    return {
-                      response_code: 200,
-                      response_body: { data: order, type: "order" },
-                    }
-                  } else if (
-                    error &&
-                    error.code === MedusaError.Codes.INSUFFICIENT_INVENTORY
-                  ) {
-                    return {
-                      response_code: 409,
-                      response_body: {
-                        message: error.message,
-                        type: error.type,
-                        code: error.code,
-                      },
-                    }
-                  } else {
-                    throw error
-                  }
-                }
-              }
-            }
-
-            order = await orderService
-              .withTransaction(manager)
-              .retrieve(order.id, {
-                select: [
-                  "subtotal",
-                  "tax_total",
-                  "shipping_total",
-                  "discount_total",
-                  "total",
-                ],
-                relations: ["shipping_address", "items", "payments"],
-              })
-
-            return {
-              response_code: 200,
-              response_body: { data: order, type: "order" },
-            }
-          }
-        )
-
-        if (error) {
-          inProgress = false
-          err = error
-        } else {
-          idempotencyKey = key
-        }
-        break
-      }
-
-      case "finished": {
-        inProgress = false
-        break
-      }
-
-      default:
-        idempotencyKey = await idempotencyKeyService.update(
-          idempotencyKey.idempotency_key,
-          {
-            recovery_point: "finished",
-            response_code: 500,
-            response_body: { message: "Unknown recovery point" },
-          }
-        )
-        break
-    }
-  }
-
-  if (err) {
-    throw err
-  }
-
-  res.status(idempotencyKey.response_code).json(idempotencyKey.response_body)
+  res.status(response_code).json(response_body)
 }

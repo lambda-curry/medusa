@@ -1,29 +1,38 @@
-import { Router } from "express"
 import cors from "cors"
-
+import { Router } from "express"
 import middlewares from "../../middlewares"
+import analyticsConfigs from "./analytics-configs"
+import appRoutes from "./apps"
 import authRoutes from "./auth"
-import productRoutes from "./products"
-import userRoutes, { unauthenticatedUserRoutes } from "./users"
+import batchRoutes from "./batch"
+import collectionRoutes from "./collections"
+import currencyRoutes from "./currencies"
+import customerGroupRoutes from "./customer-groups"
+import customerRoutes from "./customers"
+import discountRoutes from "./discounts"
+import draftOrderRoutes from "./draft-orders"
+import giftCardRoutes from "./gift-cards"
 import inviteRoutes, { unauthenticatedInviteRoutes } from "./invites"
+import noteRoutes from "./notes"
+import notificationRoutes from "./notifications"
+import orderEditRoutes from "./order-edits"
+import orderRoutes from "./orders"
+import priceListRoutes from "./price-lists"
+import productTagRoutes from "./product-tags"
+import productTypesRoutes from "./product-types"
+import productRoutes from "./products"
 import regionRoutes from "./regions"
+import returnReasonRoutes from "./return-reasons"
+import returnRoutes from "./returns"
+import salesChannelRoutes from "./sales-channels"
 import shippingOptionRoutes from "./shipping-options"
 import shippingProfileRoutes from "./shipping-profiles"
-import discountRoutes from "./discounts"
-import giftCardRoutes from "./gift-cards"
-import orderRoutes from "./orders"
-import returnReasonRoutes from "./return-reasons"
 import storeRoutes from "./store"
-import uploadRoutes from "./uploads"
-import customerRoutes from "./customers"
-import appRoutes from "./apps"
 import swapRoutes from "./swaps"
-import returnRoutes from "./returns"
+import taxRateRoutes from "./tax-rates"
+import uploadRoutes from "./uploads"
+import userRoutes, { unauthenticatedUserRoutes } from "./users"
 import variantRoutes from "./variants"
-import draftOrderRoutes from "./draft-orders"
-import collectionRoutes from "./collections"
-import notificationRoutes from "./notifications"
-import noteRoutes from "./notes"
 
 const route = Router()
 
@@ -37,6 +46,8 @@ export default (app, container, config) => {
       credentials: true,
     })
   )
+
+  const featureFlagRouter = container.resolve("featureFlagRouter")
 
   // Unauthenticated routes
   authRoutes(route)
@@ -57,27 +68,37 @@ export default (app, container, config) => {
   // Calls all middleware that has been registered to run after authentication.
   middlewareService.usePostAuthentication(app)
 
+  analyticsConfigs(route)
   appRoutes(route)
-  productRoutes(route)
-  userRoutes(route)
-  regionRoutes(route)
-  shippingOptionRoutes(route)
-  shippingProfileRoutes(route)
-  discountRoutes(route)
-  giftCardRoutes(route)
-  orderRoutes(route)
-  storeRoutes(route)
-  uploadRoutes(route)
-  customerRoutes(route)
-  swapRoutes(route)
-  returnRoutes(route)
-  variantRoutes(route)
-  draftOrderRoutes(route)
+  batchRoutes(route)
   collectionRoutes(route)
-  notificationRoutes(route)
-  returnReasonRoutes(route)
-  noteRoutes(route)
+  customerGroupRoutes(route)
+  customerRoutes(route)
+  currencyRoutes(route)
+  discountRoutes(route)
+  draftOrderRoutes(route)
+  giftCardRoutes(route)
   inviteRoutes(route)
+  noteRoutes(route)
+  notificationRoutes(route)
+  orderRoutes(route, featureFlagRouter)
+  orderEditRoutes(route)
+  priceListRoutes(route, featureFlagRouter)
+  productRoutes(route, featureFlagRouter)
+  productTagRoutes(route)
+  productTypesRoutes(route)
+  regionRoutes(route, featureFlagRouter)
+  returnReasonRoutes(route)
+  returnRoutes(route)
+  salesChannelRoutes(route)
+  shippingOptionRoutes(route, featureFlagRouter)
+  shippingProfileRoutes(route)
+  storeRoutes(route)
+  swapRoutes(route)
+  taxRateRoutes(route)
+  uploadRoutes(route)
+  userRoutes(route)
+  variantRoutes(route)
 
   return app
 }

@@ -1,7 +1,474 @@
 # Change Log
 
+## 1.6.2
+
+### Patch Changes
+
+- [#2568](https://github.com/medusajs/medusa/pull/2568) [`2d095a0ce`](https://github.com/medusajs/medusa/commit/2d095a0ce14ab7f24b4e6856cb4850cea18af21c) Thanks [@adrien2p](https://github.com/adrien2p)! - fix(medusa): fix missing throw in the store cart create-payment-sessions
+
+* [#2566](https://github.com/medusajs/medusa/pull/2566) [`8069ed5e9`](https://github.com/medusajs/medusa/commit/8069ed5e99dc53a912df9bb860114d2258044108) Thanks [@srindom](https://github.com/srindom)! - fix(medusa): add support for retrying failed event bus jobs
+
+- [#2552](https://github.com/medusajs/medusa/pull/2552) [`7b0ceeffb`](https://github.com/medusajs/medusa/commit/7b0ceeffb4616c3f4e0cf51aba2ab381c61ea5d7) Thanks [@patrick-medusajs](https://github.com/patrick-medusajs)! - feat(medusa, medusa-js, medusa-react): /store api product types
+
+* [#2460](https://github.com/medusajs/medusa/pull/2460) [`5ea4b728e`](https://github.com/medusajs/medusa/commit/5ea4b728e728a7e6d4d6fe7255ea80395ab75bd3) Thanks [@github-actions](https://github.com/apps/github-actions)! - Order/cart decorate totals should assign items totals, shipping option requirements should be tax-inclusive if shipping option is, ensure swaps can be created on orders with discounts
+
+* Updated dependencies []:
+  - @medusajs/medusa-cli@1.3.4
+
+## 1.6.1
+
+### Patch Changes
+
+- [#2514](https://github.com/medusajs/medusa/pull/2514) [`ea3d73882`](https://github.com/medusajs/medusa/commit/ea3d7388234f23c4a5bc7ceb55c493a097b76c12) Thanks [@pKorsholm](https://github.com/pKorsholm)! - Feat(medusa): invalid medusa-config handling in loaders
+
+* [#2531](https://github.com/medusajs/medusa/pull/2531) [`38d4a7db3`](https://github.com/medusajs/medusa/commit/38d4a7db3d762fc7f746825c64026d2711db5bd8) Thanks [@pKorsholm](https://github.com/pKorsholm)! - Feat(Medusa): Allow custom shipping price on draft orders
+
+- [#2532](https://github.com/medusajs/medusa/pull/2532) [`222423625`](https://github.com/medusajs/medusa/commit/222423625db22d955dafb53cf543caa37f8551b2) Thanks [@olivermrbl](https://github.com/olivermrbl)! - Enable analytics feature flag by default
+
+- Updated dependencies [[`ea3d73882`](https://github.com/medusajs/medusa/commit/ea3d7388234f23c4a5bc7ceb55c493a097b76c12)]:
+  - medusa-core-utils@1.1.34
+
+## 1.6.0
+
+### Minor Changes
+
+- [#2358](https://github.com/medusajs/medusa/pull/2358) [`9deec0fc3`](https://github.com/medusajs/medusa/commit/9deec0fc3c3ff9d89ca194b8b05948141799a412) Thanks [@adrien2p](https://github.com/adrien2p)! - fix(medusa): Idempotency workStage used within transaction
+
+* [#2471](https://github.com/medusajs/medusa/pull/2471) [`299c4ae7f`](https://github.com/medusajs/medusa/commit/299c4ae7f55b0586f283d7f21792b7b204df421a) Thanks [@adrien2p](https://github.com/adrien2p)! - feat(medusa): Align columns between product import/export, re visit the way the columns are defined and treated
+
+### Patch Changes
+
+- [#2427](https://github.com/medusajs/medusa/pull/2427) [`211720f24`](https://github.com/medusajs/medusa/commit/211720f24cbcb1f01c36aa35660e1ff0c4518ebd) Thanks [@kasperkristensen](https://github.com/kasperkristensen)! - Changes type to type_id for the list products endpoints in both the Store and Admin API.
+
+* [#2411](https://github.com/medusajs/medusa/pull/2411) [`c71744245`](https://github.com/medusajs/medusa/commit/c717442451cf9fc2e0961edded5b49ea5a78760e) Thanks [@adrien2p](https://github.com/adrien2p)! - feat(medusa): Allow to filter collections by discount condition id
+
+- [#2433](https://github.com/medusajs/medusa/pull/2433) [`3c5e31c64`](https://github.com/medusajs/medusa/commit/3c5e31c6455695f854e9df7a3592c12b899fa1e1) Thanks [@pKorsholm](https://github.com/pKorsholm)! - Add protected uploads to fileservices
+
+* [#2469](https://github.com/medusajs/medusa/pull/2469) [`13611e3e5`](https://github.com/medusajs/medusa/commit/13611e3e53d449fbfab7a88f848f6652a360bd14) Thanks [@adrien2p](https://github.com/adrien2p)! - fix(medusa): Select config should be undefined if length === 0
+
+- [#2430](https://github.com/medusajs/medusa/pull/2430) [`765a2cccd`](https://github.com/medusajs/medusa/commit/765a2cccda2c4c552ede9ec23e0c1e3dd4ea44fc) Thanks [@adrien2p](https://github.com/adrien2p)! - Feat(medusa, medusa-js, medusa-react): add resources to discount condition by batch
+
+* [#2270](https://github.com/medusajs/medusa/pull/2270) [`69e579758`](https://github.com/medusajs/medusa/commit/69e579758f81332094d6f0dfa6fbcbc359b0d92c) Thanks [@kasperkristensen](https://github.com/kasperkristensen)! - Adds the use of price selection strategy to retrieving variants in the admin API. This moves the responsibility of tax calculations from the frontend (admin) to the backend.
+
+- [#2424](https://github.com/medusajs/medusa/pull/2424) [`05f921711`](https://github.com/medusajs/medusa/commit/05f921711fb0ac3603d29955648d8ba563a7da7d) Thanks [@fPolic](https://github.com/fPolic)! - Product import - allow null product type
+
+* [#2359](https://github.com/medusajs/medusa/pull/2359) [`19ca18e71`](https://github.com/medusajs/medusa/commit/19ca18e71c8feea7277e09db3c5e9e6316adb6ab) Thanks [@adrien2p](https://github.com/adrien2p)! - feat(medusa): Allow to query product types by discount condition id
+
+- [#2340](https://github.com/medusajs/medusa/pull/2340) [`a9c703d56`](https://github.com/medusajs/medusa/commit/a9c703d56c2678fb509af7f9e1fe2cb65f95ba9d) Thanks [@adrien2p](https://github.com/adrien2p)! - feat(medusa): Allow to query product tags by condition id
+
+* [#2482](https://github.com/medusajs/medusa/pull/2482) [`58c7ffdc6`](https://github.com/medusajs/medusa/commit/58c7ffdc6ec1d06f76aaa9427505dc452398770f) Thanks [@srindom](https://github.com/srindom)! - fix(medusa): allow filtering collections by handle
+
+- [#2444](https://github.com/medusajs/medusa/pull/2444) [`48411157b`](https://github.com/medusajs/medusa/commit/48411157b1cdec0a67f91e06de8ac547af89d7af) Thanks [@adrien2p](https://github.com/adrien2p)! - feat(medusa): Support batch remove resources on discount condition
+
+* [#2402](https://github.com/medusajs/medusa/pull/2402) [`144ce0e42`](https://github.com/medusajs/medusa/commit/144ce0e42cd894a2cd5b40b68c095fd1eda851a9) Thanks [@carlos-r-l-rodrigues](https://github.com/carlos-r-l-rodrigues)! - Capture DraftOrder payment immediately in register-payment.ts
+
+- [#2464](https://github.com/medusajs/medusa/pull/2464) [`8be67c734`](https://github.com/medusajs/medusa/commit/8be67c734c970ef03bf0afaf74cc3818e305466d) Thanks [@adrien2p](https://github.com/adrien2p)! - feat(medusa): Filter product list by discount condition id
+
+## 1.5.0
+
+### Minor Changes
+
+- [#2372](https://github.com/medusajs/medusa/pull/2372) [`3d255302b`](https://github.com/medusajs/medusa/commit/3d255302b022a06b492807774412b1db05fa8d06) Thanks [@srindom](https://github.com/srindom)! - Improve performance of cart total calculations
+
+### Patch Changes
+
+- [#2369](https://github.com/medusajs/medusa/pull/2369) [`d2b272fab`](https://github.com/medusajs/medusa/commit/d2b272fab649bb272b8af4f2f00aafe89965995e) Thanks [@olivermrbl](https://github.com/olivermrbl)! - feat(medusa): Trim discount code on insert and retrieve
+
+* [#2210](https://github.com/medusajs/medusa/pull/2210) [`7dc8d3a0c`](https://github.com/medusajs/medusa/commit/7dc8d3a0c90ce06e3f11a6a46dec1f9ec3f26e81) Thanks [@srindom](https://github.com/srindom)! - Adds a BatchJob strategy for importing prices to PriceLists
+
+- [#2276](https://github.com/medusajs/medusa/pull/2276) [`678a06752`](https://github.com/medusajs/medusa/commit/678a06752a03f71d77265a874fd7d07361337862) Thanks [@adrien2p](https://github.com/adrien2p)! - Finalise service migration and fix super constructor arguments
+
+* [#2351](https://github.com/medusajs/medusa/pull/2351) [`d8a5942d3`](https://github.com/medusajs/medusa/commit/d8a5942d3d85671e2923668bdbf2867957f5554b) Thanks [@ayushthe1](https://github.com/ayushthe1)! - Fix wrongly referenced product id in ProductImportStrategy
+  Fix assigning nested objects properly
+
+- [#2374](https://github.com/medusajs/medusa/pull/2374) [`edd35631f`](https://github.com/medusajs/medusa/commit/edd35631f722009bdcb2439ff8c2326025425d33) Thanks [@olivermrbl](https://github.com/olivermrbl)! - fix(medusa): Add sales channel to order on creation
+
+* [#1790](https://github.com/medusajs/medusa/pull/1790) [`df62e618b`](https://github.com/medusajs/medusa/commit/df62e618bcc365ef376b96705d63b465b48b0191) Thanks [@adrien2p](https://github.com/adrien2p)! - Migrate Stripe providers to the new AbstractPaymentService
+
+- [#2224](https://github.com/medusajs/medusa/pull/2224) [`3f7317028`](https://github.com/medusajs/medusa/commit/3f7317028808cd3c1b44cb7b66694501a7c706c4) Thanks [@olivermrbl](https://github.com/olivermrbl)! - Normalize discount code before querying DB in `DiscountService.retrieveByCode`
+
+- Updated dependencies [[`7dc8d3a0c`](https://github.com/medusajs/medusa/commit/7dc8d3a0c90ce06e3f11a6a46dec1f9ec3f26e81)]:
+  - medusa-core-utils@1.1.32
+
+## 1.4.1
+
+### Patch Changes
+
+- [`d2932d328`](https://github.com/medusajs/medusa/commit/d2932d328c30a2b40a49853fa337ae0e35b29ae8) Thanks [@olivermrbl](https://github.com/olivermrbl)! - Expose list-currencies endpoint by removing the feature flag guard on router
+
+* [`d2932d328`](https://github.com/medusajs/medusa/commit/d2932d328c30a2b40a49853fa337ae0e35b29ae8) Thanks [@olivermrbl](https://github.com/olivermrbl)! - Cleanup Tax lines in case of a failed cart completion
+
+## 1.4.0
+
+### Minor Changes
+
+- [#2185](https://github.com/medusajs/medusa/pull/2185) [`64949dc72`](https://github.com/medusajs/medusa/commit/64949dc721a6c697e3eb7091db9f2d261111a766) Thanks [@kasperkristensen](https://github.com/kasperkristensen)! - Adds missing response types for currency endpoints and exports route. Adds currency endpoints to medusa-js and medusa-react.
+
+### Patch Changes
+
+- [#2150](https://github.com/medusajs/medusa/pull/2150) [`b6161d240`](https://github.com/medusajs/medusa/commit/b6161d24043b8b910320475b8616b7e29a96f6cd) Thanks [@adrien2p](https://github.com/adrien2p)! - Handle new line char in csv cell and fix import strategy
+
+* [#2155](https://github.com/medusajs/medusa/pull/2155) [`af80e0fd2`](https://github.com/medusajs/medusa/commit/af80e0fd2ed75cd3c15282ddcbfb949060dfdd33) Thanks [@srindom](https://github.com/srindom)! - Make prices optional param when updating a variant
+
+## 1.3.9
+
+### Patch Changes
+
+- [#2197](https://github.com/medusajs/medusa/pull/2197) [`eb3b02baf`](https://github.com/medusajs/medusa/commit/eb3b02baf422ec2038d5e229d7ac1e35ddc3c561) Thanks [@srindom](https://github.com/srindom)! - Create cart with country code in shipping address
+
+## 1.3.8
+
+### Patch Changes
+
+- [#2069](https://github.com/medusajs/medusa/pull/2069) [`ad717b953`](https://github.com/medusajs/medusa/commit/ad717b9533a0500e20c4e312d1ee48b35ea9d5e1) Thanks [@olivermrbl](https://github.com/olivermrbl)! - Remove deprecated dependency `@hapi/joi`
+
+* [#1846](https://github.com/medusajs/medusa/pull/1846) [`d14a0398f`](https://github.com/medusajs/medusa/commit/d14a0398fb884a1cd472c147af8ff5fa6fdbe4cb) Thanks [@olivermrbl](https://github.com/olivermrbl)! - Fixes an error thrown when deleting product options on a product without variants
+
+- [#2000](https://github.com/medusajs/medusa/pull/2000) [`ba6416f09`](https://github.com/medusajs/medusa/commit/ba6416f095e465cc07e35bfc6d6f311c12f57574) Thanks [@fPolic](https://github.com/fPolic)! - Convert SwapService to TypeScript
+
+- Updated dependencies [[`ad717b953`](https://github.com/medusajs/medusa/commit/ad717b9533a0500e20c4e312d1ee48b35ea9d5e1)]:
+  - @medusajs/medusa-cli@1.3.3
+
+## 1.3.7
+
+### Patch Changes
+
+- [#2105](https://github.com/medusajs/medusa/pull/2105) [`846ae637e`](https://github.com/medusajs/medusa/commit/846ae637e2be6d557df37f45421da689127b9da6) Thanks [@carlos-r-l-rodrigues](https://github.com/carlos-r-l-rodrigues)! - Fix development hot reload on Windows
+
+## 1.3.6
+
+### Patch Changes
+
+- [#2045](https://github.com/medusajs/medusa/pull/2045) [`15a5b029a`](https://github.com/medusajs/medusa/commit/15a5b029ae3bd954481c558beeac87ace7ab945d) Thanks [@srindom](https://github.com/srindom)! - Join tracking links to all fulfillments in admin/orders
+
+* [#2017](https://github.com/medusajs/medusa/pull/2017) [`900260c5b`](https://github.com/medusajs/medusa/commit/900260c5b9df4f4f927db5bb6921e5e139ff269a) Thanks [@olivermrbl](https://github.com/olivermrbl)! - Adds enabled features flags to tracking event in `medusa-telemetry`
+
+- [#1976](https://github.com/medusajs/medusa/pull/1976) [`42ed20951`](https://github.com/medusajs/medusa/commit/42ed209518bf0278d1bef3c4c47d0ee21cae84c8) Thanks [@pKorsholm](https://github.com/pKorsholm)! - Convert CollectionService to TypeScript
+
+* [#975](https://github.com/medusajs/medusa/pull/975) [`a54dc68db`](https://github.com/medusajs/medusa/commit/a54dc68db7a7d476cf4bf8d36c122c7f34629c90) Thanks [@pKorsholm](https://github.com/pKorsholm)! - Allow filtering of customer orders
+
+- [#1995](https://github.com/medusajs/medusa/pull/1995) [`aaebb38ea`](https://github.com/medusajs/medusa/commit/aaebb38eae883a225779b03556900ea813c991d2) Thanks [@adrien2p](https://github.com/adrien2p)! - Convert IdempotencyKeyService to TypeScript
+  Add await to retrieve in lock method
+
+* [#1854](https://github.com/medusajs/medusa/pull/1854) [`9e0cb1212`](https://github.com/medusajs/medusa/commit/9e0cb1212023d7035165ddd269edab3efc7ebe29) Thanks [@srindom](https://github.com/srindom)! - Fixes issue where failed cart completion attempts could not be retried without 500 error
+
+- [#1962](https://github.com/medusajs/medusa/pull/1962) [`c97ccd3fb`](https://github.com/medusajs/medusa/commit/c97ccd3fb5dbe796b0e4fbf37def5bb6e8201557) Thanks [@pKorsholm](https://github.com/pKorsholm)! - Convert FulfillmentService to TypeScript
+
+* [#1963](https://github.com/medusajs/medusa/pull/1963) [`152934f8b`](https://github.com/medusajs/medusa/commit/152934f8b07cb3095788091df6823f9665fdf43d) Thanks [@pKorsholm](https://github.com/pKorsholm)! - Convert ShippingProfileService to TypeScript
+
+- [#2067](https://github.com/medusajs/medusa/pull/2067) [`8c4be3353`](https://github.com/medusajs/medusa/commit/8c4be3353630efd18759eb893666e44b1b49e2b7) Thanks [@endigo](https://github.com/endigo)! - add Mongolian native currency tugrug
+
+* [#1914](https://github.com/medusajs/medusa/pull/1914) [`bda83a84b`](https://github.com/medusajs/medusa/commit/bda83a84bc99a4741da2076f59071c177bc5534f) Thanks [@fPolic](https://github.com/fPolic)! - Convert RegionService to TypeScript
+
+- [#1983](https://github.com/medusajs/medusa/pull/1983) [`11fab121f`](https://github.com/medusajs/medusa/commit/11fab121f4c4b5ec3b6a3afccd4c44844bc5e3d9) Thanks [@pKorsholm](https://github.com/pKorsholm)! - Convert OauthService to TypeScript
+
+* [#1982](https://github.com/medusajs/medusa/pull/1982) [`40ae53567`](https://github.com/medusajs/medusa/commit/40ae53567a23ebe562e571fa22f1721eed174c82) Thanks [@chemicalkosek](https://github.com/chemicalkosek)! - Add payment providers Przelewy24 and Blik through Stripe
+
+- [#1988](https://github.com/medusajs/medusa/pull/1988) [`80e02130b`](https://github.com/medusajs/medusa/commit/80e02130b4a444287920989654b607f07dd8d4f8) Thanks [@pKorsholm](https://github.com/pKorsholm)! - Convert SystemPaymentProvider to TypeScript
+
+* [#2024](https://github.com/medusajs/medusa/pull/2024) [`c31290c91`](https://github.com/medusajs/medusa/commit/c31290c911450a06d5e4da3dc5e4e3977071a6ea) Thanks [@adrien2p](https://github.com/adrien2p)! - Add new `isDefined` utility
+
+- [#1968](https://github.com/medusajs/medusa/pull/1968) [`4b663cca3`](https://github.com/medusajs/medusa/commit/4b663cca3acf43b0e02a1fb94b8d4f14913bfe45) Thanks [@adrien2p](https://github.com/adrien2p)! - Use transactions in CartCompletionStrategy phases
+
+- Updated dependencies [[`c97ccd3fb`](https://github.com/medusajs/medusa/commit/c97ccd3fb5dbe796b0e4fbf37def5bb6e8201557)]:
+  - medusa-interfaces@1.3.3
+
+## 1.3.5
+
+### Patch Changes
+
+- [#1914](https://github.com/medusajs/medusa/pull/1914) [`1dec44287`](https://github.com/medusajs/medusa/commit/1dec44287df5ac69b4c5769b59f9ebef58d3da68) Thanks [@fPolic](https://github.com/fPolic)! - Version bump due to missing changesets in merged PRs
+
+* [#1878](https://github.com/medusajs/medusa/pull/1878) [`8c283ac3b`](https://github.com/medusajs/medusa/commit/8c283ac3b03dea09203ac1b4c8d806efbc092290) Thanks [@srindom](https://github.com/srindom)! - Fixes issue with listing shipping options with a calculated price type
+
+- [#1874](https://github.com/medusajs/medusa/pull/1874) [`b8ddb31f6`](https://github.com/medusajs/medusa/commit/b8ddb31f6fe296a11d2d988276ba8e991c37fa9b) Thanks [@adrien2p](https://github.com/adrien2p)! - Move search indexing into a separate subscriber to defer the work load
+
+* [#1852](https://github.com/medusajs/medusa/pull/1852) [`dafbfa779`](https://github.com/medusajs/medusa/commit/dafbfa7799410a95f9a1ca02d1db718d1f8693eb) Thanks [@olivermrbl](https://github.com/olivermrbl)! - When marking a Draft Order as paid, we should generate tax lines before completing it
+
+- [#1873](https://github.com/medusajs/medusa/pull/1873) [`df6637853`](https://github.com/medusajs/medusa/commit/df66378535727152bb329c71c38d614e5b642599) Thanks [@adrien2p](https://github.com/adrien2p)! - Adds support for:
+  - Attaching Sales Channel to cart as part of creation
+  - Updating Sales Channel on a cart and removing inapplicable line items
+
+* [#1843](https://github.com/medusajs/medusa/pull/1843) [`716297231`](https://github.com/medusajs/medusa/commit/71629723185739a97fc2cf8eaa9029f7963bb120) Thanks [@olivermrbl](https://github.com/olivermrbl)! - Fixes free text search for PriceList Products
+
+- [#1884](https://github.com/medusajs/medusa/pull/1884) [`0e0b13148`](https://github.com/medusajs/medusa/commit/0e0b13148892b073a1b46900c6eb1b0d8e05cc37) Thanks [@pKorsholm](https://github.com/pKorsholm)! - Expand store result to include default sales channel
+
+* [#1851](https://github.com/medusajs/medusa/pull/1851) [`c148064b4`](https://github.com/medusajs/medusa/commit/c148064b4abdc4447d8216a6de0a6ce84e3a061c) Thanks [@srindom](https://github.com/srindom)! - Allow an array of region ids in list orders endpoint
+
+* Updated dependencies [[`1dec44287`](https://github.com/medusajs/medusa/commit/1dec44287df5ac69b4c5769b59f9ebef58d3da68), [`b8ddb31f6`](https://github.com/medusajs/medusa/commit/b8ddb31f6fe296a11d2d988276ba8e991c37fa9b)]:
+  - medusa-interfaces@1.3.2
+
+## 1.3.4
+
+### Patch Changes
+
+- [#1819](https://github.com/medusajs/medusa/pull/1819) [`3e197e3a`](https://github.com/medusajs/medusa/commit/3e197e3adf0bcd39cdcf30c7dda381cc4b7ac779) Thanks [@pKorsholm](https://github.com/pKorsholm)! - Add feature flags to store response
+
+* [#1807](https://github.com/medusajs/medusa/pull/1807) [`39f2c0c1`](https://github.com/medusajs/medusa/commit/39f2c0c15ee05b5b6941ea2ef16f0b4b1512ce4f) Thanks [@srindom](https://github.com/srindom)! - Calculates correct taxes and totals on line items when carts and orders have gift cards
+
+- [#1812](https://github.com/medusajs/medusa/pull/1812) [`4d15e01c`](https://github.com/medusajs/medusa/commit/4d15e01c3ebbc341113505d3c2f60c0e082943ae) Thanks [@srindom](https://github.com/srindom)! - Calculate orders correctly when creating fulfillments by adding adjustments
+
+* [#1825](https://github.com/medusajs/medusa/pull/1825) [`fb82d3dd`](https://github.com/medusajs/medusa/commit/fb82d3dd221efeba5b0110bd00908faecbdb30d7) Thanks [@olivermrbl](https://github.com/olivermrbl)! - - Add migration that ensures the correct state of the batch job table regardless of previous migrations
+
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [1.3.3](https://github.com/medusajs/medusa/compare/@medusajs/medusa@1.3.2...@medusajs/medusa@1.3.3) (2022-07-05)
+
+### Bug Fixes
+
+- introduce listAndCount for gift cards to enable pagination ([#1754](https://github.com/medusajs/medusa/issues/1754)) ([9a14b84](https://github.com/medusajs/medusa/commit/9a14b84e58a7db2b38edaf9ce59dcb4416736c30))
+- **medusa:** Remove deps `mongoose` + `mongodb` ([#1218](https://github.com/medusajs/medusa/issues/1218)) ([c76e23e](https://github.com/medusajs/medusa/commit/c76e23e84dd8cb08c3c709f9f95c4c17b9685439))
+- add shipping taxes ([#1759](https://github.com/medusajs/medusa/issues/1759)) ([fee0f88](https://github.com/medusajs/medusa/commit/fee0f88a62d7e00c844fcd021d090f130ab4a532))
+- **medusa:** Add images relation ([#1693](https://github.com/medusajs/medusa/issues/1693)) ([765c794](https://github.com/medusajs/medusa/commit/765c794b9775a12fffbed59a6312beb87442dc1a))
+- **medusa:** Normalizes email before saving customer ([#1719](https://github.com/medusajs/medusa/issues/1719)) ([2a32609](https://github.com/medusajs/medusa/commit/2a32609b7458c12f047d3f9ba45d426fdc784d58))
+- **medusa:** Plugin loader must also check for TransactionBaseService ([#1601](https://github.com/medusajs/medusa/issues/1601)) ([28ddf10](https://github.com/medusajs/medusa/commit/28ddf10446e689a32bf9d4d05dedd4aa090d66a0))
+- **medusa:** Product export strategy ([#1713](https://github.com/medusajs/medusa/issues/1713)) ([89cb717](https://github.com/medusajs/medusa/commit/89cb7174613ffbced8abb3a7e8a4539134bd867c))
+- **medusa:** Remove duplicate DiscountRuleType import ([#1699](https://github.com/medusajs/medusa/issues/1699)) ([46a6e1a](https://github.com/medusajs/medusa/commit/46a6e1a4d368241288d50cdd0aa35ac7dbf14764))
+- **medusa:** update cron schedule to be every 6 hours ([#1658](https://github.com/medusajs/medusa/issues/1658)) ([cffb03d](https://github.com/medusajs/medusa/commit/cffb03d1978b6fe019007f9c7683b67171300255))
+- adds tax calculation to product pricing ([#1354](https://github.com/medusajs/medusa/issues/1354)) ([14366f5](https://github.com/medusajs/medusa/commit/14366f536decc88546658e23521961a82409e842))
+- includes variant prices when listing products using a search query ([#1607](https://github.com/medusajs/medusa/issues/1607)) ([247ad6d](https://github.com/medusajs/medusa/commit/247ad6dc6d7f55bdec5d9d1b59f96c380dbba9c9))
+
+### Features
+
+- add customer to fetch-draft-order payload ([#1444](https://github.com/medusajs/medusa/issues/1444)) ([3fb74bf](https://github.com/medusajs/medusa/commit/3fb74bf512644c4dc45615a608f27650a95fa791))
+- **medusa:** Add batch strategy for order exports ([#1603](https://github.com/medusajs/medusa/issues/1603)) ([bf47d1a](https://github.com/medusajs/medusa/commit/bf47d1aecd74f4489667609444a8b09393e894d3))
+- **medusa:** Add file size calculation for product export ([#1726](https://github.com/medusajs/medusa/issues/1726)) ([fb7abbf](https://github.com/medusajs/medusa/commit/fb7abbf40784dcc66dbde25d400f3af54141c237))
+- **medusa:** Add line item totals to cart totals decoration ([#1740](https://github.com/medusajs/medusa/issues/1740)) ([c6dc908](https://github.com/medusajs/medusa/commit/c6dc9086cfa272db0c1a7f98f670bd3ed8ccfa78))
+- **medusa:** Allow to filter the batch jobs with nullable date ([#1747](https://github.com/medusajs/medusa/issues/1747)) ([c0f624a](https://github.com/medusajs/medusa/commit/c0f624ad3b8ae507438c0c84d867dc19904f08ae))
+- **medusa:** Apply query transformers to Collection and CustomerGroups ([#1667](https://github.com/medusajs/medusa/issues/1667)) ([e53c06e](https://github.com/medusajs/medusa/commit/e53c06eab8a37579f33c547d0373edc082cc308b))
+- **medusa:** BatchJobStrategy and loaders ([#1434](https://github.com/medusajs/medusa/issues/1434)) ([886dcbc](https://github.com/medusajs/medusa/commit/886dcbc82fc5ec784e699ddf7b18f710535fdada))
+- **medusa:** Convert GiftCardService to Typescript ([#1664](https://github.com/medusajs/medusa/issues/1664)) ([1585b7a](https://github.com/medusajs/medusa/commit/1585b7ae2b063adad9c22f6aac9d1e426ccac29f))
+- **medusa:** Delete and download url endpoints ([#1705](https://github.com/medusajs/medusa/issues/1705)) ([cc29b64](https://github.com/medusajs/medusa/commit/cc29b641c9358415b46179371988e7ddc11d2664))
+- **medusa:** Extend file-service interface + move to core ([#1577](https://github.com/medusajs/medusa/issues/1577)) ([8e42d37](https://github.com/medusajs/medusa/commit/8e42d37e84e80c003b9c0311117ab8a8871aa61b))
+- **medusa:** Migrate utils to TS ([#1415](https://github.com/medusajs/medusa/issues/1415)) ([d98cd85](https://github.com/medusajs/medusa/commit/d98cd85d2370f179044ddfec43479dc7cdcc39bd))
+- **medusa:** Parsing CSV files ([#1572](https://github.com/medusajs/medusa/issues/1572)) ([9e686a8](https://github.com/medusajs/medusa/commit/9e686a8e47c567ffdb57bb43af796dd38049294f))
+- **medusa:** Support batch-job API ([#1547](https://github.com/medusajs/medusa/issues/1547)) ([4536886](https://github.com/medusajs/medusa/commit/453688682c79032737ea47197c00ea14e84aab02)), closes [#1434](https://github.com/medusajs/medusa/issues/1434) [#1548](https://github.com/medusajs/medusa/issues/1548) [#1453](https://github.com/medusajs/medusa/issues/1453)
+- **medusa:** Support transformQuery/Body middleware, introduction of pipe feature ([#1593](https://github.com/medusajs/medusa/issues/1593)) ([3359e18](https://github.com/medusajs/medusa/commit/3359e189a70533692f85fbbff9b09018872abbf4))
+- **medusa:** Update BuildQuery typings ([#1672](https://github.com/medusajs/medusa/issues/1672)) ([93aaaa7](https://github.com/medusajs/medusa/commit/93aaaa71bd07ba0675be05ea503580f3e9ec6806))
+- **medusa-cli:** Allow to revert migrations from the CLI ([#1353](https://github.com/medusajs/medusa/issues/1353)) ([012513b](https://github.com/medusajs/medusa/commit/012513b6a1e90169e9e0e53f7a59841a34fbaeb3))
+- **medusa,medusa-js,medusa-react:** Add BatchJob API support in `medusa-js` + `medusa-react` ([#1704](https://github.com/medusajs/medusa/issues/1704)) ([7302d76](https://github.com/medusajs/medusa/commit/7302d76e12683c989f340d2fcfaf4338dca6554a))
+- **medusa/product-export-strategy:** Implement the Product export strategy ([#1688](https://github.com/medusajs/medusa/issues/1688)) ([7b09b8c](https://github.com/medusajs/medusa/commit/7b09b8c36cf8777ee874deed795bc98ba6653aa8))
+
+## [1.3.2](https://github.com/medusajs/medusa/compare/@medusajs/medusa@1.3.0...@medusajs/medusa@1.3.2) (2022-06-19)
+
+### Bug Fixes
+
+- **medisa:** Deleting price list should use `remove` ([#1540](https://github.com/medusajs/medusa/issues/1540)) ([f0ecef6](https://github.com/medusajs/medusa/commit/f0ecef6b9ae878e83be0efaf13d6f3fef5d48e3a))
+- **medusa:** `AddressPayload` typing and removes Joi validation from CustomerService ([#1520](https://github.com/medusajs/medusa/issues/1520)) ([8dd27ec](https://github.com/medusajs/medusa/commit/8dd27ecb7e1de70e84ed5332ea329827473c00aa))
+- **medusa:** add `q` param to `listAndCount` product types and product tags ([#1531](https://github.com/medusajs/medusa/issues/1531)) ([46d9e6c](https://github.com/medusajs/medusa/commit/46d9e6c44cea190baf56874f86fe4a5e692b9a44))
+- **medusa:** Allow de-selecting configurations in price lists ([#1596](https://github.com/medusajs/medusa/issues/1596)) ([3f23ede](https://github.com/medusajs/medusa/commit/3f23edea2314da5edd477280eeb93727500f7b84))
+- **medusa:** allow price list `prices` update when `region_id` is provided ([#1472](https://github.com/medusajs/medusa/issues/1472)) ([03c5617](https://github.com/medusajs/medusa/commit/03c5617896d08b354932a470cadd9d36508f9d40))
+- **medusa:** applicableness of discounts with conditions not related to customer groups ([#1534](https://github.com/medusajs/medusa/issues/1534)) ([a10ac19](https://github.com/medusajs/medusa/commit/a10ac19d8e12f8c1c69020ca9e09e7c4739a740c))
+- **medusa:** CartService fix discounts empty array check on update ([#1516](https://github.com/medusajs/medusa/issues/1516)) ([e31fe4a](https://github.com/medusajs/medusa/commit/e31fe4af163ebd94eefaaa61e519607ec04c5622))
+- **medusa:** CartService lost shipping address when using the id ([c442be4](https://github.com/medusajs/medusa/commit/c442be47d4a0b4cf3b46ce604b05e16424544046))
+- **medusa:** discount types across model, service and api ([#1545](https://github.com/medusajs/medusa/issues/1545)) ([2f08167](https://github.com/medusajs/medusa/commit/2f08167480e23f64590d85c098ea6a18ad2d0270))
+- **medusa:** Include adjustments in cart retrieval relations in setPaymentSessions ([#1518](https://github.com/medusajs/medusa/issues/1518)) ([02eab5e](https://github.com/medusajs/medusa/commit/02eab5ee86b92d8dfa6346b09d2353659c064b42))
+- **medusa:** Include adjustments when authorizing payment ([#1697](https://github.com/medusajs/medusa/issues/1697)) ([6b23208](https://github.com/medusajs/medusa/commit/6b23208d63c6928a0587176bc3a6e40091922151))
+- **medusa:** MoneyAmountRepository#findManyForVariantInRegion sql statement for constraint related to price_list ([#1462](https://github.com/medusajs/medusa/issues/1462)) ([3c75a65](https://github.com/medusajs/medusa/commit/3c75a657924938f2aeda8cca7ad84a1971629ee0))
+- **medusa:** PluginLoaders when loading services should only look for js files ([#1473](https://github.com/medusajs/medusa/issues/1473)) ([c67d6be](https://github.com/medusajs/medusa/commit/c67d6bee303ad8e43f320fe16f807b0d22890c5b))
+- **medusa:** Post /admin/discounts/:id not updating condition operator ([#1573](https://github.com/medusajs/medusa/issues/1573)) ([5414148](https://github.com/medusajs/medusa/commit/5414148254de9b54c0c292e9348f524f15334b96))
+- **medusa:** Prevent discount type updates ([#1584](https://github.com/medusajs/medusa/issues/1584)) ([083ab09](https://github.com/medusajs/medusa/commit/083ab09361271e48fd39a7d60f2ca3e172c20b23))
+- **medusa:** Proper fix of the cart service ([f5edaf5](https://github.com/medusajs/medusa/commit/f5edaf51ea2d49d662b00f7a5360449cf827d825))
+- **medusa:** Remove line-item.js file ([#1414](https://github.com/medusajs/medusa/issues/1414)) ([9087029](https://github.com/medusajs/medusa/commit/90870292c62e2e96ca8c9ffc51e32c73493e0c0b))
+- **medusa:** RMA on items from swaps and claims ([#1182](https://github.com/medusajs/medusa/issues/1182)) ([5ae5f15](https://github.com/medusajs/medusa/commit/5ae5f15e9883786eb5759b49b98b858822e72a96))
+- **medusa:** support searching for price lists ([#1407](https://github.com/medusajs/medusa/issues/1407)) ([f71b9b3](https://github.com/medusajs/medusa/commit/f71b9b3a8733fdcfe4298fcf49fd06ae89850fc2))
+- **medusa:** Use boolean on list shipping options params ([#1493](https://github.com/medusajs/medusa/issues/1493)) ([7605963](https://github.com/medusajs/medusa/commit/7605963ded737514e2328bb0d1fb9814c14b84a9))
+- Cascade remove prices + option values on variant and product delete ([#1465](https://github.com/medusajs/medusa/issues/1465)) ([e7cb76a](https://github.com/medusajs/medusa/commit/e7cb76ab6e13fe756e090fd1a0a3ff645c30c69a))
+- Use correct product price when fetching product for pricelist ([#1416](https://github.com/medusajs/medusa/issues/1416)) ([e2d0831](https://github.com/medusajs/medusa/commit/e2d08316dd03946453c5bf39c78a141d9fd57d3c))
+- **medusa-cli:** allow spaces in develop command ([#1430](https://github.com/medusajs/medusa/issues/1430)) ([2260c2d](https://github.com/medusajs/medusa/commit/2260c2d09ec057d62b548c55142273e86eda1ca0))
+
+### Features
+
+- **medusa:** Add /admin/products/:id/variants end point ([#1471](https://github.com/medusajs/medusa/issues/1471)) ([edeac8a](https://github.com/medusajs/medusa/commit/edeac8ac720e139216bb8d9fe0b6c3df28dadc75))
+- **medusa:** Add endpoint for retrieving a DiscountCondition ([#1525](https://github.com/medusajs/medusa/issues/1525)) ([a87e1cd](https://github.com/medusajs/medusa/commit/a87e1cdf6558fd56bd91540853ca0bb715eda46e))
+- **medusa:** Add endpoints specific to DiscountConditions ([#1355](https://github.com/medusajs/medusa/issues/1355)) ([9ca45ea](https://github.com/medusajs/medusa/commit/9ca45ea492e755a88737322f900d60abdfa64024))
+- **medusa:** Add writable type ([1499bc5](https://github.com/medusajs/medusa/commit/1499bc52e36616ca9d67fd55bf5965478dff390f))
+- **medusa:** Export BaseEntity/SoftDeletableEntity from the core ([#1594](https://github.com/medusajs/medusa/issues/1594)) ([d0c679f](https://github.com/medusajs/medusa/commit/d0c679fc7ef318481bd767d50e91e2523e6f674d))
+- **medusa:** Export transaction related methods to the transactionBaseService ([99146b7](https://github.com/medusajs/medusa/commit/99146b74037b89c6893c97e77e43a1aaf1c2a3d4))
+- **medusa:** Improve base-service ([bfb81b8](https://github.com/medusajs/medusa/commit/bfb81b8b32fbba538010221f1a30fcc31aaa691e))
+- **medusa:** Improve buildQuery as well as refactor the cart service as an example ([b90291b](https://github.com/medusajs/medusa/commit/b90291b18d438e3bb7f5239f4470eec7b3c5ff03))
+- **medusa:** List batch jobs + Introduce composable handler pattern ([#1541](https://github.com/medusajs/medusa/issues/1541)) ([4489b75](https://github.com/medusajs/medusa/commit/4489b75f5ad669b7a53023e9afb07fb11dcb89d3))
+- **medusa:** Move some typings into the common types ([3ad9174](https://github.com/medusajs/medusa/commit/3ad91741b2e729638902d7c62ac99fdfe9a40b91))
+- **medusa:** Rename base-service.spec to transaction-base-service.spec ([f7ef3aa](https://github.com/medusajs/medusa/commit/f7ef3aac36ed3053c8880522cc95bb046c03ebda))
+- **medusa:** Split base service to its related TransactionBaseService and utilities methods when required ([e7e715a](https://github.com/medusajs/medusa/commit/e7e715ac177bd0b883ffa0d72a208580012bfbab))
+- **medusa:** Support deleting prices from a price list by product or variant ([#1555](https://github.com/medusajs/medusa/issues/1555)) ([fa031fd](https://github.com/medusajs/medusa/commit/fa031fd28be8b12ff38eaec6e56c373324e0beed))
+- **medusa:** Update TransactionBaseService methods visibility ([ff9ff21](https://github.com/medusajs/medusa/commit/ff9ff214873a14b3b0abc419f53838b8d728eea9))
+
+## [1.3.1](https://github.com/medusajs/medusa/compare/@medusajs/medusa@1.3.0...@medusajs/medusa@1.3.1) (2022-05-31)
+
+### Bug Fixes
+
+- **medisa:** Deleting price list should use `remove` ([#1540](https://github.com/medusajs/medusa/issues/1540)) ([f0ecef6](https://github.com/medusajs/medusa/commit/f0ecef6b9ae878e83be0efaf13d6f3fef5d48e3a))
+- **medusa:** `AddressPayload` typing and removes Joi validation from CustomerService ([#1520](https://github.com/medusajs/medusa/issues/1520)) ([8dd27ec](https://github.com/medusajs/medusa/commit/8dd27ecb7e1de70e84ed5332ea329827473c00aa))
+- **medusa:** add `q` param to `listAndCount` product types and product tags ([#1531](https://github.com/medusajs/medusa/issues/1531)) ([46d9e6c](https://github.com/medusajs/medusa/commit/46d9e6c44cea190baf56874f86fe4a5e692b9a44))
+- **medusa:** Allow de-selecting configurations in price lists ([#1596](https://github.com/medusajs/medusa/issues/1596)) ([3f23ede](https://github.com/medusajs/medusa/commit/3f23edea2314da5edd477280eeb93727500f7b84))
+- **medusa:** allow price list `prices` update when `region_id` is provided ([#1472](https://github.com/medusajs/medusa/issues/1472)) ([03c5617](https://github.com/medusajs/medusa/commit/03c5617896d08b354932a470cadd9d36508f9d40))
+- **medusa:** applicableness of discounts with conditions not related to customer groups ([#1534](https://github.com/medusajs/medusa/issues/1534)) ([a10ac19](https://github.com/medusajs/medusa/commit/a10ac19d8e12f8c1c69020ca9e09e7c4739a740c))
+- **medusa:** CartService fix discounts empty array check on update ([#1516](https://github.com/medusajs/medusa/issues/1516)) ([e31fe4a](https://github.com/medusajs/medusa/commit/e31fe4af163ebd94eefaaa61e519607ec04c5622))
+- **medusa:** CartService lost shipping address when using the id ([c442be4](https://github.com/medusajs/medusa/commit/c442be47d4a0b4cf3b46ce604b05e16424544046))
+- **medusa:** discount types across model, service and api ([#1545](https://github.com/medusajs/medusa/issues/1545)) ([2f08167](https://github.com/medusajs/medusa/commit/2f08167480e23f64590d85c098ea6a18ad2d0270))
+- **medusa:** Include adjustments in cart retrieval relations in setPaymentSessions ([#1518](https://github.com/medusajs/medusa/issues/1518)) ([02eab5e](https://github.com/medusajs/medusa/commit/02eab5ee86b92d8dfa6346b09d2353659c064b42))
+- **medusa:** MoneyAmountRepository#findManyForVariantInRegion sql statement for constraint related to price_list ([#1462](https://github.com/medusajs/medusa/issues/1462)) ([3c75a65](https://github.com/medusajs/medusa/commit/3c75a657924938f2aeda8cca7ad84a1971629ee0))
+- **medusa:** PluginLoaders when loading services should only look for js files ([#1473](https://github.com/medusajs/medusa/issues/1473)) ([c67d6be](https://github.com/medusajs/medusa/commit/c67d6bee303ad8e43f320fe16f807b0d22890c5b))
+- **medusa:** Post /admin/discounts/:id not updating condition operator ([#1573](https://github.com/medusajs/medusa/issues/1573)) ([5414148](https://github.com/medusajs/medusa/commit/5414148254de9b54c0c292e9348f524f15334b96))
+- **medusa:** Prevent discount type updates ([#1584](https://github.com/medusajs/medusa/issues/1584)) ([083ab09](https://github.com/medusajs/medusa/commit/083ab09361271e48fd39a7d60f2ca3e172c20b23))
+- **medusa:** Proper fix of the cart service ([f5edaf5](https://github.com/medusajs/medusa/commit/f5edaf51ea2d49d662b00f7a5360449cf827d825))
+- **medusa:** Remove line-item.js file ([#1414](https://github.com/medusajs/medusa/issues/1414)) ([9087029](https://github.com/medusajs/medusa/commit/90870292c62e2e96ca8c9ffc51e32c73493e0c0b))
+- **medusa:** RMA on items from swaps and claims ([#1182](https://github.com/medusajs/medusa/issues/1182)) ([5ae5f15](https://github.com/medusajs/medusa/commit/5ae5f15e9883786eb5759b49b98b858822e72a96))
+- **medusa:** support searching for price lists ([#1407](https://github.com/medusajs/medusa/issues/1407)) ([f71b9b3](https://github.com/medusajs/medusa/commit/f71b9b3a8733fdcfe4298fcf49fd06ae89850fc2))
+- **medusa:** Use boolean on list shipping options params ([#1493](https://github.com/medusajs/medusa/issues/1493)) ([7605963](https://github.com/medusajs/medusa/commit/7605963ded737514e2328bb0d1fb9814c14b84a9))
+- Cascade remove prices + option values on variant and product delete ([#1465](https://github.com/medusajs/medusa/issues/1465)) ([e7cb76a](https://github.com/medusajs/medusa/commit/e7cb76ab6e13fe756e090fd1a0a3ff645c30c69a))
+- Use correct product price when fetching product for pricelist ([#1416](https://github.com/medusajs/medusa/issues/1416)) ([e2d0831](https://github.com/medusajs/medusa/commit/e2d08316dd03946453c5bf39c78a141d9fd57d3c))
+- **medusa-cli:** allow spaces in develop command ([#1430](https://github.com/medusajs/medusa/issues/1430)) ([2260c2d](https://github.com/medusajs/medusa/commit/2260c2d09ec057d62b548c55142273e86eda1ca0))
+
+### Features
+
+- **medusa:** Add /admin/products/:id/variants end point ([#1471](https://github.com/medusajs/medusa/issues/1471)) ([edeac8a](https://github.com/medusajs/medusa/commit/edeac8ac720e139216bb8d9fe0b6c3df28dadc75))
+- **medusa:** Add endpoint for retrieving a DiscountCondition ([#1525](https://github.com/medusajs/medusa/issues/1525)) ([a87e1cd](https://github.com/medusajs/medusa/commit/a87e1cdf6558fd56bd91540853ca0bb715eda46e))
+- **medusa:** Add endpoints specific to DiscountConditions ([#1355](https://github.com/medusajs/medusa/issues/1355)) ([9ca45ea](https://github.com/medusajs/medusa/commit/9ca45ea492e755a88737322f900d60abdfa64024))
+- **medusa:** Add writable type ([1499bc5](https://github.com/medusajs/medusa/commit/1499bc52e36616ca9d67fd55bf5965478dff390f))
+- **medusa:** Export BaseEntity/SoftDeletableEntity from the core ([#1594](https://github.com/medusajs/medusa/issues/1594)) ([d0c679f](https://github.com/medusajs/medusa/commit/d0c679fc7ef318481bd767d50e91e2523e6f674d))
+- **medusa:** Export transaction related methods to the transactionBaseService ([99146b7](https://github.com/medusajs/medusa/commit/99146b74037b89c6893c97e77e43a1aaf1c2a3d4))
+- **medusa:** Improve base-service ([bfb81b8](https://github.com/medusajs/medusa/commit/bfb81b8b32fbba538010221f1a30fcc31aaa691e))
+- **medusa:** Improve buildQuery as well as refactor the cart service as an example ([b90291b](https://github.com/medusajs/medusa/commit/b90291b18d438e3bb7f5239f4470eec7b3c5ff03))
+- **medusa:** List batch jobs + Introduce composable handler pattern ([#1541](https://github.com/medusajs/medusa/issues/1541)) ([4489b75](https://github.com/medusajs/medusa/commit/4489b75f5ad669b7a53023e9afb07fb11dcb89d3))
+- **medusa:** Move some typings into the common types ([3ad9174](https://github.com/medusajs/medusa/commit/3ad91741b2e729638902d7c62ac99fdfe9a40b91))
+- **medusa:** Rename base-service.spec to transaction-base-service.spec ([f7ef3aa](https://github.com/medusajs/medusa/commit/f7ef3aac36ed3053c8880522cc95bb046c03ebda))
+- **medusa:** Split base service to its related TransactionBaseService and utilities methods when required ([e7e715a](https://github.com/medusajs/medusa/commit/e7e715ac177bd0b883ffa0d72a208580012bfbab))
+- **medusa:** Support deleting prices from a price list by product or variant ([#1555](https://github.com/medusajs/medusa/issues/1555)) ([fa031fd](https://github.com/medusajs/medusa/commit/fa031fd28be8b12ff38eaec6e56c373324e0beed))
+- **medusa:** Update TransactionBaseService methods visibility ([ff9ff21](https://github.com/medusajs/medusa/commit/ff9ff214873a14b3b0abc419f53838b8d728eea9))
+
+# [1.3.0](https://github.com/medusajs/medusa/compare/@medusajs/medusa@1.2.1...@medusajs/medusa@1.3.0) (2022-05-01)
+
+### Bug Fixes
+
+- Invoke canCalculate with an entire shipping option ([#1397](https://github.com/medusajs/medusa/issues/1397)) ([40b63d0](https://github.com/medusajs/medusa/commit/40b63d092a50fea1f86af140d94b3c9c38f00658))
+- Update `is_giftcard` type when filtering products ([#1427](https://github.com/medusajs/medusa/issues/1427)) ([f7386bf](https://github.com/medusajs/medusa/commit/f7386bf4b3c89363ae5ef15bd577a74b54345457))
+- **medusa:** Lint and missing transaction usage ([#1297](https://github.com/medusajs/medusa/issues/1297)) ([ab2d81f](https://github.com/medusajs/medusa/commit/ab2d81f7865a7d660459f27d81ea6aa79cbebda6))
+- **medusa:** Remove unsupported Discount endpoints ([#1367](https://github.com/medusajs/medusa/issues/1367)) ([9acee27](https://github.com/medusajs/medusa/commit/9acee2799ead683575edd0f7172f336878569dfe))
+- **medusa:** Remove updatePaymentMethod store cart route ([#1382](https://github.com/medusajs/medusa/issues/1382)) ([89a6de4](https://github.com/medusajs/medusa/commit/89a6de466020e35c6feab9ca9e06486ad76c2a53))
+- add tax service registration ([#1225](https://github.com/medusajs/medusa/issues/1225)) ([491b6eb](https://github.com/medusajs/medusa/commit/491b6eba2d1388c498583c232d3506f7775c8968))
+- adds date filters on store collection + region list api ([#1216](https://github.com/medusajs/medusa/issues/1216)) ([3cd4108](https://github.com/medusajs/medusa/commit/3cd4108915bca2889550c18c5c2fc95b8300d520))
+- allow offset and limit in products free text search ([#1082](https://github.com/medusajs/medusa/issues/1082)) ([c2241d1](https://github.com/medusajs/medusa/commit/c2241d110178d9ed992793d582ef652c4a23b729))
+- ensures no duplicate tax lines when completing cart ([#1262](https://github.com/medusajs/medusa/issues/1262)) ([607a382](https://github.com/medusajs/medusa/commit/607a382b4ee190c25eafa345674b55b74a7d6349))
+- exists flag on /store/auth/:email endpoint ([#1122](https://github.com/medusajs/medusa/issues/1122)) ([e844f4a](https://github.com/medusajs/medusa/commit/e844f4a5b72317ea4990c6e83501e168aba0c257))
+- export params type ([4ee2af2](https://github.com/medusajs/medusa/commit/4ee2af2582d6c6420e7faf238447b77499e5d32d))
+- export request types from add and remove product endpoints ([#1078](https://github.com/medusajs/medusa/issues/1078)) ([449e666](https://github.com/medusajs/medusa/commit/449e6664283edc2bce42b97b9d52def1841a9a18))
+- list customers query error ([#1226](https://github.com/medusajs/medusa/issues/1226)) ([932f4b2](https://github.com/medusajs/medusa/commit/932f4b29a8506125f88f814a36d6d622ce56ceaf))
+- merge conflicts ([562a1b4](https://github.com/medusajs/medusa/commit/562a1b427a6aeb634fbc8b1a6d023c451ca2cd62))
+- Remove `region_id` from countries on region deletes ([#1330](https://github.com/medusajs/medusa/issues/1330)) ([edc6d9d](https://github.com/medusajs/medusa/commit/edc6d9d29c61924a476a1e83742508a2b7dcda08))
+- storefront product filtering ([#1189](https://github.com/medusajs/medusa/issues/1189)) ([e3655b5](https://github.com/medusajs/medusa/commit/e3655b53f7b220f6dc270b5cdd3052579a573ba5))
+- unit test case for `CustomerGroupServiceMock.retrieve` ([def8763](https://github.com/medusajs/medusa/commit/def8763ee203c60728815ef3d36e57b5533b97c8))
+- variant price update ([#1093](https://github.com/medusajs/medusa/issues/1093)) ([cb7b211](https://github.com/medusajs/medusa/commit/cb7b211c9bb3188ecf072fa1734055a4ddfe7f86))
+
+### Features
+
+- line item adjustment migration script ([#1255](https://github.com/medusajs/medusa/issues/1255)) ([b8f1ae9](https://github.com/medusajs/medusa/commit/b8f1ae9ff5ce08d96f7b84fdb03071d5135ac243))
+- **medusa:** Improve config loading ([#1290](https://github.com/medusajs/medusa/issues/1290)) ([313cb06](https://github.com/medusajs/medusa/commit/313cb0658bd58316ff57c3419d936c071f703f9b))
+- **medusa:** Improve exported medusa API ([#1335](https://github.com/medusajs/medusa/issues/1335)) ([6830a12](https://github.com/medusajs/medusa/commit/6830a12b46335e65df974f0c1b2ad3904b04280f))
+- add `extend` param for customer groups ([ecd6ed8](https://github.com/medusajs/medusa/commit/ecd6ed820e77904fe59ff6fcc9195533968dd9f3))
+- add and remove products to/from collection in bulk endpoints ([#1032](https://github.com/medusajs/medusa/issues/1032)) ([6629403](https://github.com/medusajs/medusa/commit/66294038f0ccf0b81bcf099b590379acffb647ba))
+- Add BatchJob entity ([#1324](https://github.com/medusajs/medusa/issues/1324)) ([8c420f4](https://github.com/medusajs/medusa/commit/8c420f42854ebbef77c5009265cdb0d0f642c1f4))
+- Add DiscountConditions ([#1230](https://github.com/medusajs/medusa/issues/1230)) ([a610805](https://github.com/medusajs/medusa/commit/a610805917ee930d4cebde74905e541a468aa83b)), closes [#1146](https://github.com/medusajs/medusa/issues/1146) [#1149](https://github.com/medusajs/medusa/issues/1149) [#1156](https://github.com/medusajs/medusa/issues/1156) [#1170](https://github.com/medusajs/medusa/issues/1170) [#1172](https://github.com/medusajs/medusa/issues/1172) [#1212](https://github.com/medusajs/medusa/issues/1212) [#1224](https://github.com/medusajs/medusa/issues/1224) [#1228](https://github.com/medusajs/medusa/issues/1228)
+- customer group update ([#1098](https://github.com/medusajs/medusa/issues/1098)) ([694e2df](https://github.com/medusajs/medusa/commit/694e2df20f8c1b125c51f7d24b1e3abdc4b3cff6))
+- customer groups client endpoints ([#1147](https://github.com/medusajs/medusa/issues/1147)) ([93426bf](https://github.com/medusajs/medusa/commit/93426bfc0263b3a19e6d47e19cc498fea441fb30))
+- GET customer group endpoint ([21d99a4](https://github.com/medusajs/medusa/commit/21d99a44a9fb2bd0f52c8bc8b5c75d200ef6d539))
+- Implement PriceList and extend MoneyAmount ([#1152](https://github.com/medusajs/medusa/issues/1152)) ([5300926](https://github.com/medusajs/medusa/commit/5300926db87b61ccd38541eea529c838e7f065ea))
+- line item adjustments ([#1319](https://github.com/medusajs/medusa/issues/1319)) ([1cfeb5d](https://github.com/medusajs/medusa/commit/1cfeb5dbd8c1ac0cbcef388ba1455e08965316bc)), closes [#1241](https://github.com/medusajs/medusa/issues/1241) [#1279](https://github.com/medusajs/medusa/issues/1279) [#1242](https://github.com/medusajs/medusa/issues/1242) [#1243](https://github.com/medusajs/medusa/issues/1243)
+- list customer groups ([#1099](https://github.com/medusajs/medusa/issues/1099)) ([a514d84](https://github.com/medusajs/medusa/commit/a514d84ccf49cbb71fd57c2e4a3c7d245c89cc4b))
+- new tax api ([#979](https://github.com/medusajs/medusa/issues/979)) ([c56660f](https://github.com/medusajs/medusa/commit/c56660fca9921a3f3637bc137d9794781c5b090f)), closes [#885](https://github.com/medusajs/medusa/issues/885) [#896](https://github.com/medusajs/medusa/issues/896) [#911](https://github.com/medusajs/medusa/issues/911) [#945](https://github.com/medusajs/medusa/issues/945) [#950](https://github.com/medusajs/medusa/issues/950) [#951](https://github.com/medusajs/medusa/issues/951) [#954](https://github.com/medusajs/medusa/issues/954) [#969](https://github.com/medusajs/medusa/issues/969) [#998](https://github.com/medusajs/medusa/issues/998) [#1017](https://github.com/medusajs/medusa/issues/1017) [#1110](https://github.com/medusajs/medusa/issues/1110)
+- price list products ([#1239](https://github.com/medusajs/medusa/issues/1239)) ([fb33dba](https://github.com/medusajs/medusa/commit/fb33dbaca3f7a66f1f82481cd68f59d733a66a95))
+- update customer groups ([#1075](https://github.com/medusajs/medusa/issues/1075)) ([75fb2ce](https://github.com/medusajs/medusa/commit/75fb2ce9c3a206a9d43cdbd80a356d9ba4d28f3f))
+
+## [1.2.1](https://github.com/medusajs/medusa/compare/@medusajs/medusa@1.1.64...@medusajs/medusa@1.2.1) (2022-02-28)
+
+### Bug Fixes
+
+- Add tax repo to withTransaction in region service ([#1126](https://github.com/medusajs/medusa/issues/1126)) ([549ad3b](https://github.com/medusajs/medusa/commit/549ad3b907b27dd985157c4cb58d07162b1b739d))
+- allow offset and limit in products free text search ([#1082](https://github.com/medusajs/medusa/issues/1082)) ([a81def2](https://github.com/medusajs/medusa/commit/a81def2f75a9fea4a113d2d2e92037c7ae0e4de6))
+- export params type ([9d6489d](https://github.com/medusajs/medusa/commit/9d6489d7e24015cac399d687f38121edbc812487))
+- export request types from add and remove product endpoints ([#1078](https://github.com/medusajs/medusa/issues/1078)) ([1f2ee04](https://github.com/medusajs/medusa/commit/1f2ee04abe9769cca9421cb9a3c96dce2eaac4cb))
+- unit test case for `CustomerGroupServiceMock.retrieve` ([aa8bbfd](https://github.com/medusajs/medusa/commit/aa8bbfdd58240fc5b56cb79c0b5c3b4a834d937a))
+- variant price update ([#1093](https://github.com/medusajs/medusa/issues/1093)) ([59d5d8a](https://github.com/medusajs/medusa/commit/59d5d8a185ad7035bdca89cf527509af1672e1c0))
+
+### Features
+
+- add `extend` param for customer groups ([bf3e04f](https://github.com/medusajs/medusa/commit/bf3e04f41ac3df14c7ecdb7355d7e2e0ec7cd8c0))
+- add and remove products to/from collection in bulk endpoints ([#1032](https://github.com/medusajs/medusa/issues/1032)) ([1e4cc2f](https://github.com/medusajs/medusa/commit/1e4cc2fc80372613f26880c3cce3c9c1c0d1f2c6))
+- customer group update ([#1098](https://github.com/medusajs/medusa/issues/1098)) ([d80eaa1](https://github.com/medusajs/medusa/commit/d80eaa172d9db928a2fee60a33a10032045ed74d))
+- GET customer group endpoint ([de06b47](https://github.com/medusajs/medusa/commit/de06b47b15443aa3ec95028124fd65694921083f))
+- new tax api ([#979](https://github.com/medusajs/medusa/issues/979)) ([47588e7](https://github.com/medusajs/medusa/commit/47588e7a8d3b2ae2fed0c1e87fdf1ee2db6bcdc2)), closes [#885](https://github.com/medusajs/medusa/issues/885) [#896](https://github.com/medusajs/medusa/issues/896) [#911](https://github.com/medusajs/medusa/issues/911) [#945](https://github.com/medusajs/medusa/issues/945) [#950](https://github.com/medusajs/medusa/issues/950) [#951](https://github.com/medusajs/medusa/issues/951) [#954](https://github.com/medusajs/medusa/issues/954) [#969](https://github.com/medusajs/medusa/issues/969) [#998](https://github.com/medusajs/medusa/issues/998) [#1017](https://github.com/medusajs/medusa/issues/1017) [#1110](https://github.com/medusajs/medusa/issues/1110)
+- update customer groups ([#1075](https://github.com/medusajs/medusa/issues/1075)) ([73359a6](https://github.com/medusajs/medusa/commit/73359a632b2d65369b0db62d9e21979e5e26bea8))
+
+# [1.2.0](https://github.com/medusajs/medusa/compare/@medusajs/medusa@1.1.64...@medusajs/medusa@1.2.0) (2022-02-25)
+
+### Bug Fixes
+
+- allow offset and limit in products free text search ([#1082](https://github.com/medusajs/medusa/issues/1082)) ([c2241d1](https://github.com/medusajs/medusa/commit/c2241d110178d9ed992793d582ef652c4a23b729))
+- export params type ([4ee2af2](https://github.com/medusajs/medusa/commit/4ee2af2582d6c6420e7faf238447b77499e5d32d))
+- export request types from add and remove product endpoints ([#1078](https://github.com/medusajs/medusa/issues/1078)) ([449e666](https://github.com/medusajs/medusa/commit/449e6664283edc2bce42b97b9d52def1841a9a18))
+- unit test case for `CustomerGroupServiceMock.retrieve` ([def8763](https://github.com/medusajs/medusa/commit/def8763ee203c60728815ef3d36e57b5533b97c8))
+- variant price update ([#1093](https://github.com/medusajs/medusa/issues/1093)) ([cb7b211](https://github.com/medusajs/medusa/commit/cb7b211c9bb3188ecf072fa1734055a4ddfe7f86))
+
+### Features
+
+- add `extend` param for customer groups ([ecd6ed8](https://github.com/medusajs/medusa/commit/ecd6ed820e77904fe59ff6fcc9195533968dd9f3))
+- add and remove products to/from collection in bulk endpoints ([#1032](https://github.com/medusajs/medusa/issues/1032)) ([6629403](https://github.com/medusajs/medusa/commit/66294038f0ccf0b81bcf099b590379acffb647ba))
+- customer group update ([#1098](https://github.com/medusajs/medusa/issues/1098)) ([694e2df](https://github.com/medusajs/medusa/commit/694e2df20f8c1b125c51f7d24b1e3abdc4b3cff6))
+- GET customer group endpoint ([21d99a4](https://github.com/medusajs/medusa/commit/21d99a44a9fb2bd0f52c8bc8b5c75d200ef6d539))
+- new tax api ([#979](https://github.com/medusajs/medusa/issues/979)) ([c56660f](https://github.com/medusajs/medusa/commit/c56660fca9921a3f3637bc137d9794781c5b090f)), closes [#885](https://github.com/medusajs/medusa/issues/885) [#896](https://github.com/medusajs/medusa/issues/896) [#911](https://github.com/medusajs/medusa/issues/911) [#945](https://github.com/medusajs/medusa/issues/945) [#950](https://github.com/medusajs/medusa/issues/950) [#951](https://github.com/medusajs/medusa/issues/951) [#954](https://github.com/medusajs/medusa/issues/954) [#969](https://github.com/medusajs/medusa/issues/969) [#998](https://github.com/medusajs/medusa/issues/998) [#1017](https://github.com/medusajs/medusa/issues/1017) [#1110](https://github.com/medusajs/medusa/issues/1110)
+- update customer groups ([#1075](https://github.com/medusajs/medusa/issues/1075)) ([75fb2ce](https://github.com/medusajs/medusa/commit/75fb2ce9c3a206a9d43cdbd80a356d9ba4d28f3f))
+
+## [1.1.64](https://github.com/medusajs/medusa/compare/@medusajs/medusa@1.1.63...@medusajs/medusa@1.1.64) (2022-02-06)
+
+### Bug Fixes
+
+- release ([fc3fbc8](https://github.com/medusajs/medusa/commit/fc3fbc897fad5c8a5d3eea828ac7277fba9d70af))
+
+## [1.1.63](https://github.com/medusajs/medusa/compare/@medusajs/medusa@1.1.62...@medusajs/medusa@1.1.63) (2022-02-06)
+
+### Bug Fixes
+
+- adds order by functionality to products ([#1021](https://github.com/medusajs/medusa/issues/1021)) ([3bf32e5](https://github.com/medusajs/medusa/commit/3bf32e5dc9ad3150762b9bb744b0453d3640e204))
+- adds return reasons to swaps ([#1026](https://github.com/medusajs/medusa/issues/1026)) ([7d2b5b8](https://github.com/medusajs/medusa/commit/7d2b5b8babea1846503c5934c9d81ce4d3b2635d))
+- admin collections default relations ([#1023](https://github.com/medusajs/medusa/issues/1023)) ([d2a7534](https://github.com/medusajs/medusa/commit/d2a7534615b8870b235be136c8e6425c51dee19b))
+- Support array of payment status filters when listing orders ([#1013](https://github.com/medusajs/medusa/issues/1013)) ([fdc493d](https://github.com/medusajs/medusa/commit/fdc493df7fdcb6fda35894ec5a3cc7990dc8ea13))
+- Updating store currencies ([#984](https://github.com/medusajs/medusa/issues/984)) ([59bb413](https://github.com/medusajs/medusa/commit/59bb413245d8aa31cc3070a372d6f0d04ebc9415))
+
+### Features
+
+- medusa-react admin hooks ([#978](https://github.com/medusajs/medusa/issues/978)) ([2e38484](https://github.com/medusajs/medusa/commit/2e384842d5b2e9742a86b96f28a8f00357795b86)), closes [#1019](https://github.com/medusajs/medusa/issues/1019)
+
+## [1.1.62](https://github.com/medusajs/medusa/compare/@medusajs/medusa@1.1.61...@medusajs/medusa@1.1.62) (2022-01-11)
+
+### Bug Fixes
+
+- Adds default currency to store currencies on create ([#982](https://github.com/medusajs/medusa/issues/982)) ([a0a21d1](https://github.com/medusajs/medusa/commit/a0a21d15efeda56d4245aa6937f4d67c673e5ab3))
+- api claim types + tests ([#967](https://github.com/medusajs/medusa/issues/967)) ([d365839](https://github.com/medusajs/medusa/commit/d365839a086ba116f320b49880d621452ee4b301))
+- Type in AdminProductListTagsRes to use tags instead of types ([#958](https://github.com/medusajs/medusa/issues/958)) ([0ac52b7](https://github.com/medusajs/medusa/commit/0ac52b70fa23d9aa3ba6b5e220943ed15db4e643))
+
+### Features
+
+- expand store product filtering ([#973](https://github.com/medusajs/medusa/issues/973)) ([f61eaee](https://github.com/medusajs/medusa/commit/f61eaeec12529919b74b64a35f26b6b42f24fa7b))
+
+## [1.1.61](https://github.com/medusajs/medusa/compare/@medusajs/medusa@1.1.60...@medusajs/medusa@1.1.61) (2021-12-29)
+
+**Note:** Version bump only for package @medusajs/medusa
+
+## [1.1.60](https://github.com/medusajs/medusa/compare/@medusajs/medusa@1.1.59...@medusajs/medusa@1.1.60) (2021-12-17)
+
+### Features
+
+- Add Discount Admin endpoint to JS client ([#919](https://github.com/medusajs/medusa/issues/919)) ([2ca1a87](https://github.com/medusajs/medusa/commit/2ca1a8762da5bc30a246e2e77521071ed91e6c12))
+- add medusa-react ([#913](https://github.com/medusajs/medusa/issues/913)) ([d0d8dd7](https://github.com/medusajs/medusa/commit/d0d8dd7bf62eaac71df8714c2dfb4f204d192f51))
+- add returns admin endpoints to medusa-js ([#935](https://github.com/medusajs/medusa/issues/935)) ([b9d6f95](https://github.com/medusajs/medusa/commit/b9d6f95dbd32c096e59057797fd0cf479ff23c7b))
+- add store admin endpoints to medusa-js ([#938](https://github.com/medusajs/medusa/issues/938)) ([31fad74](https://github.com/medusajs/medusa/commit/31fad7439cc4b95e269e7b6bc5d813cb2479329c))
+- Adds Auth Admin API to `medusa-js` ([#917](https://github.com/medusajs/medusa/issues/917)) ([5c47184](https://github.com/medusajs/medusa/commit/5c47184b1035fc36440ff95750a4bb461904246d))
+- Adds Customer Admin routes to JS client ([#918](https://github.com/medusajs/medusa/issues/918)) ([25fe224](https://github.com/medusajs/medusa/commit/25fe224a10842a7ac93ed496a6724ef113b41916))
+- medusa js admin regions ([#939](https://github.com/medusajs/medusa/issues/939)) ([8532c96](https://github.com/medusajs/medusa/commit/8532c966b59082ac60d221bc3bb7f92d6f94e5e4))
+- medusa js admin shipping options ([#934](https://github.com/medusajs/medusa/issues/934)) ([8b1b551](https://github.com/medusajs/medusa/commit/8b1b551260c8f3764135ed65bd099b8e9a0f23da))
+- medusa-js admin return reasons ([#931](https://github.com/medusajs/medusa/issues/931)) ([0acc462](https://github.com/medusajs/medusa/commit/0acc462e1ebe51368ceedeea85d6f51c6fc3bfc4))
 
 ## [1.1.59](https://github.com/medusajs/medusa/compare/@medusajs/medusa@1.1.58...@medusajs/medusa@1.1.59) (2021-12-08)
 

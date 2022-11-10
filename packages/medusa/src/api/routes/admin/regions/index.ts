@@ -3,11 +3,17 @@ import { Region } from "../../../.."
 import { DeleteResponse, PaginatedResponse } from "../../../../types/common"
 import middlewares from "../../../middlewares"
 import "reflect-metadata"
+import { FlagRouter } from "../../../../utils/flag-router"
+import TaxInclusivePricingFeatureFlag from "../../../../loaders/feature-flags/tax-inclusive-pricing"
 
 const route = Router()
 
-export default (app) => {
+export default (app, featureFlagRouter: FlagRouter) => {
   app.use("/regions", route)
+
+  if (featureFlagRouter.isFeatureEnabled(TaxInclusivePricingFeatureFlag.key)) {
+    defaultAdminRegionFields.push("includes_tax")
+  }
 
   route.get("/", middlewares.wrap(require("./list-regions").default))
   route.get("/:region_id", middlewares.wrap(require("./get-region").default))
@@ -55,28 +61,15 @@ export default (app) => {
     middlewares.wrap(require("./remove-fulfillment-provider").default)
   )
 
-  /**
-   * Set metadata key / value pair.
-   */
-  route.post(
-    "/:id/metadata",
-    middlewares.wrap(require("./set-metadata").default)
-  )
-
-  /**
-   * Delete metadata key / value pair.
-   */
-  route.delete(
-    "/:id/metadata/:key",
-    middlewares.wrap(require("./delete-metadata").default)
-  )
-
   return app
 }
 
-export const defaultAdminRegionFields = [
+export const defaultAdminRegionFields: (keyof Region)[] = [
   "id",
   "name",
+  "automatic_taxes",
+  "gift_cards_taxable",
+  "tax_provider_id",
   "currency_code",
   "tax_rate",
   "tax_code",
@@ -104,9 +97,16 @@ export type AdminRegionsDeleteRes = DeleteResponse
 
 export class FulfillmentOption {
   provider_id: string
-  options: any[]
+  options: unknown[]
 }
 
 export class AdminGetRegionsRegionFulfillmentOptionsRes {
   fulfillment_options: FulfillmentOption[]
 }
+
+export * from "./list-regions"
+export * from "./update-region"
+export * from "./create-region"
+export * from "./add-country"
+export * from "./add-payment-provider"
+export * from "./add-fulfillment-provider"

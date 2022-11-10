@@ -1,20 +1,38 @@
 import { Router } from "express"
-import { Order } from "../../../.."
-import middlewares from "../../../middlewares"
-import { DeleteResponse, PaginatedResponse } from "../../../../types/common"
 import "reflect-metadata"
+import { Order } from "../../../.."
+import {
+  DeleteResponse,
+  FindParams,
+  PaginatedResponse,
+} from "../../../../types/common"
+import middlewares, { transformQuery } from "../../../middlewares"
+import { AdminGetOrdersParams } from "./list-orders"
+import { FlagRouter } from "../../../../utils/flag-router"
+import SalesChannelFeatureFlag from "../../../../loaders/feature-flags/sales-channels"
 
 const route = Router()
 
-export default (app) => {
+export default (app, featureFlagRouter: FlagRouter) => {
   app.use("/orders", route)
+
+  const relations = [...defaultAdminOrdersRelations]
+  if (featureFlagRouter.isFeatureEnabled(SalesChannelFeatureFlag.key)) {
+    relations.push("sales_channel")
+  }
 
   /**
    * List orders
    */
   route.get(
     "/",
-    middlewares.normalizeQuery(),
+    transformQuery(AdminGetOrdersParams, {
+      defaultRelations: relations,
+      defaultFields: defaultAdminOrdersFields,
+      allowedFields: allowedAdminOrdersFields,
+      allowedRelations: allowedAdminOrdersRelations,
+      isList: true,
+    }),
     middlewares.wrap(require("./list-orders").default)
   )
 
@@ -23,14 +41,15 @@ export default (app) => {
    */
   route.get(
     "/:id",
-    middlewares.normalizeQuery(),
+    transformQuery(FindParams, {
+      defaultRelations: relations,
+      defaultFields: defaultAdminOrdersFields,
+      allowedFields: allowedAdminOrdersFields,
+      allowedRelations: allowedAdminOrdersRelations,
+      isList: false,
+    }),
     middlewares.wrap(require("./get-order").default)
   )
-
-  /**
-   * Create a new order
-   */
-  route.post("/", middlewares.wrap(require("./create-order").default))
 
   /**
    * Update an order
@@ -144,14 +163,6 @@ export default (app) => {
   )
 
   /**
-   * Receives the inventory to return from a swap
-   */
-  route.post(
-    "/:id/swaps/:swap_id/receive",
-    middlewares.wrap(require("./receive-swap").default)
-  )
-
-  /**
    * Fulfills a swap.
    */
   route.post(
@@ -205,19 +216,11 @@ export default (app) => {
   )
 
   /**
-   * Creates claim fulfillment
+   * Creates claim shipment
    */
   route.post(
     "/:id/claims/:claim_id/shipments",
     middlewares.wrap(require("./create-claim-shipment").default)
-  )
-
-  /**
-   * Delete metadata key / value pair.
-   */
-  route.delete(
-    "/:id/metadata/:key",
-    middlewares.wrap(require("./delete-metadata").default)
   )
 
   return app
@@ -239,13 +242,14 @@ export const defaultAdminOrdersRelations = [
   "shipping_address",
   "discounts",
   "discounts.rule",
-  "discounts.rule.valid_for",
   "shipping_methods",
   "payments",
   "fulfillments",
   "fulfillments.tracking_links",
   "fulfillments.items",
   "returns",
+  "returns.shipping_method",
+  "returns.shipping_method.tax_lines",
   "returns.items",
   "returns.items.reason",
   "gift_cards",
@@ -253,21 +257,27 @@ export const defaultAdminOrdersRelations = [
   "claims",
   "claims.return_order",
   "claims.return_order.shipping_method",
+  "claims.return_order.shipping_method.tax_lines",
   "claims.shipping_methods",
   "claims.shipping_address",
   "claims.additional_items",
   "claims.fulfillments",
+  "claims.fulfillments.tracking_links",
   "claims.claim_items",
   "claims.claim_items.item",
   "claims.claim_items.images",
   // "claims.claim_items.tags",
   "swaps",
   "swaps.return_order",
+  "swaps.return_order.shipping_method",
+  "swaps.return_order.shipping_method.tax_lines",
   "swaps.payment",
   "swaps.shipping_methods",
+  "swaps.shipping_methods.tax_lines",
   "swaps.shipping_address",
   "swaps.additional_items",
   "swaps.fulfillments",
+  "swaps.fulfillments.tracking_links",
 ]
 
 export const defaultAdminOrdersFields = [
@@ -300,7 +310,7 @@ export const defaultAdminOrdersFields = [
   "paid_total",
   "refundable_amount",
   "no_notification",
-]
+] as (keyof Order)[]
 
 export const allowedAdminOrdersFields = [
   "id",
@@ -334,11 +344,12 @@ export const allowedAdminOrdersFields = [
 export const allowedAdminOrdersRelations = [
   "customer",
   "region",
+  "edits",
+  "sales_channel",
   "billing_address",
   "shipping_address",
   "discounts",
   "discounts.rule",
-  "discounts.rule.valid_for",
   "shipping_methods",
   "payments",
   "fulfillments",
@@ -380,17 +391,14 @@ export * from "./complete-order"
 export * from "./create-claim"
 export * from "./create-claim-shipment"
 export * from "./create-fulfillment"
-export * from "./create-order"
 export * from "./create-shipment"
 export * from "./create-swap"
 export * from "./create-swap-shipment"
-export * from "./delete-metadata"
 export * from "./fulfill-claim"
 export * from "./fulfill-swap"
 export * from "./get-order"
 export * from "./list-orders"
 export * from "./process-swap-payment"
-export * from "./receive-swap"
 export * from "./refund-payment"
 export * from "./request-return"
 export * from "./update-claim"

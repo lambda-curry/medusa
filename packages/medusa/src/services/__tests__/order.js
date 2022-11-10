@@ -1,39 +1,52 @@
 import { IdMap, MockManager, MockRepository } from "medusa-test-utils"
 import OrderService from "../order"
 import { InventoryServiceMock } from "../__mocks__/inventory"
+import { LineItemServiceMock } from "../__mocks__/line-item"
 
 describe("OrderService", () => {
   const totalsService = {
+    withTransaction: function () {
+      return this
+    },
+    getCalculationContext: jest.fn().mockImplementation((order, lineItems) => {
+      return Promise.resolve({})
+    }),
+    getLineItemTotals: jest.fn().mockImplementation(() => {
+      return Promise.resolve({})
+    }),
     getLineItemRefund: () => {},
-    getTotal: o => {
+    getTotal: (o) => {
       return o.total || 0
     },
-    getRefundedTotal: o => {
-      return o.refunded_total || 0
-    },
-    getShippingTotal: o => {
-      return o.shipping_total || 0
-    },
-    getGiftCardTotal: o => {
-      return o.gift_card_total || 0
-    },
-    getDiscountTotal: o => {
-      return o.discount_total || 0
-    },
-    getTaxTotal: o => {
-      return o.tax_total || 0
-    },
-    getSubtotal: o => {
+    getGiftCardableAmount: (o) => {
       return o.subtotal || 0
     },
-    getPaidTotal: o => {
+    getRefundedTotal: (o) => {
+      return o.refunded_total || 0
+    },
+    getShippingTotal: (o) => {
+      return o.shipping_total || 0
+    },
+    getGiftCardTotal: (o) => {
+      return o.gift_card_total || 0
+    },
+    getDiscountTotal: (o) => {
+      return o.discount_total || 0
+    },
+    getTaxTotal: (o) => {
+      return o.tax_total || 0
+    },
+    getSubtotal: (o) => {
+      return o.subtotal || 0
+    },
+    getPaidTotal: (o) => {
       return o.paid_total || 0
     },
   }
 
   const eventBusService = {
     emit: jest.fn(),
-    withTransaction: function() {
+    withTransaction: function () {
       return this
     },
   }
@@ -42,68 +55,39 @@ describe("OrderService", () => {
     ...InventoryServiceMock,
   }
 
-  describe("create", () => {
-    const orderRepo = MockRepository({ create: f => f })
-    const orderService = new OrderService({
-      manager: MockManager,
-      orderRepository: orderRepo,
-      totalsService,
-      eventBusService,
-    })
-
-    beforeEach(async () => {
-      jest.clearAllMocks()
-    })
-
-    it("calls order model functions", async () => {
-      await orderService.create({
-        email: "oliver@test.dk",
-      })
-
-      expect(orderRepo.create).toHaveBeenCalledTimes(1)
-      expect(orderRepo.create).toHaveBeenCalledWith({
-        email: "oliver@test.dk",
-      })
-
-      expect(orderRepo.save).toHaveBeenCalledWith({
-        email: "oliver@test.dk",
-      })
-    })
-  })
-
   describe("createFromCart", () => {
     const orderRepo = MockRepository({
-      create: p => p,
-      save: p => ({ ...p, id: "id" }),
+      create: (p) => p,
+      save: (p) => ({ ...p, id: "id" }),
     })
     const lineItemService = {
       update: jest.fn(),
-      withTransaction: function() {
+      withTransaction: function () {
         return this
       },
     }
     const shippingOptionService = {
       updateShippingMethod: jest.fn(),
-      withTransaction: function() {
+      withTransaction: function () {
         return this
       },
     }
     const giftCardService = {
       update: jest.fn(),
       createTransaction: jest.fn(),
-      withTransaction: function() {
+      withTransaction: function () {
         return this
       },
     }
     const paymentProviderService = {
-      getStatus: payment => {
+      getStatus: (payment) => {
         return Promise.resolve(payment.status || "authorized")
       },
       updatePayment: jest.fn(),
-      cancelPayment: jest.fn().mockImplementation(payment => {
+      cancelPayment: jest.fn().mockImplementation((payment) => {
         return Promise.resolve({ ...payment, status: "cancelled" })
       }),
-      withTransaction: function() {
+      withTransaction: function () {
         return this
       },
     }
@@ -113,7 +97,7 @@ describe("OrderService", () => {
       total: 0,
     }
     const cartService = {
-      retrieve: jest.fn().mockImplementation(query => {
+      retrieveWithTotals: jest.fn().mockImplementation((query) => {
         if (query === "empty") {
           return Promise.resolve(emptyCart)
         }
@@ -142,7 +126,7 @@ describe("OrderService", () => {
           total: 100,
         })
       }),
-      withTransaction: function() {
+      withTransaction: function () {
         return this
       },
     }
@@ -202,7 +186,9 @@ describe("OrderService", () => {
         total: 100,
       }
 
-      orderService.cartService_.retrieve = jest.fn(() => Promise.resolve(cart))
+      orderService.cartService_.retrieveWithTotals = jest.fn(() =>
+        Promise.resolve(cart)
+      )
       orderService.cartService_.update = jest.fn(() => Promise.resolve())
 
       await orderService.createFromCart("cart_id")
@@ -211,30 +197,28 @@ describe("OrderService", () => {
         email: cart.email,
         customer_id: cart.customer_id,
         shipping_methods: cart.shipping_methods,
-        customer_id: "cus_1234",
         discounts: cart.discounts,
         billing_address_id: cart.billing_address_id,
         shipping_address_id: cart.shipping_address_id,
         region_id: cart.region_id,
         currency_code: "eur",
         cart_id: "cart_id",
-        tax_rate: 25,
         gift_cards: [],
         metadata: {},
       }
 
-      expect(cartService.retrieve).toHaveBeenCalledTimes(1)
-      expect(cartService.retrieve).toHaveBeenCalledWith("cart_id", {
-        select: ["subtotal", "total"],
+      expect(cartService.retrieveWithTotals).toHaveBeenCalledTimes(1)
+      expect(cartService.retrieveWithTotals).toHaveBeenCalledWith("cart_id", {
         relations: [
           "region",
           "payment",
           "items",
           "discounts",
           "discounts.rule",
-          "discounts.rule.valid_for",
           "gift_cards",
           "shipping_methods",
+          "items",
+          "items.adjustments",
         ],
       })
 
@@ -284,6 +268,7 @@ describe("OrderService", () => {
           id: "test",
           currency_code: "eur",
           name: "test",
+          gift_cards_taxable: true,
           tax_rate: 25,
         },
         shipping_address_id: "1234",
@@ -305,7 +290,7 @@ describe("OrderService", () => {
         total: 100,
       }
 
-      orderService.cartService_.retrieve = () => {
+      orderService.cartService_.retrieveWithTotals = () => {
         return Promise.resolve(cart)
       }
       orderService.cartService_.update = () => Promise.resolve()
@@ -316,14 +301,12 @@ describe("OrderService", () => {
         email: cart.email,
         customer_id: cart.customer_id,
         shipping_methods: cart.shipping_methods,
-        customer_id: "cus_1234",
         discounts: cart.discounts,
         billing_address_id: cart.billing_address_id,
         shipping_address_id: cart.shipping_address_id,
         region_id: cart.region_id,
         currency_code: "eur",
         cart_id: "cart_id",
-        tax_rate: 25,
         gift_cards: [
           {
             id: "gid",
@@ -337,13 +320,15 @@ describe("OrderService", () => {
       expect(giftCardService.update).toHaveBeenCalledTimes(1)
       expect(giftCardService.update).toHaveBeenCalledWith("gid", {
         balance: 0,
-        disabled: true,
+        is_disabled: true,
       })
 
       expect(giftCardService.createTransaction).toHaveBeenCalledTimes(1)
       expect(giftCardService.createTransaction).toHaveBeenCalledWith({
         gift_card_id: "gid",
         order_id: "id",
+        is_taxable: true,
+        tax_rate: 25,
         amount: 80,
       })
 
@@ -396,14 +381,13 @@ describe("OrderService", () => {
         ],
         total: 0,
       }
-      orderService.cartService_.retrieve = () => Promise.resolve(cart)
+      orderService.cartService_.retrieveWithTotals = () => Promise.resolve(cart)
       await orderService.createFromCart(cart)
       const order = {
         payment_status: "awaiting",
         email: cart.email,
         customer_id: cart.customer_id,
         shipping_methods: cart.shipping_methods,
-        customer_id: "cus_1234",
         discounts: cart.discounts,
         billing_address_id: cart.billing_address_id,
         shipping_address_id: cart.shipping_address_id,
@@ -411,7 +395,6 @@ describe("OrderService", () => {
         region_id: cart.region_id,
         currency_code: "eur",
         cart_id: "cart_id",
-        tax_rate: 25,
         metadata: {},
       }
       expect(orderRepo.create).toHaveBeenCalledTimes(1)
@@ -456,13 +439,13 @@ describe("OrderService", () => {
         ],
         total: 100,
       }
-      orderService.cartService_.retrieve = () => Promise.resolve(cart)
+      orderService.cartService_.retrieveWithTotals = () => Promise.resolve(cart)
       orderService.cartService_.update = () => Promise.resolve()
       const res = orderService.createFromCart(cart)
       await expect(res).rejects.toThrow(
         "Variant with id: variant-1 does not have the required inventory"
       )
-      //check to see if payment is cancelled
+      // check to see if payment is cancelled
       expect(
         orderService.paymentProviderService_.cancelPayment
       ).toHaveBeenCalledTimes(1)
@@ -471,7 +454,7 @@ describe("OrderService", () => {
 
   describe("retrieve", () => {
     const orderRepo = MockRepository({
-      findOneWithRelations: q => {
+      findOneWithRelations: (q) => {
         return Promise.resolve({})
       },
     })
@@ -496,7 +479,7 @@ describe("OrderService", () => {
 
   describe("retrieveByCartId", () => {
     const orderRepo = MockRepository({
-      findOne: q => {
+      findOne: (q) => {
         return Promise.resolve({})
       },
     })
@@ -547,6 +530,7 @@ describe("OrderService", () => {
       manager: MockManager,
       orderRepository: orderRepo,
       eventBusService,
+      lineItemService: LineItemServiceMock,
     })
 
     beforeEach(async () => {
@@ -640,14 +624,14 @@ describe("OrderService", () => {
 
     const fulfillmentService = {
       cancelFulfillment: jest.fn(),
-      withTransaction: function() {
+      withTransaction: function () {
         return this
       },
     }
 
     const paymentProviderService = {
       cancelPayment: jest.fn(),
-      withTransaction: function() {
+      withTransaction: function () {
         return this
       },
     }
@@ -668,10 +652,7 @@ describe("OrderService", () => {
 
     it("calls order model functions", async () => {
       try {
-        const order = await orderService.retrieve(
-          IdMap.getId("not-fulfilled-order")
-        )
-        console.warn(order)
+        await orderService.retrieve(IdMap.getId("not-fulfilled-order"))
         await orderService.cancel(IdMap.getId("not-fulfilled-order"))
       } catch (e) {
         console.warn(e)
@@ -696,6 +677,7 @@ describe("OrderService", () => {
       expect(orderRepo.save).toHaveBeenCalledWith({
         fulfillment_status: "canceled",
         payment_status: "canceled",
+        canceled_at: expect.any(Date),
         status: "canceled",
         fulfillments: [{ id: "fulfillment_test", canceled_at: now }],
         payments: [{ id: "payment_test" }],
@@ -741,12 +723,12 @@ describe("OrderService", () => {
     const paymentProviderService = {
       capturePayment: jest
         .fn()
-        .mockImplementation(p =>
+        .mockImplementation((p) =>
           p.id === "payment_fail"
             ? Promise.reject()
             : Promise.resolve({ ...p, captured_at: "notnull" })
         ),
-      withTransaction: function() {
+      withTransaction: function () {
         return this
       },
     }
@@ -851,7 +833,7 @@ describe("OrderService", () => {
 
     const lineItemService = {
       update: jest.fn(),
-      withTransaction: function() {
+      withTransaction: function () {
         return this
       },
     }
@@ -864,7 +846,7 @@ describe("OrderService", () => {
           },
         ])
       }),
-      withTransaction: function() {
+      withTransaction: function () {
         return this
       },
     }
@@ -1017,11 +999,11 @@ describe("OrderService", () => {
   describe("cancelFulfillment", () => {
     const orderRepo = MockRepository({
       findOneWithRelations: () => Promise.resolve({}),
-      save: f => Promise.resolve(f),
+      save: (f) => Promise.resolve(f),
     })
 
     const fulfillmentService = {
-      cancelFulfillment: jest.fn().mockImplementation(f => {
+      cancelFulfillment: jest.fn().mockImplementation((f) => {
         switch (f) {
           case IdMap.getId("no-order"):
             return Promise.resolve({})
@@ -1031,7 +1013,7 @@ describe("OrderService", () => {
             })
         }
       }),
-      withTransaction: function() {
+      withTransaction: function () {
         return this
       },
     }
@@ -1097,10 +1079,10 @@ describe("OrderService", () => {
     const paymentProviderService = {
       refundPayment: jest
         .fn()
-        .mockImplementation(p =>
+        .mockImplementation((p) =>
           p.id === "payment_fail" ? Promise.reject() : Promise.resolve()
         ),
-      withTransaction: function() {
+      withTransaction: function () {
         return this
       },
     }
@@ -1176,7 +1158,7 @@ describe("OrderService", () => {
             return Promise.resolve({ id: IdMap.getId("order") })
         }
       },
-      save: jest.fn().mockImplementation(f => f),
+      save: jest.fn().mockImplementation((f) => f),
     })
 
     const eventBus = {
@@ -1228,7 +1210,7 @@ describe("OrderService", () => {
             })
         }
       },
-      save: jest.fn().mockImplementation(f => f),
+      save: jest.fn().mockImplementation((f) => f),
     })
 
     const optionService = {
@@ -1237,11 +1219,11 @@ describe("OrderService", () => {
         .mockImplementation((optionId, data, config) =>
           Promise.resolve({ shipping_option: { profile_id: optionId } })
         ),
-      deleteShippingMethod: jest
+      deleteShippingMethods: jest
         .fn()
         .mockImplementation(() => Promise.resolve({})),
 
-      withTransaction: function() {
+      withTransaction: function () {
         return this
       },
     }
@@ -1273,6 +1255,7 @@ describe("OrderService", () => {
         {
           order: {
             id: IdMap.getId("order"),
+            items: [],
             shipping_methods: [
               {
                 shipping_option: {
@@ -1285,7 +1268,7 @@ describe("OrderService", () => {
         }
       )
 
-      expect(optionService.deleteShippingMethod).not.toHaveBeenCalled()
+      expect(optionService.deleteShippingMethods).not.toHaveBeenCalled()
     })
 
     it("successfully removes shipping method if same option profile", async () => {
@@ -1302,6 +1285,7 @@ describe("OrderService", () => {
         {
           order: {
             id: IdMap.getId("order"),
+            items: [],
             shipping_methods: [
               {
                 shipping_option: {
@@ -1314,8 +1298,8 @@ describe("OrderService", () => {
         }
       )
 
-      expect(optionService.deleteShippingMethod).toHaveBeenCalledTimes(1)
-      expect(optionService.deleteShippingMethod).toHaveBeenCalledWith({
+      expect(optionService.deleteShippingMethods).toHaveBeenCalledTimes(1)
+      expect(optionService.deleteShippingMethods).toHaveBeenCalledWith({
         shipping_option: {
           profile_id: IdMap.getId("method1"),
         },
@@ -1375,7 +1359,7 @@ describe("OrderService", () => {
 
     const lineItemService = {
       update: jest.fn(),
-      withTransaction: function() {
+      withTransaction: function () {
         return this
       },
     }
@@ -1398,7 +1382,7 @@ describe("OrderService", () => {
             ],
           })
         }),
-      withTransaction: function() {
+      withTransaction: function () {
         return this
       },
     }
@@ -1425,9 +1409,7 @@ describe("OrderService", () => {
       )
 
       expect(fulfillmentService.createShipment).toHaveBeenCalledTimes(1)
-      expect(
-        fulfillmentService.createShipment
-      ).toHaveBeenCalledWith(
+      expect(fulfillmentService.createShipment).toHaveBeenCalledWith(
         IdMap.getId("fulfillment"),
         [{ tracking_number: "1234" }, { tracking_number: "2345" }],
         { metadata: undefined, no_notification: true }
@@ -1518,8 +1500,8 @@ describe("OrderService", () => {
     const paymentProviderService = {
       refundPayment: jest
         .fn()
-        .mockImplementation(p => Promise.resolve({ id: "ref" })),
-      withTransaction: function() {
+        .mockImplementation((p) => Promise.resolve({ id: "ref" })),
+      withTransaction: function () {
         return this
       },
     }

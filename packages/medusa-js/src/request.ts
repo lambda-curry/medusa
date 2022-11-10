@@ -1,13 +1,19 @@
-import axios, { AxiosError, AxiosInstance } from "axios"
+import axios, { AxiosError, AxiosInstance, AxiosRequestHeaders } from "axios"
 import * as rax from "retry-axios"
 import { v4 as uuidv4 } from "uuid"
 
+const unAuthenticatedAdminEndpoints = {
+  "/admin/auth": "POST",
+  "/admin/users/password-token": "POST",
+  "/admin/users/reset-password": "POST",
+  "/admin/invites/accept": "POST",
+}
 export interface Config {
   baseUrl: string
   maxRetries: number
+  apiKey?: string
 }
 export interface RequestOptions {
-  apiKey?: string
   timeout?: number
   numberOfRetries?: number
 }
@@ -62,7 +68,7 @@ class Client {
   }
 
   // Stolen from https://github.com/stripe/stripe-node/blob/fd0a597064289b8c82f374f4747d634050739043/lib/utils.js#L282
-  normalizeHeaders(obj: object): object {
+  normalizeHeaders(obj: object): Record<string, any> {
     if (!(obj && typeof obj === "object")) {
       return obj
     }
@@ -83,28 +89,37 @@ class Client {
       .join("-")
   }
 
+  requiresAuthentication(path, method): boolean {
+    return (
+      path.startsWith("/admin") &&
+      unAuthenticatedAdminEndpoints[path] !== method
+    )
+  }
+
   /**
    * Creates all the initial headers.
    * We add the idempotency key, if the request is configured to retry.
    * @param {object} userHeaders user supplied headers
    * @param {Types.RequestMethod} method request method
    * @param {string} path request path
+   * @param {object} customHeaders user supplied headers
    * @return {object}
    */
   setHeaders(
     userHeaders: RequestOptions,
     method: RequestMethod,
-    path: string
-  ): object {
-    let defaultHeaders: object = {
+    path: string,
+    customHeaders: Record<string, any> = {}
+  ): AxiosRequestHeaders {
+    let defaultHeaders: Record<string, any> = {
       Accept: "application/json",
       "Content-Type": "application/json",
     }
 
-    // TODO: if route is an authenticated route, add api key
-    if (path.startsWith("/admin")) {
+    if (this.config.apiKey && this.requiresAuthentication(path, method)) {
       defaultHeaders = {
         ...defaultHeaders,
+        Authorization: `Bearer ${this.config.apiKey}`,
       }
     }
 
@@ -113,7 +128,12 @@ class Client {
       defaultHeaders["Idempotency-Key"] = uuidv4()
     }
 
-    return Object.assign({}, defaultHeaders, this.normalizeHeaders(userHeaders))
+    return Object.assign(
+      {},
+      defaultHeaders,
+      this.normalizeHeaders(userHeaders),
+      customHeaders
+    )
   }
 
   /**
@@ -139,8 +159,8 @@ class Client {
         if (cfg) {
           return this.shouldRetryCondition(
             err,
-            cfg.currentRetryAttempt || 1,
-            cfg.retry || 3
+            cfg.currentRetryAttempt ?? 1,
+            cfg.retry ?? 3
           )
         } else {
           return false
@@ -153,25 +173,30 @@ class Client {
 
   /**
    * Axios request
-   * @param {Types.RequestMethod} method request method
-   * @param {string} path request path
-   * @param {object} payload request payload
-   * @param {RequestOptions} options axios configuration
-   * @return {object}
+   * @param method request method
+   * @param path request path
+   * @param payload request payload
+   * @param options axios configuration
+   * @param customHeaders custom request headers
+   * @return
    */
   async request(
     method: RequestMethod,
     path: string,
-    payload: object = {},
-    options: RequestOptions = {}
+    payload: Record<string, any> = {},
+    options: RequestOptions = {},
+    customHeaders: Record<string, any> = {}
   ): Promise<any> {
     const reqOpts = {
       method,
       withCredentials: true,
       url: path,
-      data: payload,
       json: true,
-      headers: this.setHeaders(options, method, path),
+      headers: this.setHeaders(options, method, path, customHeaders),
+    }
+
+    if (["POST", "DELETE"].includes(method)) {
+      reqOpts["data"] = payload
     }
 
     // e.g. data = { cart: { ... } }, response = { status, headers, ... }

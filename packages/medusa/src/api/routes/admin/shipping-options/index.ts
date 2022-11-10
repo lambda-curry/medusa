@@ -1,12 +1,18 @@
 import { Router } from "express"
 import { ShippingOption } from "../../../.."
-import { DeleteResponse } from "../../../../types/common"
+import { PaginatedResponse, DeleteResponse } from "../../../../types/common"
 import middlewares from "../../../middlewares"
+import { FlagRouter } from "../../../../utils/flag-router"
+import TaxInclusivePricingFeatureFlag from "../../../../loaders/feature-flags/tax-inclusive-pricing"
 
 const route = Router()
 
-export default (app) => {
+export default (app, featureFlagRouter: FlagRouter) => {
   app.use("/shipping-options", route)
+
+  if (featureFlagRouter.isFeatureEnabled(TaxInclusivePricingFeatureFlag.key)) {
+    defaultFields.push("includes_tax")
+  }
 
   route.get("/", middlewares.wrap(require("./list-shipping-options").default))
   route.post("/", middlewares.wrap(require("./create-shipping-option").default))
@@ -46,7 +52,7 @@ export const defaultFields = [
 
 export const defaultRelations = ["region", "profile", "requirements"]
 
-export type AdminShippingOptionsListRes = {
+export type AdminShippingOptionsListRes = PaginatedResponse & {
   shipping_options: ShippingOption[]
 }
 

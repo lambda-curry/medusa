@@ -28,13 +28,8 @@ describe("/admin/draft-orders", () => {
 
   describe("POST /admin/draft-orders", () => {
     beforeEach(async () => {
-      try {
-        await adminSeeder(dbConnection)
-        await draftOrderSeeder(dbConnection)
-      } catch (err) {
-        console.log(err)
-        throw err
-      }
+      await adminSeeder(dbConnection)
+      await draftOrderSeeder(dbConnection)
     })
 
     afterEach(async () => {
@@ -74,6 +69,196 @@ describe("/admin/draft-orders", () => {
           console.log(err)
         })
       expect(response.status).toEqual(200)
+    })
+
+    it("creates a draft order with a custom shipping option price", async () => {
+      const api = useApi()
+
+      const payload = {
+        email: "oli@test.dk",
+        shipping_address: "oli-shipping",
+        items: [
+          {
+            variant_id: "test-variant",
+            quantity: 2,
+            metadata: {},
+          },
+        ],
+        region_id: "test-region",
+        customer_id: "oli-test",
+        shipping_methods: [
+          {
+            option_id: "test-option",
+            price: 500,
+          },
+        ],
+      }
+
+      const response = await api.post("/admin/draft-orders", payload, {
+        headers: {
+          Authorization: "Bearer test_token",
+        },
+      })
+      expect(response.status).toEqual(200)
+
+      const draftOrderId = response.data.draft_order.id
+
+      const draftOrderResponse = await api.get(
+        `/admin/draft-orders/${draftOrderId}`,
+        {
+          headers: {
+            Authorization: "Bearer test_token",
+          },
+        }
+      )
+      expect(draftOrderResponse.status).toEqual(200)
+      expect(draftOrderResponse.data.draft_order.cart.shipping_total).toEqual(
+        500
+      )
+    })
+
+    it("creates a draft order with a billing address that is an AddressPayload and a shipping address that is an ID", async () => {
+      const api = useApi()
+
+      const payload = {
+        email: "oli@test.dk",
+        billing_address: {
+          first_name: "kap",
+          last_name: "test",
+          country_code: "us",
+        },
+        shipping_address: "oli-shipping",
+        items: [
+          {
+            variant_id: "test-variant",
+            quantity: 2,
+            metadata: {},
+          },
+        ],
+        region_id: "test-region",
+        customer_id: "oli-test",
+        shipping_methods: [
+          {
+            option_id: "test-option",
+          },
+        ],
+      }
+
+      const {
+        status,
+        data: { draft_order },
+      } = await api
+        .post("/admin/draft-orders", payload, {
+          headers: {
+            Authorization: "Bearer test_token",
+          },
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+
+      expect(status).toEqual(200)
+      expect(draft_order.cart.billing_address_id).not.toBeNull()
+      expect(draft_order.cart.shipping_address_id).not.toBeNull()
+
+      const afterCreate = await api.get(
+        `/admin/draft-orders/${draft_order.id}`,
+        {
+          headers: {
+            Authorization: "Bearer test_token",
+          },
+        }
+      )
+
+      expect(
+        afterCreate.data.draft_order.cart.shipping_address
+      ).toMatchSnapshot({
+        id: "oli-shipping",
+        created_at: expect.any(String),
+        updated_at: expect.any(String),
+      })
+      expect(afterCreate.data.draft_order.cart.billing_address).toMatchSnapshot(
+        {
+          id: expect.any(String),
+          created_at: expect.any(String),
+          updated_at: expect.any(String),
+          first_name: "kap",
+          last_name: "test",
+          country_code: "us",
+        }
+      )
+    })
+
+    it("creates a draft order with a shipping address that is an AddressPayload and a billing adress that is an ID", async () => {
+      const api = useApi()
+
+      const payload = {
+        email: "oli@test.dk",
+        shipping_address: {
+          first_name: "kap",
+          last_name: "test",
+          country_code: "us",
+        },
+        billing_address: "oli-shipping",
+        items: [
+          {
+            variant_id: "test-variant",
+            quantity: 2,
+            metadata: {},
+          },
+        ],
+        region_id: "test-region",
+        customer_id: "oli-test",
+        shipping_methods: [
+          {
+            option_id: "test-option",
+          },
+        ],
+      }
+
+      const {
+        status,
+        data: { draft_order },
+      } = await api
+        .post("/admin/draft-orders", payload, {
+          headers: {
+            Authorization: "Bearer test_token",
+          },
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+
+      expect(status).toEqual(200)
+      expect(draft_order.cart.billing_address_id).not.toBeNull()
+      expect(draft_order.cart.shipping_address_id).not.toBeNull()
+
+      const afterCreate = await api.get(
+        `/admin/draft-orders/${draft_order.id}`,
+        {
+          headers: {
+            Authorization: "Bearer test_token",
+          },
+        }
+      )
+
+      expect(afterCreate.data.draft_order.cart.billing_address).toMatchSnapshot(
+        {
+          id: "oli-shipping",
+          created_at: expect.any(String),
+          updated_at: expect.any(String),
+        }
+      )
+      expect(
+        afterCreate.data.draft_order.cart.shipping_address
+      ).toMatchSnapshot({
+        id: expect.any(String),
+        created_at: expect.any(String),
+        updated_at: expect.any(String),
+        first_name: "kap",
+        last_name: "test",
+        country_code: "us",
+      })
     })
 
     it("creates a draft order cart and creates new user", async () => {
@@ -297,6 +482,140 @@ describe("/admin/draft-orders", () => {
       )
     })
 
+    it("creates a draft order with discount and line item", async () => {
+      const api = useApi()
+
+      const payload = {
+        email: "oli@test.dk",
+        shipping_address: "oli-shipping",
+        discounts: [{ code: "TEST" }],
+        items: [
+          {
+            variant_id: "test-variant",
+            quantity: 2,
+            metadata: {},
+          },
+        ],
+        region_id: "test-region",
+        customer_id: "oli-test",
+        shipping_methods: [
+          {
+            option_id: "test-option",
+          },
+        ],
+      }
+
+      const response = await api
+        .post("/admin/draft-orders", payload, {
+          headers: {
+            Authorization: "Bearer test_token",
+          },
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+
+      const draftOrder = response.data.draft_order
+      const lineItemId = draftOrder.cart.items[0].id
+
+      expect(response.status).toEqual(200)
+      expect(draftOrder.cart.items).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            variant_id: "test-variant",
+            unit_price: 8000,
+            quantity: 2,
+            adjustments: expect.arrayContaining([
+              expect.objectContaining({
+                item_id: lineItemId,
+                amount: 1600,
+                description: "discount",
+                discount_id: "test-discount",
+              }),
+            ]),
+          }),
+        ])
+      )
+    })
+
+    it("creates a draft order with discount and free shipping along the line item", async () => {
+      const api = useApi()
+
+      const payload = {
+        email: "oli@test.dk",
+        shipping_address: "oli-shipping",
+        discounts: [{ code: "TEST" }, { code: "free-shipping" }],
+        items: [
+          {
+            variant_id: "test-variant",
+            quantity: 2,
+            metadata: {},
+          },
+        ],
+        region_id: "test-region",
+        customer_id: "oli-test",
+        shipping_methods: [
+          {
+            option_id: "test-option",
+          },
+        ],
+      }
+
+      const response = await api
+        .post("/admin/draft-orders", payload, {
+          headers: {
+            Authorization: "Bearer test_token",
+          },
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+
+      const created = await api
+        .get(`/admin/draft-orders/${response.data.draft_order.id}`, {
+          headers: {
+            Authorization: "Bearer test_token",
+          },
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+
+      const draftOrder = created.data.draft_order
+      const lineItemId = draftOrder.cart.items[0].id
+
+      expect(response.status).toEqual(200)
+      expect(draftOrder.cart.items).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            variant_id: "test-variant",
+            unit_price: 8000,
+            quantity: 2,
+            adjustments: expect.arrayContaining([
+              expect.objectContaining({
+                item_id: lineItemId,
+                amount: 1600,
+                description: "discount",
+                discount_id: "test-discount",
+              }),
+            ]),
+          }),
+        ])
+      )
+
+      // Check that discounts are applied
+      expect(draftOrder.cart.discounts).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            code: "TEST",
+          }),
+          expect.objectContaining({
+            code: "FREE-SHIPPING",
+          }),
+        ])
+      )
+    })
+
     it("creates a draft order with created shipping address", async () => {
       const api = useApi()
 
@@ -376,26 +695,23 @@ describe("/admin/draft-orders", () => {
       )
 
       expect(orderResponse.status).toEqual(200)
-      // expect newly created order to have id of draft order and system payment
+      // expect newly created order to have id of draft order
       expect(createdOrder.data.order.draft_order_id).toEqual("test-draft-order")
-      expect(createdOrder.data.order.payments).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({ provider_id: "system" }),
-        ])
-      )
+      // expect system payment provider and the payment to be "captured"
+      expect(createdOrder.data.order.payments.length).toEqual(1)
+      expect(createdOrder.data.order.payments[0].provider_id).toEqual("system")
+      expect(createdOrder.data.order.payments[0].captured_at).not.toEqual(null)
+
       // expect draft order to be complete
       expect(updatedDraftOrder.data.draft_order.status).toEqual("completed")
       expect(updatedDraftOrder.data.draft_order.completed_at).not.toEqual(null)
     })
   })
+
   describe("GET /admin/draft-orders", () => {
     beforeEach(async () => {
-      try {
-        await adminSeeder(dbConnection)
-        await draftOrderSeeder(dbConnection)
-      } catch (err) {
-        throw err
-      }
+      await adminSeeder(dbConnection)
+      await draftOrderSeeder(dbConnection)
     })
 
     afterEach(async () => {
@@ -469,15 +785,44 @@ describe("/admin/draft-orders", () => {
     })
   })
 
+  describe("GET /admin/draft-orders/:id", () => {
+    beforeEach(async () => {
+      await adminSeeder(dbConnection)
+      await draftOrderSeeder(dbConnection)
+    })
+
+    afterEach(async () => {
+      const db = useDb()
+      await db.teardown()
+    })
+
+    it("retrieves a draft-order should include the items totals", async () => {
+      const api = useApi()
+
+      const order = await api.get("/admin/draft-orders/test-draft-order", {
+        headers: {
+          authorization: "Bearer test_token",
+        },
+      })
+
+      expect(order.status).toEqual(200)
+      expect(order.data.draft_order).toEqual(
+        expect.objectContaining({
+          id: "test-draft-order",
+        })
+      )
+
+      order.data.draft_order.cart.items.forEach((item) => {
+        expect(item.total).toBeDefined()
+        expect(item.subtotal).toBeDefined()
+      })
+    })
+  })
+
   describe("DELETE /admin/draft-orders/:id", () => {
     beforeEach(async () => {
-      try {
-        await adminSeeder(dbConnection)
-        await draftOrderSeeder(dbConnection)
-      } catch (err) {
-        console.log(err)
-        throw err
-      }
+      await adminSeeder(dbConnection)
+      await draftOrderSeeder(dbConnection)
     })
 
     afterEach(async () => {
@@ -510,12 +855,8 @@ describe("/admin/draft-orders", () => {
 
   describe("POST /admin/draft-orders/:id/line-items/:line_id", () => {
     beforeEach(async () => {
-      try {
-        await adminSeeder(dbConnection)
-        await draftOrderSeeder(dbConnection, { status: "open" })
-      } catch (err) {
-        throw err
-      }
+      await adminSeeder(dbConnection)
+      await draftOrderSeeder(dbConnection, { status: "open" })
     })
 
     afterEach(async () => {
@@ -599,12 +940,8 @@ describe("/admin/draft-orders", () => {
 
   describe("POST /admin/draft-orders/:id", () => {
     beforeEach(async () => {
-      try {
-        await adminSeeder(dbConnection)
-        await draftOrderSeeder(dbConnection, { status: "open" })
-      } catch (err) {
-        throw err
-      }
+      await adminSeeder(dbConnection)
+      await draftOrderSeeder(dbConnection, { status: "open" })
     })
 
     afterEach(async () => {

@@ -1,89 +1,170 @@
 ---
 id: homepage
-title: Introduction
-description: 'What is Medusa?'
+title: Medusa Documentation
+description: "Get an overview of Medusa's features, integrations, and how to use them."
 slug: /
 hide_table_of_contents: true
+hide_footer: true
 ---
 
-import useBaseUrl from '@docusaurus/useBaseUrl'
-import Link from '@docusaurus/Link'
-import Tabs from '@theme/Tabs'
-import TabItem from '@theme/TabItem'
+import DocCardList from '@theme/DocCardList';
 
-Medusa is an open-source Shopify alternative.
+# Medusa Documentation
 
-It provides you with the primitives to create amazing digital commerce experiences. 
+Get an overview of Medusa's features, integrations, and how to use them.
 
-<div class="container" style={{ padding: 0 }}>
-  <div class="row is-multiline">
-    <div class="col col--6">
-      <Link class="card" to="/tutorial/set-up-your-development-environment" style={{ height: '100%' }}>
-        <div class="card__body">
-          <h4>Tutorial</h4>
-          <p>Set up your local development environment</p>
-        </div>
-      </Link>
-    </div>
-    <div class="col col--6">
-      <Link class="card" to="/tutorial/adding-custom-functionality" style={{ height: '100%' }}>
-        <div class="card__body">
-          <h4>Make it your own</h4>
-          <p>Create custom endpoints, services, or subscribers.</p>
-        </div>
-      </Link>
-    </div>
-    <div class="col col--6">
-      <Link class="card" to="/guides/plugins" style={{ height: '100%' }}>
-        <div class="card__body">
-          <h4>Plugins</h4>
-          <p>Add or build a plugin to make your engine more powerful.</p>
-        </div>
-      </Link>
-    </div>
-    <div class="col col--6">
-      <Link class="card" to="/how-to/deploying-on-heroku" style={{ height: '100%' }}>
-        <div class="card__body">
-          <h4>Deploy in seconds</h4>
-          <p>Use one of our guides to deploy your Medusa project in seconds.</p>
-        </div>
-      </Link>
-    </div>
-  </div>
-</div>
+## Medusa basics
 
-## Quickstart
+Learn about Medusa basic features and kickstart your ecommerce project.
 
-Visit our [Quickstart](https://github.com/medusajs/medusa#-quickstart) to get up and running in minutes with only a couple of commands.
+<DocCardList colSize={4} items={[
+  {
+    type: 'link',
+    href: '/quickstart/quick-start',
+    label: 'Quickstart Guide',
+    customProps: {
+      image: '/img/quickstart-icon.svg',
+      description: 'Create your first Medusa server.',
+      className: 'card-highlight'
+    }
+  },
+  {
+    type: 'link',
+    href: '/tutorial/set-up-your-development-environment',
+    label: 'Set up Dev Environment',
+    customProps: {
+      themedImage: {
+        light: '/img/dev-env-icon.svg',
+        dark: '/img/dev-env-icon-dark.svg'
+      },
+      description: 'Set up your dev environment.'
+    }
+  },
+  {
+    type: 'link',
+    href: '/usage/configurations',
+    label: 'Configure your Server',
+    customProps: {
+      themedImage: {
+        light: '/img/server-icon.svg',
+        dark: '/img/server-icon-dark.svg'
+      },
+      description: 'Explore Medusa\'s configurations.'
+    }
+  },
+  {
+    type: 'link',
+    href: '/starters/nextjs-medusa-starter',
+    label: 'Next.js Starter',
+    customProps: {
+      themedImage: {
+        light: '/img/nextjs-icon.svg',
+        dark: '/img/nextjs-icon-dark.svg'
+      },
+      description: 'Install Medusa\'s Next.js storefront.'
+    },
+  },
+  {
+    type: 'link',
+    href: '/starters/gatsby-medusa-starter',
+    label: 'Gatsby Starter',
+    customProps: {
+      themedImage: {
+        light: '/img/gatsby-icon.svg',
+        dark: '/img/gatsby-icon-dark.svg'
+      },
+      description: 'Install Medusa\'s Gatsby storefront.'
+    }
+  },
+  {
+    type: 'link',
+    href: '/admin/quickstart',
+    label: 'Admin Quickstart Guide',
+    customProps: {
+      themedImage: {
+        light: '/img/admin-icon.svg',
+        dark: '/img/admin-icon-dark.svg'
+      },
+      description: 'Install Medusa\'s Admin to manage your store.'
+    }
+  }
+]} />
 
-## What you'll find here
+## Most popular
 
-<div class="container" style={{ padding: 0 }}>
-  <div class="row is-multiline">
-    <div class="col col--4">
-      <Link class="card" to="/quickstart/quick-start" style={{ height: '100%' }}>
-        <div class="card__body">
-          <h4>Quickstart</h4>
-          <p>A short guide to get you quickly started.</p>
-        </div>
-      </Link>
-    </div>
-    <div class="col col--4">
-      <Link class="card" to="/how-to/notification-api" style={{ height: '100%' }}>
-        <div class="card__body">
-          <h4>How-to and guides</h4>
-          <p>Guides and walkthroughs of concepts, tools, deployment and APIs.</p>
-        </div>
-      </Link>
-    </div>
-    {/* Ref */}
-    <div class="col col--4">
-      <a class="card" href="https://docs.medusajs.com/api/store" target="_blank" style={{ height: '100%' }}>
-        <div class="card__body">
-          <h4>Reference</h4>
-          <p>Technical documentation of the Medusa API.</p>
-        </div>
-      </a>
-    </div>
-  </div>
-</div>
+Best of the greatest.
+
+<DocCardList colSize={4} items={[
+  {
+    type: 'link',
+    href: '/advanced/backend/plugins/create',
+    label: 'Create a Plugin',
+    customProps: {
+      themedImage: {
+        light: '/img/terminal-icon.svg',
+        dark: '/img/terminal-icon-dark.svg'
+      },
+      description: 'Create, test, and publish a plugins.'
+    }
+  },
+  {
+    type: 'link',
+    href: '/add-plugins/stripe',
+    label: 'Integrate Stripe',
+    customProps: {
+      themedImage: {
+        light: '/img/stripe-icon.svg',
+        dark: '/img/stripe-icon-dark.svg'
+      },
+      description: 'Install Stripe on your Medusa server.'
+    }
+  },
+  {
+    type: 'link',
+    href: '/advanced/storefront/how-to-implement-checkout-flow',
+    label: 'Implement Checkout',
+    customProps: {
+      themedImage: {
+        light: '/img/cart-icon.svg',
+        dark: '/img/cart-icon-dark.svg'
+      },
+      description: 'Implement the checkout flow in your storefront.'
+    }
+  },
+  {
+    type: 'link',
+    href: '/advanced/admin/import-products',
+    label: 'Import Products',
+    customProps: {
+      themedImage: {
+        light: '/img/tee-icon.svg',
+        dark: '/img/tee-icon-dark.svg'
+      },
+      description: 'Bulk import products into Medusa.'
+    },
+  },
+  {
+    type: 'link',
+    href: '/advanced/backend/shipping/overview',
+    label: 'Shipping Overview',
+    customProps: {
+      themedImage: {
+        light: '/img/fast-delivery-icon.svg',
+        dark: '/img/fast-delivery-icon-dark.svg'
+      },
+      description: 'Learn how shipping works in Medusa.'
+    }
+  },
+  {
+    type: 'link',
+    href: '/advanced/backend/payment/overview',
+    label: 'Payment Overview',
+    customProps: {
+      themedImage: {
+        light: '/img/payment-accepted-icon.svg',
+        dark: '/img/payment-accepted-icon-dark.svg'
+      },
+      description: 'Learn how payment works in Medusa'
+    }
+  }
+]} />

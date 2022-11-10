@@ -1,7 +1,40 @@
 # Change Log
 
+## 1.0.0
+
+### Patch Changes
+
+- Updated dependencies [[`64949dc72`](https://github.com/medusajs/medusa/commit/64949dc721a6c697e3eb7091db9f2d261111a766), [`b6161d240`](https://github.com/medusajs/medusa/commit/b6161d24043b8b910320475b8616b7e29a96f6cd), [`af80e0fd2`](https://github.com/medusajs/medusa/commit/af80e0fd2ed75cd3c15282ddcbfb949060dfdd33)]:
+  - @medusajs/medusa@1.4.0
+
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [0.0.32](https://github.com/medusajs/medusa/compare/medusa-plugin-restock-notification@0.0.31...medusa-plugin-restock-notification@0.0.32) (2022-02-06)
+
+### Bug Fixes
+
+- release ([fc3fbc8](https://github.com/medusajs/medusa/commit/fc3fbc897fad5c8a5d3eea828ac7277fba9d70af))
+
+## [0.0.31](https://github.com/medusajs/medusa/compare/medusa-plugin-restock-notification@0.0.30...medusa-plugin-restock-notification@0.0.31) (2022-02-06)
+
+### Features
+
+- medusa-react admin hooks ([#978](https://github.com/medusajs/medusa/issues/978)) ([2e38484](https://github.com/medusajs/medusa/commit/2e384842d5b2e9742a86b96f28a8f00357795b86)), closes [#1019](https://github.com/medusajs/medusa/issues/1019)
+
+## [0.0.30](https://github.com/medusajs/medusa/compare/medusa-plugin-restock-notification@0.0.29...medusa-plugin-restock-notification@0.0.30) (2022-01-11)
+
+**Note:** Version bump only for package medusa-plugin-restock-notification
+
+## [0.0.29](https://github.com/medusajs/medusa/compare/medusa-plugin-restock-notification@0.0.28...medusa-plugin-restock-notification@0.0.29) (2021-12-29)
+
+**Note:** Version bump only for package medusa-plugin-restock-notification
+
+## [0.0.28](https://github.com/medusajs/medusa/compare/medusa-plugin-restock-notification@0.0.27...medusa-plugin-restock-notification@0.0.28) (2021-12-17)
+
+### Features
+
+- add medusa-react ([#913](https://github.com/medusajs/medusa/issues/913)) ([d0d8dd7](https://github.com/medusajs/medusa/commit/d0d8dd7bf62eaac71df8714c2dfb4f204d192f51))
 
 ## [0.0.27](https://github.com/medusajs/medusa/compare/medusa-plugin-restock-notification@0.0.26...medusa-plugin-restock-notification@0.0.27) (2021-12-08)
 

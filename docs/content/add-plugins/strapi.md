@@ -1,171 +1,178 @@
 # Strapi
 
-Use [Medusa](https://github.com/medusajs/medusa) and [Strapi](https://github.com/strapi/strapi) to power your commerce setup for a full open-source headless solution. In recent years, it has become increasingly popular to go with a headless approach when building ecommerce, blogs, portfolios, and the likes. Among many benefits, you get improved performance, more customizability, and support to scale as your business grows.
+In this document, you’ll learn how to integrate Strapi with Medusa to add rich Content Management System (CMS) functionalities.
 
-A headless system is essentially a decoupling of presentational layers and backend. It cuts off the traditional proprietary frontend displaying your content (hence the name), and instead gives you Rest APIs, you can consume from whatever system, client, or service you would like.
+:::info
 
-Going with the headless approach when building your setup will provide you with a modular system with best-in-breed services within each specific area of your stack; CMS, ecommerce, etc. This is in contrast to how you would traditionally choose a monolithic platform that partly (or hardly) caters to all of your needs.
+This plugin is a [community plugin](https://github.com/Deathwish98/medusa-plugin-strapi) and is not managed by the official Medusa team. At the moment, it supports v4 of Strapi.
 
-This article will guide you through setting up a headless ecommerce setup in which content is managed by [Strapi](http://strapi.io) and the ecommerce is powered by [Medusa](https://github.com/medusajs/medusa) - on a 100% open-source stack.
+:::
 
-## Why Medusa, and why Strapi?
+## Overview
 
-The bottleneck of headless ecommerce systems is most often the amount of resources it requires to both get started and to maintain. You need backend developers to handle your infrastructure and integrations and frontend developers to build the customer experience. This is one of the reasons many existing headless solutions target enterprise businesses. To allow for small to mid-sized businesses to enter the space, one must cater to the developer experience. If the onboarding, setup, and implementation process are all easy to approach, you no longer need a team of ten to build a scalable ecommerce setup.
+[Strapi](https://strapi.io/) is an open source headless CMS service that allows developers to have complete control over their content models. It can be integrated into many other frameworks, including Medusa.
 
-Strapi and Medusa are two systems built primarily for developers and the combination of the two enables you to build an ecommerce store with a blazingly fast, content-rich frontend and a highly extendable backend.
+By integrating Strapi to Medusa, you can benefit from powerful features in your ecommerce store including detailed product CMS details, [two-way sync](#test-two-way-sync), an easy-to-use interface to use for static content and pages, and much more.
 
-Both projects are open-source, headless, and built with Node.js. They use a very similar architecture for plugins and customizations, that gives you the ability to extend your commerce and CMS to fit exactly your needs. Let's now dive into the installation and setup of the two.
+## Prerequisites
 
-## Installation
+### Medusa CLI
 
-The following guide for setting up the plugin assumes, that you are familiar with both Strapi and Medusa. If this is not the case, visit the official [Medusa](https://docs.medusa-commerce.com/tutorial/set-up-your-development-environment) and [Strapi](https://strapi.io/documentation/developer-docs/latest/getting-started/introduction.html) documentation.
+[Medusa’s CLI tool](../cli/reference.md#how-to-install-cli-tool) is required to set up a new Medusa server.
 
-### Setting up Medusa
+### Redis
 
-First, create a Medusa project using your favorite package manager. You can go about this in two ways:
+Redis is required for the Strapi plugin to work as expected on your Medusa server. If you don’t have it installed, you can learn [how to install it in this documentation](../tutorial/0-set-up-your-development-environment.mdx#redis).
 
-**Use `npx`**
-`npx create-medusa-app` will allow you to create a Medusa store engine, a storefront, and Medusa admin in a single command
+## Create Strapi Project
 
-```bash
-# using npx
-npx create-medusa-app
-
-# using yarn
-yarn create medusa-app
-```
-
-> When choosing `npx` you are shown different store engine options as part of the setup. For this Strapi tutorial, you should choose `medusa-starter-default`. Optionally, pick a storefront.
-
-**Use `medusa-cli`**
-`@medusajs/medusa-cli` is our Command Line Tool for creating the Medusa store engine (alongside many other powerful commands). Use it as such:
+The first step is to create a Strapi project using the Medusa template:
 
 ```bash
-# using yarn
-yarn global add @medusajs/medusa-cli
-
-# using npm
-npm install -g @medusajs/medusa-cli
-
-# initialise a Medusa project
-medusa new my-medusa-store
+npx create-strapi-app strapi-medusa --template shahednasser/strapi-medusa-template
 ```
 
-Medusa uses Redis for emitting events in the system, so ensure, that this is installed and running
+This creates the Strapi project in the directory `strapi-medusa`.
 
-```
-$ redis-cli
-127.0.0.1:6379> ping
-PONG
-```
+Once the installation is finished, the Strapi development server will run on `localhost:1337`. A new page will also open in your default browser to create a new admin user and log in.
 
-And in `medusa-config.js` you should enable it. Your project config in the bottom of the file should look similar to this:
+![Create User Form in Strapi](https://res.cloudinary.com/dza7lstvk/image/upload/v1668001083/Medusa%20Docs/Strapi/9pFE1Ij_h2dicv.png)
+
+Once you log in, you can access the Strapi dashboard.
+
+### Create a Strapi User
+
+The Strapi plugin in Medusa requires the credentials of a Strapi user. To create a new user, go to Content Manager, then choose User under Collection Types.
+
+![Showing the users under Content Manager](https://res.cloudinary.com/dza7lstvk/image/upload/v1668001096/Medusa%20Docs/Strapi/YyGJPUf_mr5sx7.png)
+
+Click on the Create new entry button at the top right. This opens a new form to enter the user’s details.
+
+![Create User Form on Strapi](https://res.cloudinary.com/dza7lstvk/image/upload/v1668001105/Medusa%20Docs/Strapi/mdMhSlV_vy7ygv.png)
+
+Enter the user’s username, email, and password. Once you’re done, click on the Save button at the top right.
+
+## Modify Permissions
+
+By default, created users have the “Authenticated” role. Before you start using the Strapi plugin on your Medusa server, you must modify this role’s permissions to allow making changes to Medusa’s models in Strapi.
+
+On your Strapi dashboard, go to Settings → Roles → Authenticated. Then, under the Permissions section, expand the accordion of each content model type and check the Select All checkbox.
+
+![An example of modifying permissions on the Product content type](https://res.cloudinary.com/dza7lstvk/image/upload/v1668001116/Medusa%20Docs/Strapi/QgckXqS_wlyxe8.png)
+
+Once you’re done, click the Save button at the top right.
+
+## Create Medusa Server
+
+:::note
+
+You can use the Strapi plugin on an existing Medusa server, however, existing data (such as existing products) will not be imported. Only newer data will be imported.
+
+:::
+
+To create your Medusa server, run the following command:
 
 ```bash
-projectConfig: {
-  redis_url: REDIS_URL,
-  database_database: "./medusa-db.sql",
-  database_type: "sqlite",
-  store_cors: STORE_CORS,
-  admin_cors: ADMIN_CORS,
-},
+medusa new medusa-server --seed
 ```
 
-Additionally, add Strapi to your list of plugins:
+The `--seed` flag creates an SQLite database and seeds it with some demo data.
 
-```json
-{
-  "resolve": `medusa-plugin-strapi`,
-  "options": {
-    "strapi_medusa_user": "medusa_user",
-    "strapi_medusa_password": "medusaPassword1",
-    "strapi_url": "127.0.0.1",
-    "strapi_port": "1337"
+### Configure your Server
+
+Once the command is done executing, change to the newly created `medusa-server` directory. Then, in `medusa-config.js`, change the exported object at the end of the file to enable Redis:
+
+```jsx
+module.exports = {
+  projectConfig: {
+    redis_url: REDIS_URL,
+    //...
   }
-}
+  //...
+};
 ```
 
-And finally, install the plugin using your package manager:
+This uses the default Redis configurations. If you want to learn more about configuring Redis, [check out this documentation](../usage/configurations.md#redis).
 
-```bash
-#using yarn
-yarn add medusa-plugin-strapi
+:::tip
 
-# using npm
+It is also recommended to use PostgreSQL for an optimal experience, however, it is not required. Learn how to [install](../tutorial/0-set-up-your-development-environment.mdx#postgres) and [configure](../usage/configurations.md#postgresql-configurations) it on your Medusa server.
+
+:::
+
+## Install the Strapi Plugin
+
+In the directory of your Medusa server, run the following command to install the Strapi plugin:
+
+```bash npm2yarn
 npm install medusa-plugin-strapi
 ```
 
-You've now successfully installed and configured your Medusa store engine. Seed it with data and start it up by running:
+Then, add the following environment variables:
 
 ```bash
-# using npm
-npm run seed && npm start
-
-# using yarn
-yarn seed && yarn start
+STRAPI_USER=<STRAPI_IDENTIFIER>
+STRAPI_PASSWORD=<STRAPI_PASSWORD>
+STRAPI_PROTOCOL=http # Optional
+STRAPI_URL=<STRAPI_URL> # Optional
+STRAPI_PORT=<STRAPI_PORT> # Optional
 ```
 
-We'll now turn to the Strapi side of things.
+Where:
 
-### Setting up Strapi
+- `<STRAPI_IDENTIFIER>` is either the email address or username of the user you created in the previous step.
+- `<STRAPI_PASSWORD>` is the password of the user you created in the previous step.
+- `<STRAPI_PROTOCOL>` is the protocol of your Strapi server. If you’re using a local Strapi server, set this to `http`. The default value is `https`.
+- `<STRAPI_URL>` is the URL of your Strapi server. By default, the URL is `localhost`.
+- `<STRAPI_PORT>` is the port the Strapi server runs on. By default, the port is `1337`.
 
-Similar to how you installed Medusa, you can install Strapi using your favorite package manager. Use the `strapi-medusa-template` to create your project. The template is a custom Strapi implementation required for the two systems to work together.
+Finally, open `medusa-config.js` and add the following new item to the `plugins` array:
 
-```bash
-# using npx
-npx create-strapi-app strapi-medusa --template https://github.com/Deathwish98/strapi-medusa-template.git
-
-# using yarn
-yarn create strapi-app strapi-medusa --template https://github.com/Deathwish98/strapi-medusa-template.git
+```jsx
+const plugins = [
+  //...
+  {
+    resolve: `medusa-plugin-strapi`,
+    options: {
+      strapi_medusa_user: process.env.STRAPI_USER,
+      strapi_medusa_password: process.env.STRAPI_PASSWORD,
+      strapi_url: process.env.STRAPI_URL, //optional
+      strapi_port: process.env.STRAPI_PORT, //optional
+      strapi_protocol: process.env.STRAPI_PROTOCOL //optional
+    }
+  }
+];
 ```
 
-After running the command, you have a full Strapi project configured to synchronize with Medusa. Upon the initial start of the Strapi server, all the required models will be created. They will correlate with models from Medusa to allow for two-way synchronization.
+## Run Medusa Server
 
-> Note: The Strapi template starter uses SQLite as the default database. There is a known bug related to `knex.js` that comes from multiple write connections. Restarting the Strapi server should make the error disappear.
+Make sure the Strapi server is still running. If not, you can run the following command to run the Strapi server in the directory of the Strapi project:
 
-**Synchronization**
-
-The power of using Strapi with Medusa comes from two-way synchronization. Strapi allows you to enrich your products with extra fields and data, such that you can perfect the customer experience. But for the products to appear in Strapi, you are required to create them in Medusa. For the commerce logic in your presentational layer to function properly, you need the Medusa IDs of products and variants. This is used for operations like adding to cart and going through the checkout flow.
-
-When products are created in Medusa, the two-way communication ensures that data is kept consistent between the two systems. Though only some fields are synchronized and those are:
-
-**Product**: title, subtitle, description, handle
-**Variants**: title
-**Region**: name
-
-> Further down the road, the support for synchronizing more entities is expected to be introduced
-
-**Using Postgres in Medusa (optional)**
-
-For Postgres to function, you need to create a local database. One way of doing this would be to use your terminal:
-
-```json
-createdb medusa-store
+```bash npm2yarn
+npm run develop
 ```
 
-Depending on what system you are on and how your local Postgres is configured, the above command might fail. In that case, please investigate the correct way to create a local database on your pc.
+Then, in the directory of your Medusa server, run the following command to start the Medusa server:
 
-Navigate to your newly created Medusa project (`<project name>/backend` if you used `npx`). In `medusa-config.js`, ensure that you have Redis and Postgres enabled. The project configurations at the bottom of the file should look similar to this:
-
-```bash
-projectConfig: {
-  redis_url: REDIS_URL,
-  database_url: DATABASE_URL,
-  database_type: "postgres",
-  store_cors: STORE_CORS,
-  admin_cors: ADMIN_CORS,
-},
+```bash npm2yarn
+npm run start
 ```
 
-> Note: the `DATABASE_URL` variable should use the Postgres database created in the previous step
+Once you start your Medusa server, if you ran the `--seed` command when you created your Medusa server, you’ll see that `product.created` events have been triggered along with similar events. This will update Strapi with the products you seeded.
 
-## Summary and next steps
+## Test Two-Way Sync
 
-You are now provided with the toolbox for creating amazing digital commerce experiences on top of a highly extendable CMS system and ecommerce platform.
+This plugin ensures a two-way sync between the Medusa server and the Strapi server. So, if you update data on Strapi, it will be reflected on your Medusa server, and vice-versa.
 
-To quickly get started, see our starters for:
+### Update Products on Strapi
 
-- [GatsbyJS](https://github.com/medusajs/gatsby-starter-medusa) (much more feature-rich V2 coming soon)
-- [NextJS](https://github.com/medusajs/nextjs-starter-medusa)
+Try updating any products on Strapi by going to Content Manager → Products and choosing a product from the list. Then, make changes to the product and click Save. If you view the products on your server now, either using the [REST APIs](https://docs.medusajs.com/api/admin/#tag/Product/operation/GetProducts) or using [the Medusa Admin](../user-guide/products/index.mdx), you’ll see that the product has been updated.
 
-A big thanks to community member Pawan Sharma ([Deathwish98](https://github.com/Deathwish98)) for leading the implementation of this integration with Strapi. If you want to be part of the Medusa community, feel free to join us on our [Discord channel](https://discord.gg/F87eGuwkTp).
+### Update Products on Medusa
+
+If you try to update products on Medusa either using the [REST APIs](https://docs.medusajs.com/api/admin/#tag/Product/operation/PostProductsProduct) or using [the Medusa Admin](../user-guide/products/manage.mdx), you’ll see that the product is also updated on Strapi.
+
+## What’s Next
+
+- Learn [how to deploy the Medusa server](../deployments/server/index.mdx).
+- Learn [how to create your own plugin](../advanced/backend/plugins/create.md).
