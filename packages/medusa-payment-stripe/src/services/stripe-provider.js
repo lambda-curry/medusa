@@ -145,6 +145,7 @@ class StripeProviderService extends AbstractPaymentService {
       amount: Math.round(amount),
       currency: currency_code,
       metadata: { cart_id: `${cart.id}` },
+      confirmation_method: "automatic",
       capture_method: this.options_.capture ? "automatic" : "manual",
       setup_future_usage: this.options_.setup_future_usage ?? undefined,
       ...intentRequestData,
@@ -191,6 +192,7 @@ class StripeProviderService extends AbstractPaymentService {
       amount: Math.round(amount),
       currency: currency_code,
       metadata: { resource_id },
+      confirmation_method: "automatic",
       capture_method: this.options_.capture ? "automatic" : "manual",
       setup_future_usage: this.options_.setup_future_usage ?? undefined,
       ...intentRequestData,
@@ -252,6 +254,18 @@ class StripeProviderService extends AbstractPaymentService {
    * @return {Promise<{ data: PaymentSessionData; status: PaymentSessionStatus }>} result with data and status
    */
   async authorizePayment(paymentSession, context = {}) {
+    const paymentIntent = await this.stripe_.paymentIntents.retrieve(
+      paymentSession.data.id
+    )
+    if (
+      paymentIntent.status === "requires_confirmation" &&
+      paymentIntent.payment_method
+    ) {
+      await this.stripe_.paymentIntents.confirm(paymentIntent.id, {
+        payment_method: paymentIntent.payment_method,
+      })
+    }
+
     const stat = await this.getStatus(paymentSession.data)
     try {
       return { data: paymentSession.data, status: stat }
@@ -263,7 +277,7 @@ class StripeProviderService extends AbstractPaymentService {
   async updatePaymentData(sessionData, update) {
     try {
       return await this.stripe_.paymentIntents.update(sessionData.id, {
-        ...update.data,
+        ...update,
       })
     } catch (error) {
       throw error
