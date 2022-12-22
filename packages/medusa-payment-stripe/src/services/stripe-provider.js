@@ -146,6 +146,7 @@ class StripeProviderService extends AbstractPaymentService {
       currency: currency_code,
       metadata: { cart_id: `${cart.id}` },
       capture_method: this.options_.capture ? "automatic" : "manual",
+      setup_future_usage: this.options_.setup_future_usage ?? undefined,
       ...intentRequestData,
     }
 
@@ -191,6 +192,7 @@ class StripeProviderService extends AbstractPaymentService {
       currency: currency_code,
       metadata: { resource_id },
       capture_method: this.options_.capture ? "automatic" : "manual",
+      setup_future_usage: this.options_.setup_future_usage ?? undefined,
       ...intentRequestData,
     }
 
