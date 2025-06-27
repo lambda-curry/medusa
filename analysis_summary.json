@@ -1,0 +1,43 @@
+{
+  "total_changes": 1805,
+  "categories": {
+    "other": 118,
+    "admin_dashboard": 1,
+    "modules": 4,
+    "security": 2,
+    "workflow_engine": 26,
+    "api_changes": 1,
+    "features": 458,
+    "bug_fixes": 412,
+    "documentation": 599,
+    "chores": 180,
+    "dependencies": 3,
+    "performance": 1
+  },
+  "top_categories": [
+    [
+      "documentation",
+      599
+    ],
+    [
+      "features",
+      458
+    ],
+    [
+      "bug_fixes",
+      412
+    ],
+    [
+      "chores",
+      180
+    ],
+    [
+      "other",
+      118
+    ]
+  ],
+  "release_frequency": {
+    "total_releases": 28,
+    "avg_per_month": 1.0
+  }
+}
