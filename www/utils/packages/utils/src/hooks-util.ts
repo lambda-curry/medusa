@@ -41,11 +41,15 @@ export function getHookChildren(
 }
 
 export function cleanUpHookInput(
-  parameters: ParameterReflection[]
+  parameters: ParameterReflection[],
+  debug = false
 ): (ParameterReflection | DeclarationReflection)[] {
   const hasInvokeParameter = parameters.some(
     (parameter) => parameter.name === "invoke"
   )
+  if (debug) {
+    console.log(parameters, hasInvokeParameter)
+  }
   if (hasInvokeParameter) {
     return getHookInputFromInvoke(parameters)
   }
@@ -98,7 +102,12 @@ function cleanUpReflectionType(reflection: Reflection): Reflection {
     reflection.type?.type === "intersection" &&
     reflection.type.types.length >= 2
   ) {
-    reflection.type = reflection.type.types[1]
+    const allReferences = reflection.type.types.every(
+      (type) => type.type === "reference"
+    )
+    if (!allReferences) {
+      reflection.type = reflection.type.types[1]
+    }
   }
 
   if (reflection instanceof DeclarationReflection && reflection.children) {

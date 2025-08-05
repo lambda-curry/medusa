@@ -154,7 +154,7 @@ moduleIntegrationTestRunner({
               ends_at: endsAt,
               budget: {
                 type: CampaignBudgetType.SPEND,
-                currency_code: "USD",
+                currency_code: "usd",
                 used: 100,
                 limit: 100,
               },
@@ -179,7 +179,7 @@ moduleIntegrationTestRunner({
                 ends_at: endsAt,
                 budget: expect.objectContaining({
                   type: CampaignBudgetType.SPEND,
-                  currency_code: "USD",
+                  currency_code: "usd",
                   used: 100,
                   limit: 100,
                 }),

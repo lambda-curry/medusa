@@ -1,6 +1,6 @@
 export const storefront = [
   {
-    "title": "Customize the Stripe Integration in the Next.js Starter",
+    "title": "Use Stripe's Payment Element in the Next.js Starter Storefront",
     "path": "https://docs.medusajs.com/resources/nextjs-starter/guides/customize-stripe"
   },
   {

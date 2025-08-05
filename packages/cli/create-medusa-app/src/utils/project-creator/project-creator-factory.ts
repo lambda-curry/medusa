@@ -57,6 +57,16 @@ export class ProjectCreatorFactory {
           type: "warn",
         })
         askProjectName = true
+      } else if (args[0].includes(".")) {
+        // We don't allow projects to have a dot in the name, as this causes issues for
+        // for MikroORM path resolutions.
+        logMessage({
+          message: `Project names cannot contain a dot (.) character. Please enter a different ${
+            isPlugin ? "plugin" : "project"
+          } name.`,
+          type: "error",
+        })
+        askProjectName = true
       }
     }
 
@@ -80,6 +90,14 @@ async function askForProjectName(
         return slugify(input).toLowerCase()
       },
       validate: (input) => {
+        // We don't allow projects to have a dot in the name, as this causes issues for
+        // for MikroORM path resolutions.
+        if (input.includes(".")) {
+          return `Project names cannot contain a dot (.) character. Please enter a different ${
+            isPlugin ? "plugin" : "project"
+          } name.`
+        }
+
         if (!input.length) {
           return `Please enter a ${isPlugin ? "plugin" : "project"} name`
         }

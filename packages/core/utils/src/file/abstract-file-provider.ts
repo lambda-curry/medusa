@@ -192,7 +192,7 @@ export class AbstractFileProviderService implements IFileProvider {
    * @param {FileTypes.ProviderGetFileDTO} fileData - The details of the file to get its stream.
    * @returns {Promise<Readable>} The file's stream.
    *
-   * @version 2.8.0
+   * @since 2.8.0
    *
    * @example
    * class MyFileProviderService extends AbstractFileProviderService {
@@ -217,7 +217,7 @@ export class AbstractFileProviderService implements IFileProvider {
    * @param {FileTypes.ProviderGetFileDTO} fileData - The details of the file to get its buffer.
    * @returns {Promise<Buffer>} The file's buffer.
    *
-   * @version 2.8.0
+   * @since 2.8.0
    *
    * @example
    * class MyFileProviderService extends AbstractFileProviderService {

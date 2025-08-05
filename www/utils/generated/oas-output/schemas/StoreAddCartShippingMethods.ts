@@ -1,0 +1,21 @@
+/**
+ * @schema StoreAddCartShippingMethods
+ * type: object
+ * description: The shipping method's details.
+ * required:
+ *   - option_id
+ * properties:
+ *   option_id:
+ *     type: string
+ *     title: option_id
+ *     description: The ID of the shipping option this method is created from.
+ *   data:
+ *     type: object
+ *     description: Any additional data relevant for the third-party fulfillment provider to process the shipment.
+ *     externalDocs:
+ *       url: https://docs.medusajs.com/v2/resources/storefront-development/checkout/shipping#data-request-body-parameter
+ *       description: Learn more about the data parameter.
+ * x-schemaName: StoreAddCartShippingMethods
+ * 
+*/
+

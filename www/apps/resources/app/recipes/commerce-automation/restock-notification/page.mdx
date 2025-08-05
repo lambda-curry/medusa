@@ -612,7 +612,7 @@ export const subscriptionWorkflow1Highlights = [
   ["16", "createWorkflow", "Create a workflow."],
   ["23", "transform", "Set the customer ID to an empty string if not provided."],
   ["28", "when", "If email is not set, try to retrieve customer by its ID."],
-  ["47", "transform", "Set the email either to the one in the input or the specified customer's email."],
+  ["48", "transform", "Set the email either to the one in the input or the specified customer's email."],
 ]
 
 ```ts title="src/workflows/create-restock-subscription/index.ts" highlights={subscriptionWorkflow1Highlights}
@@ -650,6 +650,7 @@ export const createRestockSubscriptionWorkflow = createWorkflow(
         return !customer.email
       }
     ).then(() => {
+      // @ts-ignore
       const { data } = useQueryGraphStep({
         entity: "customer",
         fields: ["email"],

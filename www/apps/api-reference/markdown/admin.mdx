@@ -483,6 +483,226 @@ x-no-compression: false
 
 <DividedMarkdownContent>
 
+## Manage Metadata
+
+Many data models in Medusa, such as products and carts, have a `metadata` field that allows you to store custom information in key-value pairs.
+
+When setting or updating the `metadata` field using the relevant API routes, Medusa will merge the new metadata with the existing metadata.
+
+<Note>
+
+The instructions in this section apply to any [JSON property in a data model](!docs!/learn/fundamentals/data-models/json-properties).
+
+</Note>
+
+</DividedMarkdownContent>
+
+</DividedMarkdownLayout>
+
+<DividedMarkdownLayout addYSpacing>
+
+<DividedMarkdownContent>
+
+### Accepted Values in Metadata
+
+The `metadata` is an object of key-value pairs, where the keys are strings and the values can be one of the following types:
+
+- String
+    - An empty string deletes the property from the metadata.
+- Number
+- Boolean
+- Date
+- Object
+- Arrays of any of the above types
+
+The `metadata` is not validated, so you can store any custom data in it.
+
+</DividedMarkdownContent>
+
+<DividedMarkdownCode>
+
+```ts title="Metadata Example"
+{
+  "metadata": {
+    "category": "electronics",
+    "views": 1500,
+    "is_featured": true,
+    "tags": ["new", "sale"],
+    "details": {
+      "warranty": "2 years",
+      "origin": "USA"
+    }
+  }
+}
+```
+
+</DividedMarkdownCode>
+
+</DividedMarkdownLayout>
+
+<DividedMarkdownLayout addYSpacing>
+
+<DividedMarkdownContent>
+
+### Add or Update New Property in Metadata
+
+To add or update a property in the `metadata`, pass the property in the request body as a key-value pair. This won't affect existing properties in the metadata.
+
+</DividedMarkdownContent>
+
+<DividedMarkdownCode>
+
+<CodeTabs group="request-with-result">
+
+<CodeTab label="JS SDK" value="js-sdk">
+
+```js title="Add new metadata property"
+sdk.admin.product.update("prod_123", {
+  metadata: {
+    new_property: "value"
+  }
+})
+```
+
+</CodeTab>
+
+<CodeTab label="Result" value="result">
+
+```json title="Result"
+{
+  "id": "prod_123",
+  "metadata": {
+    "new_property": "value",
+    "old_property": "value"
+  }
+}
+```
+
+</CodeTab>
+
+</CodeTabs>
+
+</DividedMarkdownCode>
+
+</DividedMarkdownLayout>
+
+<DividedMarkdownLayout addYSpacing>
+
+<DividedMarkdownContent>
+
+### Update Nested Objects in Metadata
+
+When updating a nested object in the `metadata`, you must pass the entire object in the request body.
+
+Medusa doesn't merge nested objects, so if you pass a partial object, the existing properties in the nested object will be removed.
+
+</DividedMarkdownContent>
+
+<DividedMarkdownCode>
+
+<CodeTabs group="request-with-result">
+
+<CodeTab label="JS SDK" value="js-sdk">
+
+```js title="Update nested object in metadata"
+sdk.admin.product.update("prod_123", {
+  metadata: {
+    nested_object: {
+      property1: "value1",
+      property2: "value2"
+    }
+  }
+})
+```
+
+</CodeTab>
+
+<CodeTab label="Result" value="result">
+
+```json title="Result"
+{
+  "id": "prod_123",
+  "metadata": {
+    "nested_object": {
+      "property1": "value1",
+      "property2": "value2"
+    }
+  }
+}
+```
+
+</CodeTab>
+
+</CodeTabs>
+
+</DividedMarkdownCode>
+
+</DividedMarkdownLayout>
+
+<DividedMarkdownLayout addYSpacing>
+
+<DividedMarkdownContent>
+
+### Remove Property from Metadata
+
+To remove a property from the `metadata`, pass the property in the request body with an empty string value. This will remove the property from the `metadata` without affecting other properties.
+
+<Feedback
+  event="survey_api-ref"
+  extraData={{
+    area: "store",
+    section: "metadata"
+  }}
+  pathName="/api/store"
+  question="Was this section helpful?"
+  vertical={true}
+/>
+
+</DividedMarkdownContent>
+
+<DividedMarkdownCode>
+
+<CodeTabs group="request-with-result">
+
+<CodeTab label="JS SDK" value="js-sdk">
+
+```js title="Remove metadata property"
+sdk.admin.product.update("prod_123", {
+  metadata: {
+    property_to_remove: ""
+  }
+})
+```
+
+</CodeTab>
+
+<CodeTab label="Result" value="result">
+
+```json title="Result"
+{
+  "id": "prod_123",
+  "metadata": {
+    "other_property": "value"
+  }
+}
+```
+
+</CodeTab>
+
+</CodeTabs>
+
+</DividedMarkdownCode>
+
+</DividedMarkdownLayout>
+
+</SectionContainer>
+
+<SectionContainer noTopPadding={true}>
+
+<DividedMarkdownLayout>
+
+<DividedMarkdownContent>
+
 ## Select Fields and Relations
 
 </DividedMarkdownContent>

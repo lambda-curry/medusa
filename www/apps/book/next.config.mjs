@@ -193,6 +193,12 @@ const nextConfig = {
           destination: `${process.env.NEXT_PUBLIC_CLOUD_URL || "https://localhost:3001"}/cloud/:path*`,
           basePath: false,
         },
+        {
+          source: "/mcp",
+          destination:
+            process.env.NEXT_MCP_SERVER_URL || "https://localhost:3001/mcp",
+          basePath: false,
+        },
       ],
     }
   },

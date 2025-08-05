@@ -120,7 +120,7 @@ export const refreshPaymentCollectionForCartWorkflow = createWorkflow(
         return {
           selector: { id: cart.payment_collection.id },
           update: {
-            amount: cart.total,
+            amount: cart.raw_total,
             currency_code: cart.currency_code,
           },
         }

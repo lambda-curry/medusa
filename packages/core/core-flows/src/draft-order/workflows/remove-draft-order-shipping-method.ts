@@ -15,7 +15,6 @@ import { useRemoteQueryStep } from "../../common"
 import {
   createOrderChangeActionsWorkflow,
   previewOrderChangeStep,
-  updateOrderTaxLinesWorkflow,
 } from "../../order"
 import { validateDraftOrderChangeStep } from "../steps/validate-draft-order-change"
 import { draftOrderFieldsForRefreshSteps } from "../utils/fields"
@@ -86,12 +85,6 @@ export const removeDraftOrderShippingMethodWorkflow = createWorkflow(
     }).config({ name: "order-change-query" })
 
     validateDraftOrderChangeStep({ order, orderChange })
-
-    updateOrderTaxLinesWorkflow.runAsStep({
-      input: {
-        order_id: order.id,
-      },
-    })
 
     const appliedPromoCodes: string[] = transform(
       order,

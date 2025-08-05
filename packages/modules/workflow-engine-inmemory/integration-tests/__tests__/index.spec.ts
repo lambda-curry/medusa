@@ -1,3 +1,4 @@
+import { MedusaContainer } from "@medusajs/framework"
 import {
   DistributedTransactionType,
   TransactionState,
@@ -43,7 +44,6 @@ import {
   workflowEventGroupIdStep2Mock,
 } from "../__fixtures__/workflow_event_group_id"
 import { createScheduled } from "../__fixtures__/workflow_scheduled"
-import { container, MedusaContainer } from "@medusajs/framework"
 
 jest.setTimeout(60000)
 
@@ -143,7 +143,7 @@ moduleIntegrationTestRunner<IWorkflowEngineService>({
       })
 
       describe("Cancel transaction", function () {
-        it("should cancel an ongoing execution with async unfinished yet step", async () => {
+        it("should cancel an ongoing execution with async unfinished yet step", (done) => {
           const transactionId = "transaction-to-cancel-id"
           const step1 = createStep("step1", async () => {
             return new StepResponse("step1")
@@ -168,25 +168,39 @@ moduleIntegrationTestRunner<IWorkflowEngineService>({
             return new WorkflowResponse("finished")
           })
 
-          await workflowOrcModule.run(workflowId, {
-            input: {},
-            transactionId,
-          })
+          workflowOrcModule
+            .run(workflowId, {
+              input: {},
+              transactionId,
+            })
+            .then(async () => {
+              await setTimeoutPromise(100)
 
-          await setTimeoutPromise(100)
+              await workflowOrcModule.cancel(workflowId, {
+                transactionId,
+              })
 
-          await workflowOrcModule.cancel(workflowId, {
-            transactionId,
-          })
+              workflowOrcModule.subscribe({
+                workflowId,
+                transactionId,
+                subscriber: async (event) => {
+                  if (event.eventType === "onFinish") {
+                    const execution =
+                      await workflowOrcModule.listWorkflowExecutions({
+                        transaction_id: transactionId,
+                      })
 
-          await setTimeoutPromise(1000)
+                    expect(execution.length).toEqual(1)
+                    expect(execution[0].state).toEqual(
+                      TransactionState.REVERTED
+                    )
+                    done()
+                  }
+                },
+              })
+            })
 
-          const execution = await workflowOrcModule.listWorkflowExecutions({
-            transaction_id: transactionId,
-          })
-
-          expect(execution.length).toEqual(1)
-          expect(execution[0].state).toEqual(TransactionState.REVERTED)
+          failTrap(done)
         })
 
         it("should cancel a complete execution with a sync workflow running as async", async () => {
@@ -898,7 +912,6 @@ moduleIntegrationTestRunner<IWorkflowEngineService>({
 
           expect(spy).toHaveBeenCalledTimes(1)
 
-          console.log(spy.mock.results)
           expect(spy).toHaveReturnedWith(
             expect.objectContaining({ output: { testValue: "test" } })
           )
@@ -943,6 +956,35 @@ moduleIntegrationTestRunner<IWorkflowEngineService>({
           )
           expect(executionsList).toHaveLength(1)
           expect(executionsListAfter).toHaveLength(1)
+        })
+
+        it("should display error when multple async steps are running in parallel", (done) => {
+          void workflowOrcModule.run("workflow_parallel_async", {
+            input: {},
+            throwOnError: false,
+          })
+
+          void workflowOrcModule.subscribe({
+            workflowId: "workflow_parallel_async",
+            subscriber: (event) => {
+              if (event.eventType === "onFinish") {
+                done()
+                expect(event.errors).toEqual(
+                  expect.arrayContaining([
+                    expect.objectContaining({
+                      action: "step_2",
+                      handlerType: "invoke",
+                      error: expect.objectContaining({
+                        message: "Error in parallel step",
+                      }),
+                    }),
+                  ])
+                )
+              }
+            },
+          })
+
+          failTrap(done)
         })
       })
 

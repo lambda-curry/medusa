@@ -52,9 +52,15 @@
  *       metadata:
  *         type: object
  *         description: The default tax rate's metadata, used to store custom key-value pairs.
+ *         externalDocs:
+ *           url: https://docs.medusajs.com/api/admin#manage-metadata
+ *           description: Learn how to manage metadata
  *   metadata:
  *     type: object
  *     description: The tax region's metadata, used to store custom key-value pairs.
+ *     externalDocs:
+ *       url: https://docs.medusajs.com/api/admin#manage-metadata
+ *       description: Learn how to manage metadata
  *   provider_id:
  *     type: string
  *     title: provider_id

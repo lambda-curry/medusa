@@ -1,5 +1,33 @@
 # integration-tests-http
 
+## 1.0.20
+
+### Patch Changes
+
+- Updated dependencies [[`a28226af80a8880afbdb926a5001f0cb0d89fdc9`](https://github.com/medusajs/medusa/commit/a28226af80a8880afbdb926a5001f0cb0d89fdc9), [`40625c82d6deb28ecb4e4c0f911c28fdd7356bf7`](https://github.com/medusajs/medusa/commit/40625c82d6deb28ecb4e4c0f911c28fdd7356bf7), [`822217fa366d4399d3f6a0407451c9649197d5d9`](https://github.com/medusajs/medusa/commit/822217fa366d4399d3f6a0407451c9649197d5d9), [`7b1debfe12fc096f7b4e20f13bdeb925c96085c1`](https://github.com/medusajs/medusa/commit/7b1debfe12fc096f7b4e20f13bdeb925c96085c1), [`eb83954f23077c0714125b6f2f19fd0ef0f288f9`](https://github.com/medusajs/medusa/commit/eb83954f23077c0714125b6f2f19fd0ef0f288f9), [`8c4228fc42e717f9ab72230040e708f606a585b7`](https://github.com/medusajs/medusa/commit/8c4228fc42e717f9ab72230040e708f606a585b7), [`439c7118450c5f9ee0b541de9014093a42b7d0ea`](https://github.com/medusajs/medusa/commit/439c7118450c5f9ee0b541de9014093a42b7d0ea), [`238e7d53c13a1c033886d7c33254919f8b5b22dc`](https://github.com/medusajs/medusa/commit/238e7d53c13a1c033886d7c33254919f8b5b22dc), [`7669dbb03e2f65fa76cff1c5b90a0777e475cb47`](https://github.com/medusajs/medusa/commit/7669dbb03e2f65fa76cff1c5b90a0777e475cb47), [`c5d609d09cb29c6cf01d1c6c65305cc566f391c5`](https://github.com/medusajs/medusa/commit/c5d609d09cb29c6cf01d1c6c65305cc566f391c5), [`2c2528a08751945d6f0363473605f1a8ef1a8a2a`](https://github.com/medusajs/medusa/commit/2c2528a08751945d6f0363473605f1a8ef1a8a2a)]:
+  - @medusajs/core-flows@2.8.8
+  - @medusajs/pricing@2.8.8
+  - @medusajs/workflow-engine-inmemory@2.8.8
+  - @medusajs/product@2.8.8
+  - @medusajs/utils@2.8.8
+  - @medusajs/test-utils@2.8.8
+  - @medusajs/modules-sdk@2.8.8
+  - @medusajs/medusa@2.8.8
+  - @medusajs/api-key@2.8.8
+  - @medusajs/auth@2.8.8
+  - @medusajs/cache-inmemory@2.8.8
+  - @medusajs/customer@2.8.8
+  - @medusajs/event-bus-local@2.8.8
+  - @medusajs/fulfillment@2.8.8
+  - @medusajs/inventory@2.8.8
+  - @medusajs/promotion@2.8.8
+  - @medusajs/fulfillment-manual@2.8.8
+  - @medusajs/region@2.8.8
+  - @medusajs/stock-location@2.8.8
+  - @medusajs/store@2.8.8
+  - @medusajs/tax@2.8.8
+  - @medusajs/user@2.8.8
+
 ## 1.0.19
 
 ### Patch Changes

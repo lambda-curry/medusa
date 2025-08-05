@@ -4,9 +4,9 @@ export const metadata = {
 
 # {metadata.title}
 
-In this chapter, you'll learn about the module's container and how to resolve resources in that container.
+In this chapter, you'll learn about the module container and how to resolve resources from it.
 
-Since modules are [isolated](../isolation/page.mdx), each module has a local container only used by the resources of that module.
+Since modules are [isolated](../isolation/page.mdx), each module has a local container used only by the resources of that module.
 
 So, resources in the module, such as services or loaders, can only resolve other resources registered in the module's container, and some Framework tools that the Medusa application registers in the module's container.
 
@@ -16,13 +16,13 @@ Find a list of resources or dependencies registered in a module's container in [
 
 ---
 
-## Resolve Resources
+## Resolve Resources from the Module Container
 
-### Services
+### Resolve in Services
 
-A service's constructor accepts as a first parameter an object used to resolve resources registered in the module's container.
+A service's constructor accepts as a first parameter an object used to resolve resources registered in the module's container. To resolve a resource, add the resource's registration name as a property of the object.
 
-For example:
+For example, to resolve the [Logger](../../../debugging-and-testing/logging/page.mdx) from the container:
 
 ```ts highlights={[["4"], ["10"]]}
 import { Logger } from "@medusajs/framework/types"
@@ -44,11 +44,13 @@ export default class BlogModuleService {
 }
 ```
 
-### Loader
+You can then use the logger in the service's methods.
 
-A loader function accepts as a parameter an object having the property `container`. Its value is the module's container used to resolve resources.
+### Resolve in Loaders
 
-For example:
+[Loaders](../loaders/page.mdx) accept an object parameter with the property `container`. Its value is the module's container that can be used to resolve resources using its `resolve` method.
+
+For example, to resolve the [Logger](../../../debugging-and-testing/logging/page.mdx) in a loader:
 
 ```ts highlights={[["9"]]}
 import {
@@ -66,3 +68,69 @@ export default async function helloWorldLoader({
   logger.info("[helloWorldLoader]: Hello, World!")
 }
 ```
+
+You can then use the logger in the loader's code.
+
+---
+
+## Caveat: Resolving Module Services in Loaders
+
+Consider a module that has a main service `BrandModuleService`, and an internal service `CmsService`. Medusa will register both of these services in the module's container.
+
+However, loaders are executed before any services are initialized and registered in the module's container. So, you can't resolve the `BrandModuleService` and `CmsService` in a loader.
+
+Instead, if your main service extends the `MedusaService` [service factory](../service-factory/page.mdx), you can resolve the internal services generated for each data model passed to the `MedusaService` function.
+
+For example, if the `BrandModuleService` is defined as follows:
+
+```ts
+import { MedusaService } from "@medusajs/framework/utils"
+import Brand from "./models/brand"
+
+class BrandModuleService extends MedusaService({
+  Brand,
+}) {
+}
+
+export default BrandModuleService
+```
+
+Then, you can resolve the `brandService` that allows you to manage brands in the module's loader:
+
+```ts
+import {
+  LoaderOptions,
+} from "@medusajs/framework/types"
+
+export default async function helloWorldLoader({
+  container,
+}: LoaderOptions) {
+  const brandService = container.resolve("brandService")
+
+  const brands = await brandService.list()
+
+  console.log("[helloWorldLoader]: Brands:", brands)
+}
+```
+
+Refer to the [Service Factory reference](!resources!/service-factory-reference) for details on the available methods in the generated services.
+
+---
+
+## Alternative to Resolving Other Modules' Services
+
+Since modules are [isolated](../isolation/page.mdx), you can't resolve resources that belong to other modules from the module's container. For example, you can't resolve the Product Module's service in the Blog Module's service.
+
+Instead, to build commerce features that span multiple modules, you can create [workflows](../../workflows/page.mdx). In those workflows, you can resolve services of all modules registered in the Medusa application, including the services of the Product and Blog modules.
+
+Then, you can execute the workflows in [API routes](../../api-routes/page.mdx), [subscribers](../../events-and-subscribers/page.mdx), or [scheduled jobs](../../scheduled-jobs/page.mdx).
+
+Learn more and find examples in the [Module Isolation](../isolation/page.mdx) chapter.
+
+---
+
+## Avoid Circular Dependencies
+
+When resolving resources in a module's services, make sure you don't create circular dependencies. For example, if `BlogModuleService` resolves `CmsService`, and `CmsService` resolves `BlogModuleService`, it will cause a circular dependency error.
+
+Instead, you should generally only resolve services within the main service. For example, `BlogModuleService` can resolve `CmsService`, but `CmsService` should not resolve `BlogModuleService`.

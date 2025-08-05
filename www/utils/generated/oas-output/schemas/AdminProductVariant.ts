@@ -134,6 +134,9 @@
  *   metadata:
  *     type: object
  *     description: The variant's metadata, can hold custom key-value pairs.
+ *     externalDocs:
+ *       url: https://docs.medusajs.com/api/admin#manage-metadata
+ *       description: Learn how to manage metadata
  *   inventory_items:
  *     type: array
  *     description: The variant's inventory items.

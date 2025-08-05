@@ -45,7 +45,7 @@ The API routes that restrict the fields and relations you can retrieve are:
 
 ### How to Override Allowed Fields and Relations
 
-For these routes, you need to override the allowed fields and relations to be retrieved. You can do this by adding a [middleware](../middlewares/page.mdx) to those routes.
+For these routes, you need to override the allowed fields and relations to be retrieved. You can do this by applying a [global middleware](../middlewares/page.mdx) to those routes.
 
 For example, to allow retrieving the `b2b_company` of a customer using the [Get Customer Admin API Route](!api!/admin#customers_getcustomersid), create the file `src/api/middlewares.ts` with the following content:
 
@@ -66,10 +66,9 @@ export default defineMiddlewares({
   routes: [
     {
       matcher: "/store/customers/me",
-      method: "GET",
       middlewares: [
         (req, res, next) => {
-          req.allowed?.push("b2b_company")
+          (req.allowed ??= []).push("b2b_company")
           next()
         },
       ],
@@ -90,3 +89,9 @@ curl 'http://localhost:9000/admin/customers/{id}?fields=*b2b_company' \
 ```
 
 In this example, you retrieve the `b2b_company` relation of the customer using the `fields` query parameter.
+
+<Note title="Important">
+
+This approach only works using a global middleware. It doesn't work in a route middleware.
+
+</Note>

@@ -40,7 +40,8 @@
 			"provider_id": "The ID of the external provider that the adjustment is related to.",
 			"promotion_id": "The ID of the applied promotion.",
 			"metadata": "Holds custom data in key-value pairs.",
-			"item": "The associated line item.\n\n@expandable"
+			"item": "The associated line item.\n\n@expandable",
+			"is_tax_inclusive": "Whether the line item adjustment is tax inclusive."
 		}
 	},
 	"LineItem": {

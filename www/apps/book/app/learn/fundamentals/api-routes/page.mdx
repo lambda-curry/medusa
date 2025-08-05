@@ -4,25 +4,25 @@ export const metadata = {
 
 # {metadata.title}
 
-In this chapter, you’ll learn what API Routes are and how to create them.
+In this chapter, you’ll learn what API routes are and how to create them.
 
 ## What is an API Route?
 
-An API Route is an endpoint. It exposes commerce features to external applications, such as storefronts, the admin dashboard, or third-party systems.
+An API route is a REST endpoint that exposes commerce features to external applications, such as storefronts, the admin dashboard, or third-party systems.
 
-The Medusa core application provides a set of admin and store API routes out-of-the-box. You can also create custom API routes to expose your custom functionalities.
+The Medusa core application provides a set of [admin](!api!/admin) and [store](!api!/store) API routes out-of-the-box. You can also create custom API routes to expose your custom functionalities.
 
 ---
 
 ## How to Create an API Route?
 
-An API Route is created in a TypeScript or JavaScript file under the `src/api` directory of your Medusa application. The file’s name must be `route.ts` or `route.js`. 
+You can create an API route in a TypeScript or JavaScript file under the `src/api` directory of your Medusa application. The file’s name must be `route.ts` or `route.js`. 
 
 ![Example of API route in the application's directory structure](https://res.cloudinary.com/dza7lstvk/image/upload/v1732808645/Medusa%20Book/route-dir-overview_dqgzmk.jpg)
 
-Each file exports API Route handler functions for at least one HTTP method (`GET`, `POST`, `DELETE`, etc…).
+Each file exports API route handler functions for at least one HTTP method (`GET`, `POST`, `DELETE`, etc…).
 
-For example, to create a `GET` API Route at `/hello-world`, create the file `src/api/hello-world/route.ts` with the following content:
+For example, to create a `GET` API route at `/hello-world`, create the file `src/api/hello-world/route.ts` with the following content:
 
 ```ts title="src/api/hello-world/route.ts"
 import type {
@@ -40,7 +40,7 @@ export const GET = (
 }
 ```
 
-### Test API Route
+### Test the API Route
 
 To test the API route above, start the Medusa application:
 
@@ -48,18 +48,22 @@ To test the API route above, start the Medusa application:
 npm run dev
 ```
 
-Then, send a `GET` request to the `/hello-world` API Route:
+Then, send a `GET` request to the `/hello-world` API route:
 
 ```bash
 curl http://localhost:9000/hello-world
 ```
 
+You should receive the following response:
+
+```json
+{
+  "message": "[GET] Hello world!"
+}
+```
+
 ---
 
-## When to Use API Routes
+## Next Chapters: Learn More About API Routes
 
-<Note title="Use API routes when" type="success">
-
-You're exposing custom functionality to be used by a storefront, admin dashboard, or any external application.
-
-</Note>
+Follow the next chapters to learn about the different HTTP methods you can use in API routes, parameters and validation, protecting routes, and more.

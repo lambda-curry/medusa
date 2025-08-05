@@ -599,7 +599,7 @@ export abstract class AbstractPaymentProvider<TConfig = Record<string, unknown>>
    *         {
    *           amount,
    *           currency_code,
-   *           context.customer
+   *           customer: context.customer
    *         }
    *       )
    *

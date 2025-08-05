@@ -1,0 +1,31 @@
+If your cart has a total of `0`, you might encounter an `unknown error` when trying to create a payment session.
+
+## Why this Error Occurred
+
+Some payment providers, such as Stripe, require a non-zero amount to create a payment session. So, if your cart has a total of `0`, the error will be thrown on the payment provider's side.
+
+## Solutions
+
+### Initialize Payment Session Only for Non-Zero Totals
+
+Make sure the payment session is only initialized when the cart has a total greater than `0`. You can add a check before creating the payment session:
+
+```ts
+if (cart.total > 0) {
+  // TODO Initialize payment session
+}
+```
+
+### Use Manual System Payment Provider
+
+Use payment providers like the Manual System Payment Provider, which doesn't create a payment session with a third-party provider.
+
+The Manual System Payment Provider is available by default in Medusa and can be used to handle payments without a third-party provider. It allows you to mark the order as paid without requiring any additional actions from the customer.
+
+Make sure to configure the Manual System Payment Provider in your store's region. Learn more in the [Manage Region](!user-guide!/settings/regions#edit-region-details) user guide.
+
+---
+
+## Additional Resources
+
+- [Payment Providers](../../../commerce-modules/payment/payment-provider/page.mdx)

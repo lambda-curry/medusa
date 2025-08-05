@@ -3,7 +3,7 @@ import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { HttpTypes } from "@medusajs/framework/types"
 
 /**
- * @version 2.8.0
+ * @since 2.8.0
  */
 export const POST = async (
   req: MedusaRequest<HttpTypes.StoreCreateReturn>,

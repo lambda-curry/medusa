@@ -17,7 +17,7 @@ export async function waitWorkflowExecutions(container: MedusaContainer) {
 
   const timeout = setTimeout(() => {
     throw new Error("Timeout waiting for workflow executions to finish")
-  }, 10000).unref()
+  }, 60000).unref()
 
   let waitWorkflowsToFinish = true
   while (waitWorkflowsToFinish) {

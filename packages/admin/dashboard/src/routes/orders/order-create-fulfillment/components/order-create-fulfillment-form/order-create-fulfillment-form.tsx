@@ -23,6 +23,7 @@ import {
   useReservationItems,
   useShippingOptions,
 } from "../../../../../hooks/api"
+import { getReservationsLimitCount } from "../../../../../lib/orders"
 
 type OrderCreateFulfillmentFormProps = {
   order: AdminOrder
@@ -41,6 +42,7 @@ export function OrderCreateFulfillmentForm({
 
   const { reservations } = useReservationItems({
     line_item_id: order.items.map((i) => i.id),
+    limit: getReservationsLimitCount(order),
   })
 
   const itemReservedQuantitiesMap = useMemo(

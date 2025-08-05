@@ -43,7 +43,7 @@ const data = [
   {
     id: "1",
     title: "Shirt",
-    price: 10
+    price: 10,
   },
   // other data...
 ]
@@ -82,7 +82,7 @@ import {
 Then, inside the component that will render `DataTable`, create a table instance using the `useDataTable` hook:
 
 ```tsx
-export default function ProductTable () {
+export default function ProductTable() {
   const table = useDataTable({
     columns,
     data,
@@ -106,7 +106,7 @@ The `useDataTable` hook accepts an object with the following properties:
 Finally, render the `DataTable` component with the table instance created using the `useDataTable` hook:
 
 ```tsx
-export default function ProductTable () {
+export default function ProductTable() {
   // ...
   return (
     <DataTable instance={table}>
@@ -196,14 +196,14 @@ const products = [
     id: "1",
     title: "Shirt",
     price: 10,
-    is_active: true
+    is_active: true,
   },
   {
     id: "2",
     title: "Pants",
     price: 20,
-    is_active: true
-  }
+    is_active: true,
+  },
 ]
 
 const columnHelper = createDataTableColumnHelper<typeof products[0]>()
@@ -218,7 +218,7 @@ const columns = [
           {isActive ? "Active" : "Inactive"}
         </Badge>
       )
-    }
+    },
   }),
   // ...
 ]
@@ -242,8 +242,8 @@ const table = useDataTable({
   // ...
   search: {
     state: search,
-    onSearchChange: setSearch
-  }
+    onSearchChange: setSearch,
+  },
 })
 ```
 
@@ -272,8 +272,8 @@ const table = useDataTable({
   // Pass the state and onSearchChange to the table instance.
   search: {
     state: search,
-    onSearchChange: setSearch
-  }
+    onSearchChange: setSearch,
+  },
 })
 ```
 
@@ -370,7 +370,7 @@ const table = useDataTable({
     onPaginationChange: setPagination,
   },
   isLoading: false,
-});
+})
 ```
 
 Finally, render the `DataTable.Pagination` component as part of the `DataTable`'s children:
@@ -427,8 +427,8 @@ const filters = [
     label: "Title",
     options: products.map((product) => ({
       label: product.title,
-      value: product.title.toLowerCase()
-    }))
+      value: product.title.toLowerCase(),
+    })),
   }),
 ]
 ```
@@ -525,7 +525,7 @@ const table = useDataTable({
     state: filtering,
     onFilteringChange: setFiltering,
   },
-  filters
+  filters,
 })
 ```
 
@@ -575,24 +575,24 @@ const filters = [
         label: "Today",
         value: {
           $gte: new Date(new Date().setHours(0, 0, 0, 0)).toString(),
-          $lte: new Date(new Date().setHours(23, 59, 59, 999)).toString()
-        }
+          $lte: new Date(new Date().setHours(23, 59, 59, 999)).toString(),
+        },
       },
       {
         label: "Yesterday",
         value: {
           $gte: new Date(new Date().setHours(0, 0, 0, 0) - 24 * 60 * 60 * 1000).toString(),
-          $lte: new Date(new Date().setHours(0, 0, 0, 0)).toString()
-        }
+          $lte: new Date(new Date().setHours(0, 0, 0, 0)).toString(),
+        },
       },
       {
         label: "Last Week",
         value: {
           $gte: new Date(new Date().setHours(0, 0, 0, 0) - 7 * 24 * 60 * 60 * 1000).toString(),
-          $lte: new Date(new Date().setHours(0, 0, 0, 0)).toString()
+          $lte: new Date(new Date().setHours(0, 0, 0, 0)).toString(),
         },
       },
-    ]
+    ],
   }),
 ]
 ```
@@ -653,7 +653,7 @@ If you want to set initial filter values, you can set the initial state of the `
 
 ```tsx
 const [filtering, setFiltering] = useState<DataTableFilteringState>({
-  title: ["shirt"]
+  title: ["shirt"],
 })
 ```
 
@@ -698,11 +698,11 @@ Next, in the component rendering the `DataTable` component, create a state varia
 ```tsx
 import {
   // ...
-  DataTableSortingState
+  DataTableSortingState,
 } from "@medusajs/ui"
 
-export default function ProductTable () {
-  const [sorting, setSorting] = useState<DataTableSortingState | null>(null);
+export default function ProductTable() {
+  const [sorting, setSorting] = useState<DataTableSortingState | null>(null)
 
   const table = useDataTable({
     // ...
@@ -728,7 +728,7 @@ You must also implement the sorting logic, such as sending the sorting condition
 For example, when using a simple array as in the example above, this is how you sort the data based on the sorting conditions:
 
 ```tsx
-const [sorting, setSorting] = useState<DataTableSortingState | null>(null);
+const [sorting, setSorting] = useState<DataTableSortingState | null>(null)
 
 const shownProducts = useMemo(() => {
   if (!sorting) {
@@ -852,8 +852,8 @@ const useCommands = () => {
         const productsToDeleteIds = Object.keys(selection)
 
         // TODO remove products from the server
-      }
-    })
+      },
+    }),
   ]
 }
 ```

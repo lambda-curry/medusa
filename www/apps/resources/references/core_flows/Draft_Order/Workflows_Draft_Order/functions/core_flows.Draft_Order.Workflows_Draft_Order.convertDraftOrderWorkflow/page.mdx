@@ -3,7 +3,6 @@ slug: /references/medusa-workflows/convertDraftOrderWorkflow
 sidebar_label: convertDraftOrderWorkflow
 sidebar_description: Convert a draft order to a pending order.
 tags:
-  - remote query
   - event bus
   - workflow
 ---
@@ -20,7 +19,7 @@ This workflow converts a draft order to a pending order. It's used by the
 You can use this workflow within your customizations or your own custom workflows, allowing you to wrap custom logic around
 converting a draft order to a pending order.
 
-<SourceCodeLink link="https://github.com/medusajs/medusa/blob/e0b5bb0b224458ebc8c93111e72f9a10aecf0275/packages/core/core-flows/src/draft-order/workflows/convert-draft-order.ts#L97" />
+<SourceCodeLink link="https://github.com/medusajs/medusa/blob/394226b5c18d11072da826ed6a07d4e602e62f18/packages/core/core-flows/src/draft-order/workflows/convert-draft-order.ts#L97" />
 
 ## Examples
 
@@ -129,7 +128,7 @@ const myWorkflow = createWorkflow(
 
 ## Steps
 
-<WorkflowDiagram workflow={{"name":"convertDraftOrderWorkflow","steps":[{"type":"step","name":"useRemoteQueryStep","description":"This step fetches data across modules using the remote query.\n\nLearn more in the [Remote Query documentation](https://docs.medusajs.com/learn/fundamentals/module-links/query).\n\n:::note\n\nThis step is deprecated. Use [useQueryGraphStep](../../../../Common/Steps_Common/functions/core_flows.Common.Steps_Common.useQueryGraphStep/page.mdx) instead.\n\n:::","link":"../../../../Common/Steps_Common/functions/core_flows.Common.Steps_Common.useRemoteQueryStep/page.mdx","depth":1},{"type":"step","name":"validateDraftOrderStep","description":"This step validates that an order is a draft order. It throws an error otherwise.\n\n:::note\n\nYou can retrieve a draft order's details using [Query](https://docs.medusajs.com/learn/fundamentals/module-links/query),\nor [useQueryGraphStep](https://docs.medusajs.com/resources/references/medusa-workflows/steps/useQueryGraphStep).\n\n:::","link":"../../../Steps_Draft_Order/functions/core_flows.Draft_Order.Steps_Draft_Order.validateDraftOrderStep/page.mdx","depth":2},{"type":"step","name":"convertDraftOrderStep","description":"This step converts a draft order to a pending order.","link":"../core_flows.Draft_Order.Workflows_Draft_Order.convertDraftOrderStep/page.mdx","depth":3},{"type":"step","name":"emitEventStep","description":"Emit an event.","link":"../../../../Common/Steps_Common/functions/core_flows.Common.Steps_Common.emitEventStep/page.mdx","depth":4}]}} />
+<WorkflowDiagram workflow={{"name":"convertDraftOrderWorkflow","steps":[{"type":"step","name":"validateDraftOrderStep","description":"This step validates that an order is a draft order. It throws an error otherwise.\n\n:::note\n\nYou can retrieve a draft order's details using [Query](https://docs.medusajs.com/learn/fundamentals/module-links/query),\nor [useQueryGraphStep](https://docs.medusajs.com/resources/references/medusa-workflows/steps/useQueryGraphStep).\n\n:::","link":"../../../Steps_Draft_Order/functions/core_flows.Draft_Order.Steps_Draft_Order.validateDraftOrderStep/page.mdx","depth":1},{"type":"step","name":"convertDraftOrderStep","description":"This step converts a draft order to a pending order.","link":"../core_flows.Draft_Order.Workflows_Draft_Order.convertDraftOrderStep/page.mdx","depth":2},{"type":"step","name":"emitEventStep","description":"Emit an event.","link":"../../../../Common/Steps_Common/functions/core_flows.Common.Steps_Common.emitEventStep/page.mdx","depth":3}]}} />
 
 ## Input
 

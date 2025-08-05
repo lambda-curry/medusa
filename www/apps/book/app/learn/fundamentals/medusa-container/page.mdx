@@ -178,3 +178,13 @@ const step1 = createStep("step-1", async (_, { container }) => {
 A [module](../../fundamentals/modules/page.mdx), which is a package of functionalities for a single feature or domain, has its own container, so it can't resolve resources from the Medusa container.
 
 Learn more about the module's container in [this chapter](../../fundamentals/modules/container/page.mdx).
+
+---
+
+## Container Registration Keys Auto-Completion
+
+When you resolve a resource from the Medusa container, you can use auto-completion to find the registration key of the resource.
+
+This is possible due to Medusa's auto-generated types, which are generated in the `.medusa` directory when you run the `dev` command.
+
+Learn more in the [Auto-Generated Types](../generated-types/page.mdx) chapter.

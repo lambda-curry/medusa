@@ -82,6 +82,7 @@ A workflow is also considered long-running if:
 
 - One of its steps has its `async` configuration set to `true` and doesn't return a step response.
 - One of its steps has its `retryInterval` option set as explained in the [Retry Failed Steps chapter](../retry-failed-steps/page.mdx).
+- One of its [nested workflows](../execute-another-workflow/page.mdx) is a long-running workflow.
 
 ---
 
@@ -151,9 +152,6 @@ export const setStepSuccessStep = createStep(
         workflowId: "hello-world",
       },
       stepResponse: new StepResponse("Done!"),
-      options: {
-        container,
-      },
     })
   }
 )
@@ -203,20 +201,6 @@ The `setStepSuccess` method of the workflow engine's main service accepts as a p
       description: "Set the response of the step. This is similar to the response you return in a step's definition, but since the `async` step doesn't have a response, you set its response when changing its status.",
       optional: false
     },
-    {
-      name: "options",
-      type: "`Record<string, any>`",
-      description: "Options to pass to the step.",
-      optional: true,
-      children: [
-        {
-          name: "container",
-          type: "`MedusaContainer`",
-          description: "An instance of the Medusa Container",
-          optional: true
-        }
-      ]
-    }
   ]}
 />
 
@@ -269,9 +253,6 @@ export const setStepFailureStep = createStep(
         workflowId: "hello-world",
       },
       stepResponse: new StepResponse("Failed!"),
-      options: {
-        container,
-      },
     })
   }
 )

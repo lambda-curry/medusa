@@ -1,0 +1,1273 @@
+---
+sidebar_label: "Personalized Products"
+tags:
+    - server
+    - tutorial
+    - name: product
+      label: "Implement Personalized Products"
+products:
+  - cart
+  - product
+  - order
+---
+
+import { Github, PlaySolid, ArrowUpRightOnBox } from "@medusajs/icons"
+import { Prerequisites, WorkflowDiagram, CardList, InlineIcon } from "docs-ui"
+
+export const metadata = {
+  title: `Implement Personalized Products in Medusa`,
+}
+
+# {metadata.title}
+
+In this tutorial, you will learn how to implement personalized products in Medusa.
+
+When you install a Medusa application, you get a fully-fledged commerce platform with a Framework for customization. You can benefit from existing features and extend them to implement your business requirements.
+
+Personalized products allow customers to enter custom values for product attributes, such as text or images, before adding them to the cart. This is useful for businesses that offer customizable products, such as furniture, clothing, or gifts.
+
+## Summary
+
+By following this tutorial, you will learn how to:
+
+- Install and set up a Medusa application.
+- Store personalized product data.
+- Calculate custom pricing based on personalized attributes.
+- Validate personalized product data before adding to the cart.
+- Add personalized products to the cart.
+- Extend the Medusa Admin dashboard to show personalized product data in an order.
+
+You can follow this tutorial whether you're new to Medusa or an advanced Medusa developer.
+
+![Diagram showcasing requests sent from the storefront to the server to get custom price, add product to cart, and place order. Then the admin user views the personalized items in an order.](https://res.cloudinary.com/dza7lstvk/image/upload/v1753167036/Medusa%20Resources/personalized-products_fgxy6s.jpg)
+
+<CardList items={[
+  {
+    href: "https://github.com/medusajs/examples/tree/main/personalized-products",
+    title: "Full Code",
+    text: "Find the full code for this guide in this repository.",
+    icon: Github,
+  },
+  {
+    href: "https://res.cloudinary.com/dza7lstvk/raw/upload/v1753106919/OpenApi/Personalized-Products_ynzrmj.yaml",
+    title: "OpenApi Specs for Postman",
+    text: "Import this OpenApi Specs file into tools like Postman.",
+    icon: PlaySolid,
+  },
+]} />
+
+---
+
+## Step 1: Install a Medusa Application
+
+<Prerequisites items={[
+  {
+    text: "Node.js v20+",
+    link: "https://nodejs.org/en/download"
+  },
+  {
+    text: "Git CLI tool",
+    link: "https://git-scm.com/downloads"
+  },
+  {
+    text: "PostgreSQL",
+    link: "https://www.postgresql.org/download/"
+  }
+]} />
+
+Start by installing the Medusa application on your machine with the following command:
+
+```bash
+npx create-medusa-app@latest
+```
+
+You'll first be asked for the project's name. Then, when asked whether you want to install the [Next.js Starter Storefront](../../../nextjs-starter/page.mdx), choose Yes.
+
+Afterward, the installation process will start, which will install the Medusa application in a directory with your project's name, and the Next.js Starter Storefront in a separate directory with the `{project-name}-storefront` name.
+
+<Note title="Why is the storefront installed separately?">
+
+The Medusa application is composed of a headless Node.js server and an admin dashboard. The storefront is installed or custom-built separately and connects to the Medusa application through its REST endpoints, called [API routes](!docs!/learn/fundamentals/api-routes). Learn more in [Medusa's Architecture documentation](!docs!/learn/introduction/architecture).
+
+</Note>
+
+Once the installation finishes successfully, the Medusa Admin dashboard will open with a form to create a new user. Enter the user's credentials and submit the form. Afterward, you can log in with the new user and explore the dashboard.
+
+<Note title="Ran into Errors?">
+
+Check out the [troubleshooting guides](../../../troubleshooting/create-medusa-app-errors/page.mdx) for help.
+
+</Note>
+
+---
+
+## Step 2: Create a Personalized Product
+
+In this tutorial, you'll use the example of selling fabric of custom height and width. The customer can enter the height and width of the fabric they want to buy, and the price will be calculated based on these values.
+
+When the customer adds the product variant to the cart, you'll store the personalized data in the line item's `metadata` property. Note that the same product variant added with different `metadata` to the cart is treated as a separate line item.
+
+When the customer places the order, the line items' `metadata` property are copied to the order's line items, allowing you to access the personalized data later.
+
+So, to create a personalized product, you can just create a [regular product using the Medusa Admin](!user-guide!/products/create).
+
+### Differentiate Personalized Products
+
+If you want to support both personalized and non-personalized products, you can set an `is_personalized` flag in the personalized product's `metadata` property to differentiate them from regular products.
+
+To do that from the Medusa Admin dashboard:
+
+1. Go to Products from the sidebar and click on the product you want to edit.
+2. Click on the <InlineIcon Icon={ArrowUpRightOnBox} alt="external link icon to open metadata editor" /> icon in the "Metadata" section.
+3. In the side window, enter `is_personalized` as the key and `true` as the value.
+4. Once you're done, click on the "Save" button.
+
+![Screenshot of Medusa Admin metadata editor showing a form field with 'is_personalized' as the key and 'true' as the value](https://res.cloudinary.com/dza7lstvk/image/upload/v1753108787/Medusa%20Resources/CleanShot_2025-07-21_at_14.55.50_2x_m7ynd7.png)
+
+The rest of this tutorial will always check for this `is_personalized` flag to determine whether the product is personalized or not.
+
+---
+
+## Step 3: Get Personalization Price
+
+When the customer enters the fabric's height and width, you'll calculate a custom price based on the entered dimensions and the product variant's price. You'll show that price to the customer and, later, use it when adding the product to the cart.
+
+<Note title="Tip">
+
+If your use case doesn't require custom pricing, you can skip this step and just use the product variant's price as is.
+
+</Note>
+
+In this step, you'll implement the logic to calculate the custom price, then expose that logic to client applications. To do that, you will:
+
+1. Create a [workflow](!docs!/learn/fundamentals/workflows) that calculates the price based on the height, width, and product variant's price.
+2. Create an [API route](!docs!/learn/fundamentals/api-routes) that executes the workflow and returns the price.
+
+### a. Create a Workflow
+
+A [workflow](!docs!/learn/fundamentals/workflows) is a series of queries and actions, called steps, that complete a task. A workflow is similar to a function, but it allows you to track its executions' progress, define roll-back logic, and configure other advanced features.
+
+In Medusa, you implement your custom commerce flows in workflows. Then, you execute those workflows from other customizations, such as API routes.
+
+The workflow that calculates the personalized product variant's price will have the following steps:
+
+<WorkflowDiagram
+  workflow={{
+    name: "getCustomPriceWorkflow",
+    steps: [
+      {
+        type: "step",
+        name: "useQueryGraphStep",
+        description: "Get the region's currency.",
+        link: "/references/helper-steps/useQueryGraphStep",
+        depth: 1
+      },
+      {
+        type: "step",
+        name: "useQueryGraphStep",
+        description: "Get the product variant's original price.",
+        link: "/references/helper-steps/useQueryGraphStep",
+        depth: 2
+      },
+      {
+        type: "step",
+        name: "getCustomPriceStep",
+        description: "Calculate the custom price based on the height, width, and product variant's price.",
+        depth: 3
+      }
+    ]
+  }}
+  hideLegend
+/>
+
+Medusa provides the `useQueryGraphStep`, so you only need to implement the `getCustomPriceStep` step.
+
+#### getCustomPriceStep
+
+The `getCustomPriceStep` will calculate a variant's custom price based on its original price, and the height and width values entered by the customer.
+
+To create the step, create the file `src/workflows/steps/get-custom-price.ts` with the following content:
+
+export const getCustomPriceStepHighlights = [
+  ["14", "DIMENSION_PRICE_FACTOR", "Factor to calculate the custom price based on height and width."],
+  ["21", "", "Validate that the product is a personalized product."],
+  ["24", "", "Validate that the height and width are set."],
+  ["34", "customPrice", "Calculate the custom price based on the height and width."]
+]
+
+```ts title="src/workflows/steps/get-custom-price.ts" highlights={getCustomPriceStepHighlights}
+import { ProductVariantDTO } from "@medusajs/framework/types"
+import { MedusaError } from "@medusajs/framework/utils"
+import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
+
+export type GetCustomPriceStepInput = {
+  variant: ProductVariantDTO & {
+    calculated_price?: {
+      calculated_amount: number
+    }
+  }
+  metadata?: Record<string, unknown>
+}
+
+const DIMENSION_PRICE_FACTOR = 0.01
+
+export const getCustomPriceStep = createStep(
+  "get-custom-price",
+  async ({
+    variant, metadata = {},
+  }: GetCustomPriceStepInput) => {
+    if (!variant.product?.metadata?.is_personalized) {
+      return new StepResponse(variant.calculated_price?.calculated_amount || 0)
+    }
+    if (!metadata.height || !metadata.width) {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        "Custom price requires width and height metadata to be set."
+      )
+    }
+    const height = metadata.height as number
+    const width = metadata.width as number
+
+    const originalPrice = variant.calculated_price?.calculated_amount || 0
+    const customPrice = originalPrice + (height * width * DIMENSION_PRICE_FACTOR)
+
+    return new StepResponse(customPrice)
+  }
+)
+```
+
+You create a step with the `createStep` function. It accepts two parameters:
+
+1. The step's unique name.
+2. An async function that receives two parameters:
+    - The step's input, which is an object with the variant's data and the `metadata` object containing the height and width values.
+    - An object that has properties including the [Medusa container](!docs!/learn/fundamentals/medusa-container), which is a registry of Framework and commerce tools that you can access in the step.
+
+In the step function, you first check if the product is personalized by checking the `is_personalized` flag in the product's metadata. If it is not personalized, you return the original price.
+
+Then, you calculate the custom price by multiplying the height and width to a `0.01` factor, which means that for every square unit of height and width, the price increases by `0.01` units. You add the variant's original price to the result.
+
+Finally, a step function must return a `StepResponse` instance that accepts the step's output as a parameter, which is the calculated price.
+
+#### Create the Workflow
+
+Next, you'll create the workflow that calculates a personalized product variant's price.
+
+Create the file `src/workflows/get-custom-price.ts` with the following content:
+
+export const getCustomPriceWorkflowHighlights = [
+  ["15", "useQueryGraphStep", "Retrieve the region's currency code."],
+  ["25", "useQueryGraphStep", "Retrieve the product variant's data."],
+  ["45", "getCustomPriceStep", "Calculate the custom price based on the height and width."]
+]
+
+```ts title="src/workflows/get-custom-price.ts" highlights={getCustomPriceWorkflowHighlights}
+import { QueryContext } from "@medusajs/framework/utils"
+import { createWorkflow, WorkflowResponse } from "@medusajs/framework/workflows-sdk"
+import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+import { getCustomPriceStep, GetCustomPriceStepInput } from "./steps/get-custom-price"
+
+type WorkflowInput = {
+  variant_id: string
+  region_id: string
+  metadata?: Record<string, unknown>
+}
+
+export const getCustomPriceWorkflow = createWorkflow(
+  "get-custom-price-workflow",
+  (input: WorkflowInput) => {
+    const { data: regions } = useQueryGraphStep({
+      entity: "region",
+      fields: ["currency_code"],
+      filters: {
+        id: input.region_id,
+      },
+      options: {
+        throwIfKeyNotFound: true,
+      },
+    })
+    const { data: variants } = useQueryGraphStep({
+      entity: "variant",
+      fields: [
+        "*",
+        "calculated_price.*",
+        "product.*",
+      ],
+      filters: {
+        id: input.variant_id,
+      },
+      options: {
+        throwIfKeyNotFound: true,
+      },
+      context: {
+        calculated_price: QueryContext({
+          currency_code: regions[0].currency_code,
+        }),
+      },
+    }).config({ name: "get-custom-price-variant" })
+
+    const price = getCustomPriceStep({
+      variant: variants[0],
+      metadata: input.metadata,
+    } as GetCustomPriceStepInput)
+
+    return new WorkflowResponse(price)
+  }
+)
+```
+
+You create a workflow using the `createWorkflow` function. It accepts the workflow's unique name as a first parameter.
+
+It accepts as a second parameter a constructor function that holds the workflow's implementation. The function accepts an input object holding the variant's ID, the ID of the customer's region, and the `metadata` object containing the height and width values.
+
+In the workflow, you:
+
+1. Retrieve the region's currency code using the `useQueryGraphStep` step. This is necessary to calculate the variant's price in the correct currency.
+    - The `useQueryGraphStep` uses [Query](!docs!/learn/fundamentals/module-links/query) to retrieve data across modules.
+2. Retrieve the product variant with its calculated price using the `useQueryGraphStep`.
+3. Calculate the custom price using the `getCustomPriceStep`, passing the variant and metadata as input.
+
+A workflow must return an instance of `WorkflowResponse` that accepts the data to return to the workflow's executor.
+
+### b. Create an API Route
+
+Now that you have the workflow that calculates the custom price, you can create an API route that executes this workflow and returns the price.
+
+An API route is created in a `route.ts` file under a sub-directory of the `src/api` directory. The path of the API route is the file's path relative to `src/api`.
+
+<Note>
+
+Refer to the [API routes](!docs!/learn/fundamentals/api-routes) to learn more about them.
+
+</Note>
+
+Create the file `src/api/store/variants/[id]/price/route.ts` with the following content:
+
+export const getPriceApiRouteHighlights =[
+  ["5", "PostCustomPriceSchema", "Zod schema to validate the request body."],
+  ["19", "variantId", "Get the variant ID from the path parameters."],
+  ["25", "getCustomPriceWorkflow", "Execute the workflow to get the custom price."]
+]
+
+```ts title="src/api/store/variants/[id]/price/route.ts" highlights={getPriceApiRouteHighlights}
+import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { getCustomPriceWorkflow } from "../../../../../workflows/get-custom-price"
+import { z } from "zod"
+
+export const PostCustomPriceSchema = z.object({
+  region_id: z.string(),
+  metadata: z.object({
+    height: z.number(),
+    width: z.number(),
+  }),
+})
+
+type PostCustomPriceSchemaType = z.infer<typeof PostCustomPriceSchema>
+
+export async function POST(
+  req: MedusaRequest<PostCustomPriceSchemaType>,
+  res: MedusaResponse
+) {
+  const { id: variantId } = req.params
+  const { 
+    region_id,
+    metadata,
+  } = req.validatedBody
+
+  const { result: price } = await getCustomPriceWorkflow(req.scope).run({
+    input: {
+      variant_id: variantId,
+      region_id,
+      metadata,
+    },
+  })
+
+  res.json({
+    price,
+  })
+}
+```
+
+You create the `PostCustomPriceSchema` schema that is used to validate request bodies sent to this API route with [Zod](https://zod.dev/).
+
+Then, you export a `POST` route handler function, which will expose a `POST` API route at `/store/variants/:id/price`.
+
+In the route handler, you execute the `getCustomPriceWorkflow` workflow by invoking it, passing the Medusa container (stored in `req.scope`), then executing its `run` method.
+
+Finally, you return the price in the response.
+
+### c. Add Validation Middleware
+
+To ensure that the API route receives the correct request body parameters, you can apply a [middleware](!docs!/learn/fundamentals/api-routes/middlewares) on the API route that validates incoming requests.
+
+To apply middlewares, create the file `src/api/middlewares.ts` with the following content:
+
+export const validateAndTransformBodyHighlights = [
+  ["7", "matcher", "The API route to apply the middleware to."],
+  ["8", "methods", "The HTTP methods to apply the middleware to."],
+  ["10", "validateAndTransformBody", "The middleware function that validates and transforms the request body."],
+  ["10", "PostCustomPriceSchema", "The Zod schema used for validation."]
+]
+
+```ts title="src/api/middlewares.ts" highlights={validateAndTransformBodyHighlights}
+import { defineMiddlewares, validateAndTransformBody } from "@medusajs/framework/http"
+import { PostCustomPriceSchema } from "./store/variants/[id]/price/route"
+
+export default defineMiddlewares({
+  routes: [
+    {
+      matcher: "/store/variants/:id/price",
+      methods: ["POST"],
+      middlewares: [
+        validateAndTransformBody(PostCustomPriceSchema),
+      ],
+    },
+  ],
+})
+```
+
+You apply Medusa's `validateAndTransformBody` middleware to `POST` requests sent to the `/store/variants/:id/price` route.
+
+The middleware function accepts a Zod schema used for validation. This is the schema you created in the API route's file.
+
+<Note title="Tip">
+
+Refer to the [Middlewares](!docs!/learn/fundamentals/api-routes/middlewares) documentation to learn more.
+
+</Note>
+
+You'll test out the API route when you customize the storefront in the next step.
+
+---
+
+## Step 4: Show Calculated Price in the Storefront
+
+In this step, you'll customize the [Next.js Starter Storefront](../../../nextjs-starter/page.mdx) to show a personalized product's custom price when the customer enters the height and width values.
+
+<Note title="Reminder" forceMultiline>
+
+The Next.js Starter Storefront was installed in a separate directory from Medusa. The directory's name is `{your-project}-storefront`.
+
+So, if your Medusa application's directory is `medusa-personalized`, you can find the storefront by going back to the parent directory and changing to the `medusa-personalized-storefront` directory:
+
+```bash
+cd ../medusa-personalized-storefront # change based on your project name
+```
+
+</Note>
+
+### a. Add Server Function
+
+The first step is to add a server function that retrieves the custom price from the API route you created.
+
+In `src/lib/data/products.ts`, add the following function:
+
+```ts title="src/lib/data/products.ts" badgeLabel="Storefront" badgeColor="blue"
+export const getCustomVariantPrice = async ({
+  variant_id,
+  region_id,
+  metadata,
+}: {
+  variant_id: string
+  region_id: string
+  metadata?: Record<string, any>
+}) => {
+  const headers = {
+    ...(await getAuthHeaders()),
+  }
+
+  return sdk.client
+    .fetch<{ price: number }>(
+      `/store/variants/${variant_id}/price`,
+      {
+        method: "POST",
+        body: {
+          region_id,
+          metadata,
+        },
+        headers,
+        cache: "no-cache",
+      }
+    )
+    .then(({ price }) => price)
+}
+```
+
+You create a `getCustomVariantPrice` function that accepts the variant's ID, the region's ID, and the `metadata` object containing the height and width values.
+
+In the function, you use the [JS SDK](../../../js-sdk/page.mdx) to send a `POST` request to the `/store/variants/:id/price` API route you created in the previous step. The function returns the price from the response.
+
+### b. Customize the Product Price Component
+
+Next, you'll customize the product price component to show the custom price when the product is personalized.
+
+The `ProductPrice` component is located in `src/modules/products/components/product-price/index.tsx`. It shows either the product's cheapest variant price, or the selected variant's price.
+
+Replace the content of the file with the following:
+
+export const productPriceHighlights = [
+  ["18", "price", "State to hold the custom price."],
+  ["30", "getCustomVariantPrice", "Retrieve the custom price when the variant or metadata changes."],
+  ["43", "displayPrice", "Get the price with the currency to display it to the customer."]
+]
+
+```tsx title="src/modules/products/components/product-price/index.tsx" badgeLabel="Storefront" badgeColor="blue" highlights={productPriceHighlights}
+import { clx } from "@medusajs/ui"
+import { HttpTypes } from "@medusajs/types"
+import { useEffect, useMemo, useState } from "react"
+import { getCustomVariantPrice } from "../../../../lib/data/products"
+import { convertToLocale } from "../../../../lib/util/money"
+
+export default function ProductPrice({
+  product,
+  variant,
+  metadata,
+  region,
+}: {
+  product: HttpTypes.StoreProduct
+  variant?: HttpTypes.StoreProductVariant
+  metadata?: Record<string, any>
+  region: HttpTypes.StoreRegion
+}) {
+  const [price, setPrice] = useState(0)
+  
+  useEffect(() => {
+    if (
+      !variant ||
+      (product.metadata?.is_personalized && (
+        !metadata?.height || !metadata?.width
+      ))
+    ) {
+      return
+    }
+
+    getCustomVariantPrice({
+      variant_id: variant.id,
+      region_id: region.id,
+      metadata,
+    })
+      .then((price) => {
+        setPrice(price)
+      })
+      .catch((error) => {
+        console.error("Error fetching custom variant price:", error)
+      })
+  }, [metadata, variant])
+
+  const displayPrice = useMemo(() => {
+    return convertToLocale({
+      amount: price,
+      currency_code: region.currency_code,
+    })
+  }, [price])
+
+  return (
+    <div className="flex flex-col text-ui-fg-base">
+      <span
+        className={clx("text-xl-semi")}
+      >
+        {price > 0 && <span
+          data-testid="product-price"
+          data-value={displayPrice}
+        >
+          {displayPrice}
+        </span>}
+      </span>
+    </div>
+  )
+}
+```
+
+You make the following main changes:
+
+1. Add the `metadata` and `region` props to the component, since you need them to retrieve the custom price.
+2. Define a `price` state variable to hold the custom price.
+3. Use the `useEffect` hook to call the `getCustomVariantPrice` function whenever the `variant`, `metadata`, or `region` changes.
+4. Use the `useMemo` hook to convert the price to the locale format using the `convertToLocale` function.
+5. Display the custom price in the component.
+
+### c. Add Height and Width Inputs
+
+Next, you'll customize the parent component of the `ProductPrice` component to pass the new props to it, and to show the height and width inputs.
+
+In `src/modules/products/components/product-actions/index.tsx`, add the following import at the top of the file:
+
+```tsx title="src/modules/products/components/product-actions/index.tsx" badgeLabel="Storefront" badgeColor="blue"
+import Input from "../../../common/components/input"
+```
+
+Next, pass the `region` prop to the `ProductActions` component. The props' type already defines it but it's not included in the destructured props:
+
+```tsx title="src/modules/products/components/product-actions/index.tsx" badgeLabel="Storefront" badgeColor="blue" highlights={[["3"]]}
+export default function ProductActions({
+  // ...
+  region,
+}: ProductActionsProps) {
+  // ...
+}
+```
+
+Then, add new state variables in the `ProductActions` component for the height and width values:
+
+```tsx title="src/modules/products/components/product-actions/index.tsx" badgeLabel="Storefront" badgeColor="blue"
+const [height, setHeight] = useState(0)
+const [width, setWidth] = useState(0)
+```
+
+After that, find the `ProductPrice` component in the return statement and replace it with the following:
+
+```tsx title="src/modules/products/components/product-actions/index.tsx" badgeLabel="Storefront" badgeColor="blue"
+return (
+    <>
+      {/* ... */}
+      <div className="flex flex-col gap-y-2">
+        {!!product.metadata?.is_personalized && (
+          <div className="flex flex-col gap-y-3">
+            <span className="text-sm">Enter Dimensions</span>
+            <div className="flex gap-3">
+              <Input
+                name="width"
+                value={width}
+                onChange={(e) => setWidth(Number(e.target.value))}
+                label="Width (cm)"
+                type="number"
+                min={0}
+              />
+              <Input
+                name="height"
+                value={height}
+                onChange={(e) => setHeight(Number(e.target.value))}
+                label="Height (cm)"
+                type="number"
+                min={0}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+
+      <ProductPrice 
+        product={product} 
+        variant={selectedVariant}
+        region={region}
+        metadata={{ width, height }}
+      />
+      {/* ... */}
+    </>
+)
+```
+
+You add a new section that shows the height and width inputs when the product is personalized. The inputs update the `height` and `width` state variables.
+
+Then, you pass the new `metadata` and `region` props to the `ProductPrice` component.
+
+Finally, update the add-to-cart button's `disabled` prop to check if the product is personalized and if the height and width values are set:
+
+```tsx title="src/modules/products/components/product-actions/index.tsx" badgeLabel="Storefront" badgeColor="blue" highlights={[["11"]]}
+return (
+  <>
+    {/* ... */}
+    <Button
+      disabled={
+        !inStock ||
+        !selectedVariant ||
+        !!disabled ||
+        isAdding ||
+        !isValidVariant ||
+        (!!product.metadata?.is_personalized && (!width || !height))
+      }
+      // ...
+    >
+      {/* ... */}
+    </Button>
+    {/* ... */}
+  </>
+)
+```
+
+### Test Price Customization
+
+You can now test the price customization in the storefront.
+
+First, start the Medusa application with the following command:
+
+```bash npm2yarn badgeLabel="Medusa Application" badgeColor="green"
+npm run dev
+```
+
+Then, start the Next.js Starter Storefront with the following command:
+
+```bash npm2yarn badgeLabel="Storefront" badgeColor="blue"
+npm run dev
+```
+
+Open the storefront in your browser at `http://localhost:8000`. Go to Menu -> Store and click on the personalized product you created.
+
+You should see the height and width inputs below other product variant options. Once you enter the height and width values, the price will be shown and updated based on the values you entered.
+
+![Screenshot of a product page in the Next.js storefront showing a fabric product with two input fields labeled 'Width (cm)' and 'Height (cm)' below the product options, and a calculated price displayed underneath the dimension inputs](https://res.cloudinary.com/dza7lstvk/image/upload/v1753111095/Medusa%20Resources/CleanShot_2025-07-21_at_18.17.55_2x_hnzfiz.png)
+
+---
+
+## Step 5: Implement Custom Add-to-Cart Logic
+
+In this step, you'll implement custom logic to add personalized products to the cart.
+
+When the customer adds a personalized product to the cart, you need to add the item to the cart with the calculated price.
+
+So, you'll create a workflow that wraps around Medusa's existing add-to-cart logic to add the personalized product to the cart with the custom price. Then, you'll create an API route that executes this workflow.
+
+<Note title="Tip">
+
+If you're not using custom pricing, you can skip this step and keep on using Medusa's existing [Add-to-Cart API route](!api!/store#carts_postcartsidlineitems).
+
+</Note>
+
+### a. Create the Add-to-Cart Workflow
+
+The custom add-to-cart workflow will have the following steps:
+
+<WorkflowDiagram
+  workflow={{
+    name: "customAddToCartWorkflow",
+    steps: [
+      {
+        type: "step",
+        name: "useQueryGraphStep",
+        description: "Get the cart's region.",
+        link: "/references/helper-steps/useQueryGraphStep",
+        depth: 1
+      },
+      {
+        type: "workflow",
+        name: "getCustomPriceWorkflow",
+        description: "Get the custom price for the product variant.",
+        depth: 2
+      },
+      {
+        type: "workflow",
+        name: "addToCartWorkflow",
+        description: "Add the product variant to the cart with the custom price.",
+        link: "/references/medusa-workflows/addToCartWorkflow",
+        depth: 3
+      },
+      {
+        type: "step",
+        name: "useQueryGraphStep",
+        description: "Get the cart's updated data.",
+        link: "/references/helper-steps/useQueryGraphStep",
+        depth: 4
+      }
+    ]
+  }}
+  hideLegend
+/>
+
+You already have all the necessary steps within the workflow, so you create it right away.
+
+Create the file `src/workflows/custom-add-to-cart.ts` with the following content:
+
+export const customAddToCartWorkflowHighlights = [
+  ["17", "useQueryGraphStep", "Get the cart's region."],
+  ["27", "getCustomPriceWorkflow", "Get the custom price for the product variant."],
+  ["47", "addToCartWorkflow", "Add the product variant to the cart with the custom price."],
+  ["55", "useQueryGraphStep", "Get the updated cart data."]
+]
+
+```ts title="src/workflows/custom-add-to-cart.ts" highlights={customAddToCartWorkflowHighlights}
+import { createWorkflow, transform, WorkflowResponse } from "@medusajs/framework/workflows-sdk"
+import { addToCartWorkflow, useQueryGraphStep } from "@medusajs/medusa/core-flows"
+import { getCustomPriceWorkflow } from "./get-custom-price"
+
+type CustomAddToCartWorkflowInput = {
+  item: {
+    variant_id: string;
+    quantity?: number;
+    metadata?: Record<string, unknown>;
+  }
+  cart_id: string;
+}
+
+export const customAddToCartWorkflow = createWorkflow(
+  "custom-add-to-cart",
+  (input: CustomAddToCartWorkflowInput) => {
+    const { data: carts } = useQueryGraphStep({
+      entity: "cart",
+      fields: ["region_id"],
+      filters: {
+        id: input.cart_id,
+      },
+      options: {
+        throwIfKeyNotFound: true,
+      },
+    })
+    const price = getCustomPriceWorkflow.runAsStep({
+      input: {
+        variant_id: input.item.variant_id,
+        region_id: carts[0].region_id!,
+        metadata: input.item.metadata,
+      },
+    })
+
+    const itemData = transform({
+      item: input.item,
+      price,
+    }, (data) => {
+      return {
+        variant_id: data.item.variant_id,
+        quantity: data.item.quantity || 1,
+        metadata: data.item.metadata,
+        unit_price: data.price,
+      }
+    })
+
+    addToCartWorkflow.runAsStep({
+      input: {
+        cart_id: input.cart_id,
+        items: [itemData],
+      },
+    })
+
+    // refetch the updated cart
+    const { data: updatedCart } = useQueryGraphStep({
+      entity: "cart",
+      fields: ["*", "items.*"],
+      filters: {
+        id: input.cart_id,
+      },
+    }).config({ name: "refetch-cart" })
+
+    return new WorkflowResponse({
+      cart: updatedCart[0],
+    })
+  }
+)
+```
+
+The workflow accepts the item to add to the cart, which includes the variant's ID, quantity, and metadata, as well as the cart's ID.
+
+In the workflow, you:
+
+1. Retrieve the cart's region using the `useQueryGraphStep`.
+2. Calculate the custom price using the `getCustomPriceWorkflow` that you created earlier.
+3. Prepare the data of the item to add to the cart.
+    - You use the `transform` function because direct data manipulation isn't allowed in workflows. Refer to the [Data Manipulation](!docs!/learn/fundamentals/workflows/variable-manipulation) guide to learn more.
+4. Add the item to the cart using the `addToCartWorkflow`.
+5. Refetch the updated cart using the `useQueryGraphStep` to return the cart data in the workflow's response.
+
+### b. Create the Add-to-Cart API Route
+
+Next, you'll create an API route that executes the custom add-to-cart workflow.
+
+Create the file `src/api/store/carts/[id]/line-items-custom/route.ts` with the following content:
+
+export const PostAddCustomLineItemSchemaHighlights = [
+  ["7", "PostAddCustomLineItemSchema", "Zod schema to validate the request body."],
+  ["21", "cartId", "Get the cart ID from the path parameters."],
+  ["22", "customAddToCartWorkflow", "Execute the custom add-to-cart workflow."]
+]
+
+```ts title="src/api/store/carts/[id]/line-items-custom/route.ts" highlights={PostAddCustomLineItemSchemaHighlights}
+import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { z } from "zod"
+import { 
+  customAddToCartWorkflow,
+} from "../../../../../workflows/custom-add-to-cart"
+
+export const PostAddCustomLineItemSchema = z.object({
+  variant_id: z.string(),
+  quantity: z.number().optional(),
+  metadata: z.record(z.unknown()).optional(),
+})
+
+type PostAddCustomLineItemSchemaType = z.infer<
+  typeof PostAddCustomLineItemSchema
+>;
+
+export async function POST(
+  req: MedusaRequest<PostAddCustomLineItemSchemaType>,
+  res: MedusaResponse
+) {
+  const { id: cartId } = req.params
+  const { result: cart } = await customAddToCartWorkflow(req.scope).run({
+    input: {
+      item: {
+        variant_id: req.validatedBody.variant_id,
+        quantity: req.validatedBody.quantity,
+        metadata: req.validatedBody.metadata,
+      },
+      cart_id: cartId,
+    },
+  })
+
+  res.json({
+    cart,
+  })
+}
+```
+
+You create a `PostAddCustomLineItemSchema` schema to validate the request body sent to this API route.
+
+Then, you export a `POST` route handler function which will expose a `POST` API route at `/store/carts/:id/line-items-custom`.
+
+In the route handler, you execute the `customAddToCartWorkflow` workflow passing it the item's details and cart ID as input.
+
+Finally, you return the updated cart in the response.
+
+### c. Add Validation Middleware
+
+Similar to the previous API route, you'll apply a validation middleware to the API route to ensure that the request body is valid.
+
+In `src/api/middlewares.ts`, add a new middleware for the custom add-to-cart API route:
+
+```ts title="src/api/middlewares.ts"
+// other imports...
+import { 
+  PostAddCustomLineItemSchema,
+} from "./store/carts/[id]/line-items-custom/route"
+
+export default defineMiddlewares({
+  routes: [
+    // ...
+    {
+      matcher: "/store/carts/:id/line-items-custom",
+      methods: ["POST"],
+      middlewares: [
+        validateAndTransformBody(PostAddCustomLineItemSchema),
+      ],
+    },
+  ],
+})
+```
+
+This applies the `validateAndTransformBody` middleware to `POST` requests sent to the `/store/carts/:id/line-items-custom` route, validating the request body against the schema you created.
+
+You'll test out this API route when you customize the storefront in the next steps.
+
+---
+
+## Step 6: Validate Personalized Products Added to Cart
+
+In this step, you'll ensure that the personalized products added to the cart include the height and width values in their `metadata` property.
+
+Medusa's `addToCartWorkflow` workflow supports performing custom validation on the items being added to the cart using [workflow hooks](!docs!/learn/fundamentals/workflows/workflow-hooks). A workflow hook is a point in a workflow where you can inject custom functionality as a step function.
+
+To consume the `validate` hook that runs before an item is added to the cart, create the file `src/workflows/hooks/validate-personalized-product.ts` with the following content:
+
+export const validatePersonalizedProductHighlights = [
+  ["4", "validate", "Consume the `validate` hook of the `addToCartWorkflow`."],
+  ["6", "query", "Resolve Query from the Medusa container."],
+  ["7", "variants", "Retrieve the product variants being added to the cart."],
+  ["16", "", "Validate that the product is personalized."],
+  ["19", "", "Validate that the height and width metadata are set."],
+]
+
+```ts title="src/workflows/hooks/validate-personalized-product.ts" highlights={validatePersonalizedProductHighlights}
+import { MedusaError } from "@medusajs/framework/utils"
+import { addToCartWorkflow } from "@medusajs/medusa/core-flows"
+
+addToCartWorkflow.hooks.validate(
+  async ({ input }, { container }) => {
+    const query = container.resolve("query")
+    const { data: variants } = await query.graph({
+      entity: "variant",
+      fields: ["product.*"],
+      filters: {
+        id: input.items.map((item) => item.variant_id).filter(Boolean) as string[],
+      },
+    })
+    for (const item of input.items) {
+      const variant = variants.find((v) => v.id === item.variant_id)
+      if (!variant?.product?.metadata?.is_personalized) {
+        continue
+      }
+      if (
+        !item.metadata?.height || !item.metadata.width ||
+        isNaN(Number(item.metadata.height)) || isNaN(Number(item.metadata.width))
+      ) {
+        throw new MedusaError(
+          MedusaError.Types.INVALID_DATA,
+          "Please set height and width metadata for each item."
+        )
+      }
+    }
+  }
+)
+```
+
+You consume the hook by calling `addToCartWorkflow.hooks.validate`, passing it a step function.
+
+In the step function, you:
+
+1. Resolve [Query](!docs!/learn/fundamentals/module-links/query) from the Medusa container to retrieve data across modules.
+2. Retrieve the product variants being added to the cart.
+3. Loop through the items being added to the cart.
+4. If an item's product is personalized, you validate that the `metadata` object contains the `height` and `width` values, and that they are valid numbers. Otherwise, you throw an error.
+
+If the hook throws an error, the `addToCartWorkflow` will not proceed with adding the item to the cart, and the error will be returned in the API response.
+
+<Note>
+
+Refer to the [Workflow Hooks](!docs!/learn/fundamentals/workflows/workflow-hooks) documentation to learn more.
+
+</Note>
+
+You can test this out after customizing the storefront in the next section.
+
+---
+
+## Step 7: Use the Custom Add-to-Cart API Route in Storefront
+
+In this step, you'll customize the Next.js Starter Storefront to use the custom add-to-cart API route when a customer adds a product to the cart.
+
+You'll also customize components showing items in the cart and order confirmation to display the personalized product's height and width values.
+
+### a. Customize Add-to-Cart Server Function
+
+The `addToCart` function defined in `src/lib/data/cart.ts` is used to add items to the cart. You'll customize it to use the custom add-to-cart API route.
+
+First, find the `addToCart` function and change its parameters to accept the `metadata` object:
+
+```ts title="src/lib/data/cart.ts" badgeLabel="Storefront" badgeColor="blue" highlights={[["5"], ["10"]]}
+export async function addToCart({
+  variantId,
+  quantity,
+  countryCode,
+  metadata = {},
+}: {
+  variantId: string
+  quantity: number
+  countryCode: string
+  metadata?: Record<string, any>
+}) {
+  // ...
+}
+```
+
+Then, find the following lines in the function:
+
+```ts title="src/lib/data/cart.ts" badgeLabel="Storefront" badgeColor="blue"
+await sdk.store.cart
+  .createLineItem(
+    cart.id,
+    {
+      variant_id: variantId,
+      quantity,
+    },
+    {},
+    headers
+  )
+```
+
+And replace them with the following:
+
+```ts title="src/lib/data/cart.ts" badgeLabel="Storefront" badgeColor="blue"
+await sdk.client.fetch<{
+  cart: HttpTypes.StoreCart
+}>(`/store/carts/${cart.id}/line-items-custom`, {
+  method: "POST",
+  body: {
+    variant_id: variantId,
+    quantity,
+    metadata,
+  },
+  headers,
+})
+```
+
+You send a request to the API route you created in the previous step, passing the variant ID, quantity, and metadata in the request body.
+
+Next, you'll need to pass the `metadata` object when calling the `addToCart` function.
+
+In `src/modules/products/components/product-actions/index.tsx`, find the `addToCart` function call in the `handleAddToCart` function and pass it the `metadata` object:
+
+```tsx title="src/modules/products/components/product-actions/index.tsx" badgeLabel="Storefront" badgeColor="blue" highlights={[["3"], ["4"], ["5"], ["6"]]}
+await addToCart({
+  // ...
+  metadata: {
+    width,
+    height,
+  },
+})
+```
+
+Now, when the customer adds a personalized product to the cart, the height and width values will be sent to the API route.
+
+### b. Customize Cart Item Component
+
+Next, you'll customize the cart item component to show the height and width values for personalized products.
+
+In `src/modules/cart/components/item/index.tsx`, add the following in the `Item` component's return statement, right after the `LineItemOptions` component:
+
+```tsx title="src/modules/cart/components/item/index.tsx" badgeLabel="Storefront" badgeColor="blue" highlights={[["5"], ["6"], ["7"], ["8"]]}
+return (
+  <Table.Row className="w-full" data-testid="product-row">
+    {/* ... */}
+    <LineItemOptions variant={item.variant} data-testid="product-variant" />
+    <div className="text-sm text-ui-fg-muted">
+      {!!item.metadata?.width && <div>Width: {item.metadata.width as number}cm</div>}
+      {!!item.metadata?.height && <div>Height: {item.metadata.height as number}cm</div>}
+    </div>
+    {/* ... */}
+  </Table.Row>
+)
+```
+
+You show the height and width values from the item's `metadata` object if they exist. This will display the dimensions of personalized products in the cart.
+
+### c. Customize Order Confirmation Page
+
+Finally, you'll customize the order item component in the order confirmation page to show the height and width values for personalized products.
+
+In `src/modules/orders/components/order-item/index.tsx`, add the following in the `Item` component's return statement, right after the `LineItemOptions` component:
+
+```tsx title="src/modules/orders/components/order-item/index.tsx" badgeLabel="Storefront" badgeColor="blue" highlights={[["5"], ["6"], ["7"], ["8"]]}
+return (
+  <Table.Row className="w-full" data-testid="product-row">
+    {/* ... */}
+    <LineItemOptions variant={item.variant} data-testid="product-variant" />
+    <div className="text-sm text-ui-fg-muted">
+      {!!item.metadata?.width && <div>Width: {item.metadata.width as number}cm</div>}
+      {!!item.metadata?.height && <div>Height: {item.metadata.height as number}cm</div>}
+    </div>
+    {/* ... */}
+  </Table.Row>
+)
+```
+
+Similarly, you show the height and width values from the item's `metadata` object if they exist. This will display the dimensions of personalized products in the order confirmation page.
+
+### Test the Custom Add-to-Cart Logic
+
+To test out the custom add-to-cart logic, ensure that both the Medusa application and the Next.js Starter Storefront are running.
+
+Then, add a personalized product to the cart after choosing any necessary product options and entering the height and width values. You should see the product added to the cart with the correct price based on the dimensions you entered.
+
+If you open the cart page by clicking on "Cart" at the top right, you can see the personalized product's height and width values displayed after the product variant options.
+
+![Screenshot of the shopping cart page showing a personalized fabric product with 'Width: 100cm' and 'Height: 80cm' displayed below the product variant information, demonstrating how custom dimensions are preserved in the cart](https://res.cloudinary.com/dza7lstvk/image/upload/v1753112339/Medusa%20Resources/CleanShot_2025-07-21_at_18.38.30_2x_ersc2m.png)
+
+#### Place Order with Personalized Product
+
+You can also proceed to the checkout page and complete the order. The order confirmation page will show the personalized product with its height and width values.
+
+---
+
+## Step 8: Show an Order's Personalized Items in Medusa Admin
+
+In this step, you'll customize the Medusa Admin to show the personalized item's height and width values in an order's details page.
+
+The Medusa Admin dashboard is extensible, allowing you to either inject custom components into existing pages, or create new pages.
+
+In this case, you'll inject a custom component, called a [widget](!docs!/learn/fundamentals/admin/widgets), into the order details page.
+
+Widgets are created in a `.tsx` file under the `src/admin/widgets` directory. So, create the file `src/admin/widgets/order-personalized.tsx` with the following content:
+
+export const personalizedOrderItemsWidgetHighlights = [
+  ["5", "PersonalizedOrderItemsWidget", "The widget component that displays personalized order items."],
+  ["6", "data", "The data prop containing the order data."],
+  ["8", "items", "Filter the order items to get only personalized ones."],
+  ["12", "", "Don't show the widget if there are no personalized items."],
+  ["34", "metadata", "Access the personalized data in the item's `metadata` property."],
+  ["47", "config", "The widget's configuration object that defines where the widget will be injected."]
+]
+
+```tsx title="src/admin/widgets/order-personalized.tsx" highlights={personalizedOrderItemsWidgetHighlights}
+import { defineWidgetConfig } from "@medusajs/admin-sdk"
+import { Container, Heading, Text } from "@medusajs/ui"
+import { AdminOrder, DetailWidgetProps } from "@medusajs/framework/types"
+
+const PersonalizedOrderItemsWidget = ({ 
+  data: order,
+}: DetailWidgetProps<AdminOrder>) => {
+  const items = order.items.filter((item) => {
+    return item.variant?.product?.metadata?.is_personalized
+  })
+
+  if (!items.length) {
+    return <></>
+  }
+
+  return (
+    <Container className="divide-y p-0">
+      <div className="flex items-center justify-between px-6 py-4">
+        <Heading level="h2">Personalized Order Items</Heading>
+      </div>
+      <div className="divide-y">
+        {items.map((item) => (
+          <div key={item.id} className="flex gap-4 px-6 py-4">
+            {item.variant?.product?.thumbnail && <img
+              src={item.variant.product.thumbnail}
+              alt={item.variant.title || "Personalized Product"}
+              className="h-8 w-6 object-cover rounded border border-ui-border"
+            />}
+            <div className="flex flex-col">
+              <Text size="small" weight="plus">
+                {item.variant?.product?.title}: {item.variant?.title}
+              </Text>
+              <Text size="small" className="text-ui-fg-subtle">
+                Width (cm): {item.metadata?.width as number || "N/A"}
+              </Text>
+              <Text size="small" className="text-ui-fg-subtle">
+                Height (cm): {item.metadata?.height as number || "N/A"}
+              </Text>
+            </div>
+          </div>
+        ))}
+      </div>
+    </Container>
+  )
+}
+
+export const config = defineWidgetConfig({
+  zone: "order.details.after",
+})
+
+export default PersonalizedOrderItemsWidget
+```
+
+A widget file must export:
+
+- A default React component. This component renders the widget's UI.
+- A `config` object created with the `defineWidgetConfig` function. It accepts an object with the `zone` property that indicates where the widget will be rendered in the Medusa Admin dashboard.
+
+The widget component accepts a `data` prop that contains the order data.
+
+In the component, you retrieve the items whose product is personalized. Then, you display those items with their height and width values. Remember, the `metadata` property is copied from the cart's line items to the order's line items.
+
+If there are no personalized items in the order, you don't show the widget.
+
+### Test the Personalized Order Items Widget
+
+To test out the personalized order items widget, start the Medusa application and open the Medusa Admin dashboard in your browser at `http://localhost:9000/app`.
+
+Go to Orders and click on an order that contains a personalized product. You should see the "Personalized Order Items" widget displaying the personalized items with their dimensions.
+
+![Screenshot of Medusa Admin order details page showing a custom widget titled 'Personalized Order Items' with a fabric product entry displaying the product image, title, and dimensions 'Width (cm): 100' and 'Height (cm): 80' in a clean list format](https://res.cloudinary.com/dza7lstvk/image/upload/v1753113169/Medusa%20Resources/CleanShot_2025-07-21_at_18.52.21_2x_i7shff.png)
+
+---
+
+## Next Steps
+
+You've now implemented personalized products in Medusa, allowing customers to customize product dimensions and see the calculated price in the storefront. You can expand on this feature to:
+
+- Add more personalization options, such as text engraving.
+- Implement more complex pricing calculations based on additional metadata.
+- Create a [custom fulfillment provider](/references/fulfillment/provider) to handle personalized products differently during fulfillment.
+
+### Learn More about Medusa
+
+If you're new to Medusa, check out the [main documentation](!docs!/learn), where you'll get a more in-depth understanding of all the concepts you've used in this guide and more.
+
+To learn more about the commerce features that Medusa provides, check out Medusa's [Commerce Modules](../../../commerce-modules/page.mdx).
+
+### Troubleshooting
+
+If you encounter issues during your development, check out the [troubleshooting guides](../../../troubleshooting/page.mdx).
+
+### Getting Help
+
+If you encounter issues not covered in the troubleshooting guides:
+
+1. Visit the [Medusa GitHub repository](https://github.com/medusajs/medusa) to report issues or ask questions.
+2. Join the [Medusa Discord community](https://discord.gg/medusajs) for real-time support from community members.

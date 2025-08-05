@@ -11,7 +11,7 @@ export const defaultCampaignsData = [
     budget: {
       type: CampaignBudgetType.SPEND,
       limit: 1000,
-      currency_code: "USD",
+      currency_code: "usd",
       used: 0,
     },
   },
@@ -25,7 +25,7 @@ export const defaultCampaignsData = [
     budget: {
       type: CampaignBudgetType.USAGE,
       limit: 1000,
-      currency_code: "USD",
+      currency_code: "usd",
       used: 0,
     },
   },

@@ -19,6 +19,9 @@
  *   metadata:
  *     type: object
  *     description: The shipping profile's metadata, holds custom key-value pairs.
+ *     externalDocs:
+ *       url: https://docs.medusajs.com/api/admin#manage-metadata
+ *       description: Learn how to manage metadata
  *   created_at:
  *     type: string
  *     format: date-time

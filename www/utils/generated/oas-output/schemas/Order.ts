@@ -177,6 +177,9 @@
  *   metadata:
  *     type: object
  *     description: The order's metadata, can hold custom key-value pairs.
+ *     externalDocs:
+ *       url: https://docs.medusajs.com/api/store#manage-metadata
+ *       description: Learn how to manage metadata
  *   canceled_at:
  *     type: string
  *     format: date-time

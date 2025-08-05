@@ -16,6 +16,7 @@ medusaIntegrationTestRunner({
     let stockLocation: HttpTypes.AdminStockLocation
     let testDraftOrder: HttpTypes.AdminDraftOrder
     let shippingOption: HttpTypes.AdminShippingOption
+    let shippingOptionHeavy: HttpTypes.AdminShippingOption
 
     beforeEach(async () => {
       const container = getContainer()
@@ -51,6 +52,14 @@ medusaIntegrationTestRunner({
         await api.post(
           `/admin/shipping-profiles`,
           { name: "test shipping profile", type: "default" },
+          adminHeaders
+        )
+      ).data.shipping_profile
+
+      const shippingProfileHeavy = (
+        await api.post(
+          `/admin/shipping-profiles`,
+          { name: "test shipping profile heavy", type: "heavy" },
           adminHeaders
         )
       ).data.shipping_profile
@@ -103,7 +112,28 @@ medusaIntegrationTestRunner({
               description: "Test description",
               code: "test-code",
             },
-            prices: [{ currency_code: "usd", amount: 1000 }],
+            prices: [{ currency_code: "usd", amount: 5 }],
+            rules: [],
+          },
+          adminHeaders
+        )
+      ).data.shipping_option
+
+      shippingOptionHeavy = (
+        await api.post(
+          `/admin/shipping-options`,
+          {
+            name: `Test shipping option ${fulfillmentSet.id}`,
+            service_zone_id: fulfillmentSet.service_zones[0].id,
+            shipping_profile_id: shippingProfileHeavy.id,
+            provider_id: "manual_test-provider",
+            price_type: "flat",
+            type: {
+              label: "Test type",
+              description: "Test description",
+              code: "test-code",
+            },
+            prices: [{ currency_code: "usd", amount: 10 }],
             rules: [],
           },
           adminHeaders
@@ -117,6 +147,13 @@ medusaIntegrationTestRunner({
             email: "test@test.com",
             region_id: region.id,
             sales_channel_id: salesChannel.id,
+            shipping_address: {
+              address_1: "123 Main St",
+              city: "Anytown",
+              country_code: "US",
+              postal_code: "12345",
+              first_name: "John",
+            },
           },
           adminHeaders
         )
@@ -609,6 +646,152 @@ medusaIntegrationTestRunner({
         ).data.draft_order
 
         expect(order.shipping_methods.length).toBe(0)
+      })
+
+      it("should ensure that the shipping method is removed from the order and tax lines are updated with multiple shipping methods", async () => {
+        /**
+         * Add Heavy SO
+         */
+
+        edit = (
+          await api.post(
+            `/admin/draft-orders/${testDraftOrder.id}/edit`,
+            {},
+            adminHeaders
+          )
+        ).data.draft_order_preview
+
+        await api.post(
+          `/admin/draft-orders/${testDraftOrder.id}/edit/shipping-methods`,
+          {
+            shipping_option_id: shippingOptionHeavy.id,
+          },
+          adminHeaders
+        )
+
+        edit = (
+          await api.post(
+            `/admin/draft-orders/${testDraftOrder.id}/edit/confirm`,
+            {},
+            adminHeaders
+          )
+        ).data.draft_order_preview
+
+        /**
+         * Tax rate -> 2%
+         *
+         * One product -> 10$
+         * Shipping method 1 -> 5$
+         * Shipping method 2 -> 10$
+         */
+
+        expect(edit).toEqual(
+          expect.objectContaining({
+            total: 25.5,
+            subtotal: 25,
+            tax_total: 0.5,
+
+            items: [
+              expect.objectContaining({
+                subtotal: 10,
+                total: 10.2,
+                tax_total: 0.2,
+                tax_lines: [
+                  expect.objectContaining({
+                    rate: 2,
+                  }),
+                ],
+              }),
+            ],
+            shipping_methods: expect.arrayContaining([
+              expect.objectContaining({
+                shipping_option_id: shippingOption.id,
+                amount: 5,
+                subtotal: 5,
+                total: 5.1,
+                tax_total: 0.1,
+              }),
+              expect.objectContaining({
+                shipping_option_id: shippingOptionHeavy.id,
+                amount: 10,
+                subtotal: 10,
+                total: 10.2,
+                tax_total: 0.2,
+              }),
+            ]),
+          })
+        )
+
+        /**
+         * Remove Heavy shipping method
+         */
+
+        edit = (
+          await api.post(
+            `/admin/draft-orders/${testDraftOrder.id}/edit`,
+            {},
+            adminHeaders
+          )
+        ).data.draft_order_preview
+
+        const response = await api.delete(
+          `/admin/draft-orders/${
+            testDraftOrder.id
+          }/edit/shipping-methods/method/${
+            edit.shipping_methods.find(
+              (sm) => sm.shipping_option_id === shippingOptionHeavy.id
+            ).id
+          }`,
+          adminHeaders
+        )
+
+        expect(response.status).toBe(200)
+        expect(response.data.draft_order_preview.shipping_methods.length).toBe(
+          1
+        )
+
+        await api.post(
+          `/admin/draft-orders/${testDraftOrder.id}/edit/confirm`,
+          {},
+          adminHeaders
+        )
+
+        const order = (
+          await api.get(
+            `/admin/draft-orders/${testDraftOrder.id}?fields=+total,+subtotal,+tax_total,+items.subtotal,+items.total,+items.tax_total,+shipping_methods.amount,+shipping_methods.subtotal,+shipping_methods.total,+shipping_methods.tax_total`,
+            adminHeaders
+          )
+        ).data.draft_order
+
+        expect(order).toEqual(
+          expect.objectContaining({
+            total: 15.3,
+            subtotal: 15,
+            tax_total: 0.3,
+
+            items: [
+              expect.objectContaining({
+                subtotal: 10,
+                total: 10.2,
+                tax_total: 0.2,
+                tax_lines: [
+                  expect.objectContaining({
+                    rate: 2,
+                  }),
+                ],
+              }),
+            ],
+            shipping_methods: expect.arrayContaining([
+              expect.objectContaining({
+                shipping_option_id: shippingOption.id,
+                amount: 5,
+                subtotal: 5,
+                total: 5.1,
+                tax_total: 0.1,
+              }),
+            ]),
+          })
+        )
       })
     })
   },

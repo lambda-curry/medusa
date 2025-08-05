@@ -29,7 +29,7 @@ These layers of stack can be implemented within [plugins](../../fundamentals/plu
 
 </Note>
 
-![This diagram illustrates the entry point of requests into the Medusa application through API routes. It shows a storefront and an admin that can send a request to the HTTP layer. The HTTP layer then uses workflows to handle the business logic. Finally, the workflows use modules to query and manipulate data in the data stores.](https://res.cloudinary.com/dza7lstvk/image/upload/v1727175296/Medusa%20Book/http-layer_sroafr.jpg)
+![Medusa application architecture diagram illustrating the HTTP layer flow: External clients (storefront and admin) send requests to API routes, which execute workflows containing business logic, which then interact with modules to perform data operations on PostgreSQL databases](https://res.cloudinary.com/dza7lstvk/image/upload/v1727175296/Medusa%20Book/http-layer_sroafr.jpg)
 
 ---
 
@@ -43,7 +43,7 @@ Modules can be implemented within [plugins](../../fundamentals/plugins/page.mdx)
 
 </Note>
 
-![This diagram illustrates how modules connect to the database.](https://res.cloudinary.com/dza7lstvk/image/upload/v1727175379/Medusa%20Book/db-layer_pi7tix.jpg)
+![Database layer architecture diagram showing how Medusa modules establish connections to PostgreSQL databases through injected database connections, enabling data persistence and retrieval operations](https://res.cloudinary.com/dza7lstvk/image/upload/v1727175379/Medusa%20Book/db-layer_pi7tix.jpg)
 
 ---
 
@@ -89,4 +89,4 @@ All of the third-party services mentioned above can be replaced to help you buil
 
 The following diagram illustrates Medusa's architecture including all its layers.
 
-![Full diagram illustrating Medusa's architecture combining all the different layers.](https://res.cloudinary.com/dza7lstvk/image/upload/v1727174897/Medusa%20Book/architectural-diagram-full.jpg)
+![Complete Medusa architecture overview showing the full technology stack: client applications (storefront and admin) connecting through HTTP layer to workflows, which coordinate with commerce and Infrastructure Modules to manage data operations, third-party integrations, and database persistence](https://res.cloudinary.com/dza7lstvk/image/upload/v1727174897/Medusa%20Book/architectural-diagram-full.jpg)

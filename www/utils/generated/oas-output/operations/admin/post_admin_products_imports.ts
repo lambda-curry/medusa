@@ -69,7 +69,7 @@
  *     $ref: "#/components/responses/500_error"
  * x-workflow: importProductsAsChunksWorkflow
  * x-events: []
- * x-version: 2.8.5
+ * x-since: 2.8.5
  * 
 */
 

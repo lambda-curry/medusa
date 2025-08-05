@@ -1,5 +1,8 @@
 import { EventEmitter } from "events"
 import { waitSubscribersExecution } from "../events"
+import { setTimeout } from "timers/promises"
+
+jest.setTimeout(30000)
 
 // Mock the IEventBusModuleService
 class MockEventBus {
@@ -31,11 +34,13 @@ describe("waitSubscribersExecution", () => {
   describe("with no existing listeners", () => {
     it("should resolve when event is fired before timeout", async () => {
       const waitPromise = waitSubscribersExecution(TEST_EVENT, eventBus as any)
-      setTimeout(() => eventBus.emit(TEST_EVENT, "test-data"), 100).unref()
+      await setTimeout(100)
+      eventBus.emit(TEST_EVENT, "test-data")
 
       jest.advanceTimersByTime(100)
 
-      await expect(waitPromise).resolves.toEqual(["test-data"])
+      const res = await waitPromise
+      expect(res).toEqual(["test-data"])
     })
 
     it("should reject when timeout is reached before event is fired", async () => {
@@ -70,12 +75,29 @@ describe("waitSubscribersExecution", () => {
         `Timeout of ${customTimeout}ms exceeded while waiting for event "${TEST_EVENT}"`
       )
     })
+
+    it("should resolve when event is fired multiple times", async () => {
+      const waitPromise = waitSubscribersExecution(
+        TEST_EVENT,
+        eventBus as any,
+        { triggerCount: 2 }
+      )
+      eventBus.emit(TEST_EVENT, "test-data")
+      eventBus.emit(TEST_EVENT, "test-data")
+
+      const promisesRes = await waitPromise
+      const res = promisesRes.pop()
+      expect(res).toHaveLength(2)
+      expect(res[0]).toEqual(["test-data"])
+      expect(res[1]).toEqual(["test-data"])
+    })
   })
 
   describe("with existing listeners", () => {
     it("should resolve when all listeners complete successfully", async () => {
-      const listener = jest.fn().mockImplementation(() => {
-        return new Promise((resolve) => setTimeout(resolve, 200).unref())
+      const listener = jest.fn().mockImplementation(async () => {
+        await setTimeout(200)
+        return "res"
       })
 
       eventBus.eventEmitter_.on(TEST_EVENT, listener)
@@ -132,20 +154,49 @@ describe("waitSubscribersExecution", () => {
 
       expect(listener).not.toHaveBeenCalled()
     })
+
+    it("should resolve when event is fired multiple times", async () => {
+      const listener = jest.fn().mockImplementation(async () => {
+        await setTimeout(200)
+        return "res"
+      })
+
+      eventBus.eventEmitter_.on(TEST_EVENT, listener)
+
+      const waitPromise = waitSubscribersExecution(
+        TEST_EVENT,
+        eventBus as any,
+        {
+          triggerCount: 2,
+        }
+      )
+
+      eventBus.emit(TEST_EVENT, "test-data")
+      eventBus.emit(TEST_EVENT, "test-data")
+
+      const promisesRes = await waitPromise
+      const res = promisesRes.pop()
+      expect(res).toHaveLength(2)
+      expect(res[0]).toEqual("res")
+      expect(res[1]).toEqual("res")
+    })
   })
 
   describe("with multiple listeners", () => {
     it("should resolve when all listeners complete", async () => {
-      const listener1 = jest.fn().mockImplementation(() => {
-        return new Promise((resolve) => setTimeout(resolve, 100).unref())
+      const listener1 = jest.fn().mockImplementation(async () => {
+        await setTimeout(100)
+        return "res"
       })
 
-      const listener2 = jest.fn().mockImplementation(() => {
-        return new Promise((resolve) => setTimeout(resolve, 200).unref())
+      const listener2 = jest.fn().mockImplementation(async () => {
+        await setTimeout(200)
+        return "res"
       })
 
-      const listener3 = jest.fn().mockImplementation(() => {
-        return new Promise((resolve) => setTimeout(resolve, 300).unref())
+      const listener3 = jest.fn().mockImplementation(async () => {
+        await setTimeout(300)
+        return "res"
       })
 
       eventBus.eventEmitter_.on(TEST_EVENT, listener1)

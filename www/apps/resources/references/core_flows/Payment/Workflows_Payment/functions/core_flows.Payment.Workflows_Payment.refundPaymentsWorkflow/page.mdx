@@ -3,7 +3,6 @@ slug: /references/medusa-workflows/refundPaymentsWorkflow
 sidebar_label: refundPaymentsWorkflow
 sidebar_description: Refund one or more payments.
 tags:
-  - query
   - logger
   - payment
   - order
@@ -21,7 +20,7 @@ This workflow refunds payments.
 You can use this workflow within your customizations or your own custom workflows, allowing you to
 refund payments in your custom flow.
 
-<SourceCodeLink link="https://github.com/medusajs/medusa/blob/e0b5bb0b224458ebc8c93111e72f9a10aecf0275/packages/core/core-flows/src/payment/workflows/refund-payments.ts#L129" />
+<SourceCodeLink link="https://github.com/medusajs/medusa/blob/394226b5c18d11072da826ed6a07d4e602e62f18/packages/core/core-flows/src/payment/workflows/refund-payments.ts#L129" />
 
 ## Examples
 
@@ -134,7 +133,7 @@ const myWorkflow = createWorkflow(
 
 ## Steps
 
-<WorkflowDiagram workflow={{"name":"refundPaymentsWorkflow","steps":[{"type":"step","name":"useQueryGraphStep","description":"This step fetches data across modules using the Query.\n\nLearn more in the [Query documentation](https://docs.medusajs.com/learn/fundamentals/module-links/query).","link":"../../../../Common/Steps_Common/functions/core_flows.Common.Steps_Common.useQueryGraphStep/page.mdx","depth":1},{"type":"step","name":"validatePaymentsRefundStep","description":"This step validates that the refund is valid for the payment.\nIf the payment's refundable amount is less than the amount to be refunded,\nthe step throws an error.\n\n:::note\n\nYou can retrieve a payment's details using [Query](https://docs.medusajs.com/learn/fundamentals/module-links/query),\nor [useQueryGraphStep](https://docs.medusajs.com/resources/references/medusa-workflows/steps/useQueryGraphStep).\n\n:::","link":"../core_flows.Payment.Workflows_Payment.validatePaymentsRefundStep/page.mdx","depth":2},{"type":"step","name":"refundPaymentsStep","description":"This step refunds one or more payments.","link":"../../../Steps_Payment/functions/core_flows.Payment.Steps_Payment.refundPaymentsStep/page.mdx","depth":3},{"type":"step","name":"addOrderTransactionStep","description":"This step creates order transactions.","link":"../../../../Order/Steps_Order/functions/core_flows.Order.Steps_Order.addOrderTransactionStep/page.mdx","depth":4}]}} />
+<WorkflowDiagram workflow={{"name":"refundPaymentsWorkflow","steps":[{"type":"step","name":"validatePaymentsRefundStep","description":"This step validates that the refund is valid for the payment.\nIf the payment's refundable amount is less than the amount to be refunded,\nthe step throws an error.\n\n:::note\n\nYou can retrieve a payment's details using [Query](https://docs.medusajs.com/learn/fundamentals/module-links/query),\nor [useQueryGraphStep](https://docs.medusajs.com/resources/references/medusa-workflows/steps/useQueryGraphStep).\n\n:::","link":"../core_flows.Payment.Workflows_Payment.validatePaymentsRefundStep/page.mdx","depth":1},{"type":"step","name":"refundPaymentsStep","description":"This step refunds one or more payments.","link":"../../../Steps_Payment/functions/core_flows.Payment.Steps_Payment.refundPaymentsStep/page.mdx","depth":2},{"type":"step","name":"addOrderTransactionStep","description":"This step creates order transactions.","link":"../../../../Order/Steps_Order/functions/core_flows.Order.Steps_Order.addOrderTransactionStep/page.mdx","depth":3}]}} />
 
 ## Input
 

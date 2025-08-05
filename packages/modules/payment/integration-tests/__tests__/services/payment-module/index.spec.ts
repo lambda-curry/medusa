@@ -23,11 +23,13 @@ moduleIntegrationTestRunner<IPaymentModuleService>({
           service: PaymentModuleService,
         }).linkable
 
-        expect(Object.keys(linkable)).toHaveLength(6)
+        expect(Object.keys(linkable)).toHaveLength(8)
         expect(Object.keys(linkable)).toEqual([
           "paymentCollection",
           "paymentSession",
           "payment",
+          "capture",
+          "refund",
           "refundReason",
           "accountHolder",
           "paymentProvider",
@@ -38,58 +40,76 @@ moduleIntegrationTestRunner<IPaymentModuleService>({
         })
 
         expect(linkable).toEqual({
-          payment: {
-            id: {
-              linkable: "payment_id",
-              entity: "Payment",
-              primaryKey: "id",
-              serviceName: "payment",
-              field: "payment",
-            },
-          },
           paymentCollection: {
             id: {
               linkable: "payment_collection_id",
-              entity: "PaymentCollection",
               primaryKey: "id",
               serviceName: "payment",
               field: "paymentCollection",
+              entity: "PaymentCollection",
             },
           },
           paymentSession: {
             id: {
-              field: "paymentSession",
-              entity: "PaymentSession",
               linkable: "payment_session_id",
               primaryKey: "id",
               serviceName: "payment",
+              field: "paymentSession",
+              entity: "PaymentSession",
+            },
+          },
+          payment: {
+            id: {
+              linkable: "payment_id",
+              primaryKey: "id",
+              serviceName: "payment",
+              field: "payment",
+              entity: "Payment",
+            },
+          },
+          capture: {
+            id: {
+              linkable: "capture_id",
+              primaryKey: "id",
+              serviceName: "payment",
+              field: "capture",
+              entity: "Capture",
+            },
+          },
+          refund: {
+            id: {
+              linkable: "refund_id",
+              primaryKey: "id",
+              serviceName: "payment",
+              field: "refund",
+              entity: "Refund",
             },
           },
           refundReason: {
             id: {
               linkable: "refund_reason_id",
-              entity: "RefundReason",
               primaryKey: "id",
               serviceName: "payment",
               field: "refundReason",
+              entity: "RefundReason",
             },
           },
           accountHolder: {
             id: {
               linkable: "account_holder_id",
-              entity: "AccountHolder",
               primaryKey: "id",
               serviceName: "payment",
               field: "accountHolder",
+              entity: "AccountHolder",
             },
           },
           paymentProvider: {
             id: {
               linkable: "payment_provider_id",
-              entity: "PaymentProvider",
               primaryKey: "id",
               serviceName: "payment",
               field: "paymentProvider",
+              entity: "PaymentProvider",
             },
           },
         })

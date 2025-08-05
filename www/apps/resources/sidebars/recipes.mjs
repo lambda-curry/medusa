@@ -121,6 +121,13 @@ export const recipesSidebar = [
     type: "link",
     path: "/recipes/personalized-products",
     title: "Personalized Products",
+    children: [
+      {
+        type: "link",
+        path: "/recipes/personalized-products/example",
+        title: "Example",
+      },
+    ],
   },
   {
     type: "link",

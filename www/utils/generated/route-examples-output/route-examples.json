@@ -371,8 +371,14 @@
   "GET /admin/orders": {
     "js-sdk": "sdk.admin.order.list()\n.then(({ orders, count, limit, offset }) => {\n  console.log(orders)\n})"
   },
+  "POST /admin/orders/{id}/archive": {
+    "js-sdk": "sdk.admin.order.archive(\"order_123\")\n.then(({ order }) => {\n  console.log(order)\n})"
+  },
   "POST /admin/orders/{id}/cancel": {
     "js-sdk": "sdk.admin.order.cancel(\"order_123\")\n.then(({ order }) => {\n  console.log(order)\n})"
+  },
+  "POST /admin/orders/{id}/complete": {
+    "js-sdk": "sdk.admin.order.complete(\"order_123\")\n.then(({ order }) => {\n  console.log(order)\n})"
   },
   "POST /admin/orders/{id}/transfer": {
     "js-sdk": "sdk.admin.order.requestTransfer(\"order_123\", {\n  customer_id: \"cus_123\",\n  internal_note: \"Internal note\",\n})\n.then(({ order }) => {\n  console.log(order)\n})"

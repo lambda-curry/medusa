@@ -19,7 +19,11 @@ const compat = new FlatCompat({
 
 export default [
   {
-    ignores: ["**/references/**/*"],
+    ignores: [
+      "**/references/**/*",
+      // TODO remove this once we support v1 comments
+      "**/nextjs-starter/guides/customize-stripe/**",
+    ],
   },
   {
     plugins: {

@@ -32,20 +32,7 @@
  *   content:
  *     application/json:
  *       schema:
- *         type: object
- *         description: The fulfillment set to create.
- *         required:
- *           - type
- *           - name
- *         properties:
- *           name:
- *             type: string
- *             title: name
- *             description: The fulfillment set's name.
- *           type:
- *             type: string
- *             title: type
- *             description: The fulfillment set's type.
+ *         $ref: "#/components/schemas/AdminCreateStockLocationFulfillmentSet"
  * x-codeSamples:
  *   - lang: JavaScript
  *     label: JS SDK

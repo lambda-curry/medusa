@@ -22,7 +22,7 @@ medusaIntegrationTestRunner({
         )
 
         expect(response.status).toEqual(200)
-        expect(response.data.currencies).toHaveLength(120)
+        expect(response.data.currencies).toHaveLength(122)
         expect(response.data.currencies).toEqual(
           expect.arrayContaining([
             expect.objectContaining({

@@ -3,7 +3,6 @@ slug: /references/medusa-workflows/cancelOrderTransferRequestWorkflow
 sidebar_label: cancelOrderTransferRequestWorkflow
 sidebar_description: Cancel an order transfer request.
 tags:
-  - query
   - order
   - workflow
 ---
@@ -21,7 +20,7 @@ and the [Cancel Transfer Request Admin API Route](https://docs.medusajs.com/api/
 You can use this workflow within your customizations or your own custom workflows, allowing you to build a custom flow
 around canceling an order transfer.
 
-<SourceCodeLink link="https://github.com/medusajs/medusa/blob/e0b5bb0b224458ebc8c93111e72f9a10aecf0275/packages/core/core-flows/src/order/workflows/transfer/cancel-order-transfer.ts#L122" />
+<SourceCodeLink link="https://github.com/medusajs/medusa/blob/394226b5c18d11072da826ed6a07d4e602e62f18/packages/core/core-flows/src/order/workflows/transfer/cancel-order-transfer.ts#L122" />
 
 ## Examples
 
@@ -138,7 +137,7 @@ const myWorkflow = createWorkflow(
 
 ## Steps
 
-<WorkflowDiagram workflow={{"name":"cancelOrderTransferRequestWorkflow","steps":[{"type":"step","name":"useQueryGraphStep","description":"This step fetches data across modules using the Query.\n\nLearn more in the [Query documentation](https://docs.medusajs.com/learn/fundamentals/module-links/query).","link":"../../../../Common/Steps_Common/functions/core_flows.Common.Steps_Common.useQueryGraphStep/page.mdx","depth":1},{"type":"step","name":"useQueryGraphStep","description":"This step fetches data across modules using the Query.\n\nLearn more in the [Query documentation](https://docs.medusajs.com/learn/fundamentals/module-links/query).","link":"../../../../Common/Steps_Common/functions/core_flows.Common.Steps_Common.useQueryGraphStep/page.mdx","depth":2},{"type":"step","name":"cancelTransferOrderRequestValidationStep","description":"This step validates that a requested order transfer can be canceled.\nIf the customer canceling the order transfer isn't the one that requested the transfer,\nthe step throws an error. Admin users can cancel any order transfer.\n\n:::note\n\nYou can retrieve an order and order change details using [Query](https://docs.medusajs.com/learn/fundamentals/module-links/query),\nor [useQueryGraphStep](https://docs.medusajs.com/resources/references/medusa-workflows/steps/useQueryGraphStep).\n\n:::","link":"../core_flows.Order.Workflows_Order.cancelTransferOrderRequestValidationStep/page.mdx","depth":3},{"type":"step","name":"deleteOrderChangesStep","description":"This step deletes order changes.","link":"../../../Steps_Order/functions/core_flows.Order.Steps_Order.deleteOrderChangesStep/page.mdx","depth":4}]}} />
+<WorkflowDiagram workflow={{"name":"cancelOrderTransferRequestWorkflow","steps":[{"type":"step","name":"cancelTransferOrderRequestValidationStep","description":"This step validates that a requested order transfer can be canceled.\nIf the customer canceling the order transfer isn't the one that requested the transfer,\nthe step throws an error. Admin users can cancel any order transfer.\n\n:::note\n\nYou can retrieve an order and order change details using [Query](https://docs.medusajs.com/learn/fundamentals/module-links/query),\nor [useQueryGraphStep](https://docs.medusajs.com/resources/references/medusa-workflows/steps/useQueryGraphStep).\n\n:::","link":"../core_flows.Order.Workflows_Order.cancelTransferOrderRequestValidationStep/page.mdx","depth":1},{"type":"step","name":"deleteOrderChangesStep","description":"This step deletes order changes.","link":"../../../Steps_Order/functions/core_flows.Order.Steps_Order.deleteOrderChangesStep/page.mdx","depth":2}]}} />
 
 ## Input
 

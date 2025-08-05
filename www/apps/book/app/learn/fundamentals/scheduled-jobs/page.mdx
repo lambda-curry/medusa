@@ -10,14 +10,14 @@ In this chapter, you’ll learn about scheduled jobs and how to use them.
 
 When building your commerce application, you may need to automate tasks and run them repeatedly at a specific schedule. For example, you need to automatically sync products to a third-party service once a day.
 
-In other commerce platforms, this feature isn't natively supported. Instead, you have to setup a separate application to execute cron jobs, which adds complexity as to how you expose this task to be executed in a cron job, or how do you debug it when it's not running within the platform's tooling.
+In other commerce platforms, this feature isn't natively supported. Instead, you have to setup a separate application to execute cron jobs, which adds complexity as to how you expose this task to be executed in a cron job, or how you debug it when it's not running within the platform's tooling.
 
 Medusa removes this overhead by supporting this feature natively with scheduled jobs. A scheduled job is an asynchronous function that the Medusa application runs at the interval you specify during the Medusa application's runtime. Your efforts are only spent on implementing the functionality performed by the job, such as syncing products to an ERP.
 
 <Note title="Don't use scheduled jobs if" type="error">
 
-- You want the action to execute at a specified schedule while the Medusa application **isn't** running. Instead, use the operating system's equivalent of a cron job.
-- You want to execute the action once when the application loads. Use [loaders](../modules/loaders/page.mdx) instead.
+- You want the action to execute at a specified schedule while the Medusa application **isn't** running. Instead, create a [custom CLI script](../custom-cli-scripts/page.mdx) and execute it using the operating system's equivalent of a cron job.
+- You want to execute the action once when the application loads. Use [loaders](../modules/loaders/page.mdx) or [custom CLI scripts](../custom-cli-scripts/page.mdx#run-custom-script-on-application-startup) instead.
 - You want to execute the action if an event occurs. Use [subscribers](../events-and-subscribers/page.mdx) instead.
 
 </Note>
@@ -63,7 +63,7 @@ You also export a `config` object that has the following properties:
 - `name`: A unique name for the job.
 - `schedule`: A string that holds a [cron expression](https://crontab.guru/) indicating the schedule to run the job.
 
-This scheduled job executes every minute and logs into the terminal `Greeting!`.
+This scheduled job executes every minute and logs into the terminal the message `Greeting!`.
 
 ### Test the Scheduled Job
 
@@ -83,11 +83,11 @@ info:    Greeting!
 
 ## Example: Sync Products Once a Day
 
-In this section, you'll find a brief example of how you use a scheduled job to sync products to a third-party service.
+In a realistic scenario like syncing products to an ERP once a day, you should create a [workflow](../workflows/page.mdx) and execute it in a scheduled job.
 
-When implementing flows spanning across systems or [modules](../modules/page.mdx), you use [workflows](../workflows/page.mdx). A workflow is a task made up of a series of steps, and you construct it like you would a regular function, but it's a special function that supports rollback mechanism in case of errors, background execution, and more.
+A workflow is a task made up of a series of steps, and you construct it like you would a regular function, but it's a special function that supports rollback mechanism in case of errors, background execution, and more.
 
-You can learn how to create a workflow in [this chapter](../workflows/page.mdx), but this example assumes you already have a `syncProductToErpWorkflow` implemented. To execute this workflow once a day, create a scheduled job at `src/jobs/sync-products.ts` with the following content:
+You can learn how to create a workflow in the [Workflows](../workflows/page.mdx) chapter, but this example assumes you already have a `syncProductToErpWorkflow` implemented. To execute this workflow once a day, create a scheduled job at `src/jobs/sync-products.ts` with the following content:
 
 ```ts title="src/jobs/sync-products.ts"
 import { MedusaContainer } from "@medusajs/framework/types"

@@ -59,6 +59,9 @@
  *   metadata:
  *     type: object
  *     description: The shipping method's metadata, can hold custom key-value pairs.
+ *     externalDocs:
+ *       url: https://docs.medusajs.com/api/store#manage-metadata
+ *       description: Learn how to manage metadata
  *   tax_lines:
  *     type: array
  *     description: The shipping method's tax lines.

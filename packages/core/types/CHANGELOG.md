@@ -1,5 +1,13 @@
 # @medusajs/types
 
+## 2.8.8
+
+### Patch Changes
+
+- [#13002](https://github.com/medusajs/medusa/pull/13002) [`468b81c2cbdbc24b26e31bf6e347d3633a4fb4f8`](https://github.com/medusajs/medusa/commit/468b81c2cbdbc24b26e31bf6e347d3633a4fb4f8) Thanks [@olivermrbl](https://github.com/olivermrbl)! - fix(modules-sdk): Entity types
+
+- [#12936](https://github.com/medusajs/medusa/pull/12936) [`919c53e44e2c7bb16bc513b5c96c93ac47bd6ce5`](https://github.com/medusajs/medusa/commit/919c53e44e2c7bb16bc513b5c96c93ac47bd6ce5) Thanks [@shahednasser](https://github.com/shahednasser)! - fix(types): add attachments to CreateNotificationDTO type
+
 ## 2.8.7
 
 ### Patch Changes

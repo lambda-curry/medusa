@@ -8,6 +8,8 @@ export const metadata = {
 
 # {metadata.title}
 
+In this guide, you'll learn how to create forms that match the Medusa Admin's design conventions.
+
 The Medusa Admin has two types of forms:
 
 1. Create forms, created using the [FocusModal UI component](!ui!/components/focus-modal).
@@ -59,7 +61,7 @@ export const CreateForm = () => {
   })
 
   const handleSubmit = form.handleSubmit(({ name }) => {
-    // TODO submit to backend
+    // TODO: submit to backend
     console.log(name)
   })
 
@@ -127,7 +129,7 @@ export const CreateForm = () => {
 
 Unlike other components in this documentation, this form component isn't reusable. You have to create one for every resource that has a create form in the admin.
 
-Start by creating the file `src/admin/components/create-form.tsx` that you'll create the form in.
+Start by creating the file `src/admin/components/create-form.tsx` in which you'll create the form.
 
 ### Create Validation Schema
 
@@ -163,7 +165,7 @@ export const CreateForm = () => {
   })
 
   const handleSubmit = form.handleSubmit(({ name }) => {
-    // TODO submit to backend
+    // TODO: submit to backend
     console.log(name)
   })
 
@@ -344,7 +346,7 @@ export const EditForm = () => {
   })
 
   const handleSubmit = form.handleSubmit(({ name }) => {
-    // TODO submit to backend
+    // TODO: submit to backend
     console.log(name)
   })
 
@@ -406,7 +408,7 @@ export const EditForm = () => {
 
 Unlike other components in this documentation, this form component isn't reusable. You have to create one for every resource that has an edit form in the admin.
 
-Start by creating the file `src/admin/components/edit-form.tsx` that you'll create the form in.
+Start by creating the file `src/admin/components/edit-form.tsx` in which you'll create the form.
 
 ### Create Validation Schema
 
@@ -442,7 +444,7 @@ export const EditForm = () => {
   })
 
   const handleSubmit = form.handleSubmit(({ name }) => {
-    // TODO submit to backend
+    // TODO: submit to backend
     console.log(name)
   })
 

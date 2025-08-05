@@ -53,6 +53,11 @@ export const cartSidebar = [
             path: "/commerce-modules/cart/extend",
             title: "Extend Module",
           },
+          {
+            type: "link",
+            path: "/commerce-modules/cart/cart-totals",
+            title: "Retrieve Cart Totals",
+          },
         ],
       },
       {

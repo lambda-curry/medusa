@@ -351,6 +351,9 @@
  *                     metadata:
  *                       type: object
  *                       description: The variant's metadata.
+ *                       externalDocs:
+ *                         url: https://docs.medusajs.com/api/store#manage-metadata
+ *                         description: Learn how to manage metadata
  *                 variant_id:
  *                   type: string
  *                   title: variant_id
@@ -532,6 +535,9 @@
  *                     metadata:
  *                       type: object
  *                       description: The product's metadata.
+ *                       externalDocs:
+ *                         url: https://docs.medusajs.com/api/store#manage-metadata
+ *                         description: Learn how to manage metadata
  *                 product_id:
  *                   type: string
  *                   title: product_id
@@ -796,6 +802,9 @@
  *                     metadata:
  *                       type: object
  *                       description: The detail's metadata.
+ *                       externalDocs:
+ *                         url: https://docs.medusajs.com/api/store#manage-metadata
+ *                         description: Learn how to manage metadata
  *                     created_at:
  *                       type: string
  *                       format: date-time
@@ -819,6 +828,9 @@
  *                 metadata:
  *                   type: object
  *                   description: The item's metadata.
+ *                   externalDocs:
+ *                     url: https://docs.medusajs.com/api/store#manage-metadata
+ *                     description: Learn how to manage metadata
  *                 original_total:
  *                   type: number
  *                   title: original_total
@@ -1018,6 +1030,9 @@
  *                     metadata:
  *                       type: object
  *                       description: The variant's metadata.
+ *                       externalDocs:
+ *                         url: https://docs.medusajs.com/api/store#manage-metadata
+ *                         description: Learn how to manage metadata
  *                     created_at:
  *                       type: string
  *                       format: date-time
@@ -1203,6 +1218,9 @@
  *                     metadata:
  *                       type: object
  *                       description: The product's metadata.
+ *                       externalDocs:
+ *                         url: https://docs.medusajs.com/api/store#manage-metadata
+ *                         description: Learn how to manage metadata
  *                     created_at:
  *                       type: string
  *                       format: date-time
@@ -1496,6 +1514,9 @@
  *                         metadata:
  *                           type: object
  *                           description: The detail's metadata.
+ *                           externalDocs:
+ *                             url: https://docs.medusajs.com/api/store#manage-metadata
+ *                             description: Learn how to manage metadata
  *                         created_at:
  *                           type: string
  *                           format: date-time
@@ -1526,6 +1547,9 @@
  *                 metadata:
  *                   type: object
  *                   description: The item's metadata.
+ *                   externalDocs:
+ *                     url: https://docs.medusajs.com/api/store#manage-metadata
+ *                     description: Learn how to manage metadata
  *                 created_at:
  *                   type: string
  *                   format: date-time
@@ -1880,6 +1904,9 @@
  *                     metadata:
  *                       type: object
  *                       description: The variant's metadata.
+ *                       externalDocs:
+ *                         url: https://docs.medusajs.com/api/store#manage-metadata
+ *                         description: Learn how to manage metadata
  *                 variant_id:
  *                   type: string
  *                   title: variant_id
@@ -2061,6 +2088,9 @@
  *                     metadata:
  *                       type: object
  *                       description: The product's metadata.
+ *                       externalDocs:
+ *                         url: https://docs.medusajs.com/api/store#manage-metadata
+ *                         description: Learn how to manage metadata
  *                 product_id:
  *                   type: string
  *                   title: product_id
@@ -2325,6 +2355,9 @@
  *                     metadata:
  *                       type: object
  *                       description: The detail's metadata.
+ *                       externalDocs:
+ *                         url: https://docs.medusajs.com/api/store#manage-metadata
+ *                         description: Learn how to manage metadata
  *                     created_at:
  *                       type: string
  *                       format: date-time
@@ -2348,6 +2381,9 @@
  *                 metadata:
  *                   type: object
  *                   description: The item's metadata.
+ *                   externalDocs:
+ *                     url: https://docs.medusajs.com/api/store#manage-metadata
+ *                     description: Learn how to manage metadata
  *                 original_total:
  *                   type: number
  *                   title: original_total
@@ -2543,6 +2579,9 @@
  *                     metadata:
  *                       type: object
  *                       description: The variant's metadata.
+ *                       externalDocs:
+ *                         url: https://docs.medusajs.com/api/store#manage-metadata
+ *                         description: Learn how to manage metadata
  *                     created_at:
  *                       type: string
  *                       format: date-time
@@ -2728,6 +2767,9 @@
  *                     metadata:
  *                       type: object
  *                       description: The product's metadata.
+ *                       externalDocs:
+ *                         url: https://docs.medusajs.com/api/store#manage-metadata
+ *                         description: Learn how to manage metadata
  *                     created_at:
  *                       type: string
  *                       format: date-time
@@ -3021,6 +3063,9 @@
  *                         metadata:
  *                           type: object
  *                           description: The detail's metadata.
+ *                           externalDocs:
+ *                             url: https://docs.medusajs.com/api/store#manage-metadata
+ *                             description: Learn how to manage metadata
  *                         created_at:
  *                           type: string
  *                           format: date-time
@@ -3051,6 +3096,9 @@
  *                 metadata:
  *                   type: object
  *                   description: The item's metadata.
+ *                   externalDocs:
+ *                     url: https://docs.medusajs.com/api/store#manage-metadata
+ *                     description: Learn how to manage metadata
  *                 created_at:
  *                   type: string
  *                   format: date-time
@@ -3297,6 +3345,9 @@
  *                   metadata:
  *                     type: object
  *                     description: The variant's metadata.
+ *                     externalDocs:
+ *                       url: https://docs.medusajs.com/api/store#manage-metadata
+ *                       description: Learn how to manage metadata
  *                   created_at:
  *                     type: string
  *                     format: date-time
@@ -3482,6 +3533,9 @@
  *                   metadata:
  *                     type: object
  *                     description: The product's metadata.
+ *                     externalDocs:
+ *                       url: https://docs.medusajs.com/api/store#manage-metadata
+ *                       description: Learn how to manage metadata
  *                   created_at:
  *                     type: string
  *                     format: date-time
@@ -3775,6 +3829,9 @@
  *                       metadata:
  *                         type: object
  *                         description: The detail's metadata.
+ *                         externalDocs:
+ *                           url: https://docs.medusajs.com/api/store#manage-metadata
+ *                           description: Learn how to manage metadata
  *                       created_at:
  *                         type: string
  *                         format: date-time
@@ -3805,6 +3862,9 @@
  *               metadata:
  *                 type: object
  *                 description: The item's metadata.
+ *                 externalDocs:
+ *                   url: https://docs.medusajs.com/api/store#manage-metadata
+ *                   description: Learn how to manage metadata
  *               created_at:
  *                 type: string
  *                 format: date-time
@@ -3960,6 +4020,9 @@
  *   metadata:
  *     type: object
  *     description: The item's metadata, can hold custom key-value pairs.
+ *     externalDocs:
+ *       url: https://docs.medusajs.com/api/store#manage-metadata
+ *       description: Learn how to manage metadata
  *   original_total:
  *     type: number
  *     title: original_total

@@ -52,6 +52,9 @@
  *   metadata:
  *     type: object
  *     description: The payment collection's metadata, can hold custom key-value pairs.
+ *     externalDocs:
+ *       url: https://docs.medusajs.com/api/store#manage-metadata
+ *       description: Learn how to manage metadata
  *   status:
  *     type: string
  *     description: The payment collection's status.

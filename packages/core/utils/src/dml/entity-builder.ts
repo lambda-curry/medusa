@@ -242,7 +242,7 @@ export class EntityBuilder {
    * This method defines a float property that allows for
    * values with decimal places
    *
-   * @version 2.1.2
+   * @since 2.1.2
    *
    * @example
    * import { model } from "@medusajs/framework/utils"

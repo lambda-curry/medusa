@@ -35,6 +35,6 @@ export const createCustomerGroupsStep = createStep(
 
     const service = container.resolve<ICustomerModuleService>(Modules.CUSTOMER)
 
-    await service.deleteCustomers(createdCustomerGroupIds)
+    await service.deleteCustomerGroups(createdCustomerGroupIds)
   }
 )

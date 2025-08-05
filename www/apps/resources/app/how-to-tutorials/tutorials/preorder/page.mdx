@@ -1,0 +1,3835 @@
+---
+sidebar_label: "Pre-Orders"
+tags:
+  - name: product
+    label: "Implement Pre-Order Products"
+  - name: order
+    label: "Implement Pre-Orders"
+  - server
+  - tutorial
+  - name: nextjs
+    label: "Implement Pre-Orders"
+products:
+  - product
+  - cart
+  - order
+  - fulfillment
+---
+
+import { Github, PlaySolid, EllipsisHorizontal } from "@medusajs/icons"
+import { Prerequisites, WorkflowDiagram, CardList, InlineIcon } from "docs-ui"
+
+export const metadata = {
+  title: `Implement Pre-Orders in Medusa`,
+}
+
+# {metadata.title}
+
+In this tutorial, you'll learn how to implement pre-orders in Medusa.
+
+When you install a Medusa application, you get a fully-fledged commerce platform with a Framework for customization. The Medusa application's commerce features are built around [Commerce Modules](../../../commerce-modules/page.mdx) that are available out-of-the-box.
+
+The pre-orders feature allows customers to purchase a product before it's available for delivery. Once the product is available, it's automatically shipped to the customer. This is useful when a business is launching and marketing a new product, such as merchandise or books.
+
+This tutorial will help you implement pre-orders in your Medusa application.
+
+## Summary
+
+By following this tutorial, you will learn how to:
+
+- Install and set up Medusa.
+- Define the data models necessary for pre-orders and the logic to manage them.
+- Customize the Medusa Admin dashboard to allow merchants to:
+    - Manage pre-order configurations of product variants.
+    - View pre-orders.
+- Automate fulfilling pre-orders when the product becomes available.
+- Handle scenarios where a pre-order is canceled or modified.
+
+![Diagram showcasing the pre-order features from this tutorial](https://res.cloudinary.com/dza7lstvk/image/upload/v1752756906/Medusa%20Resources/pre-order-summary_epvssb.jpg)
+
+<CardList items={[
+  {
+    href: "https://github.com/medusajs/examples/tree/main/preorders",
+    title: "Pre-order Repository",
+    text: "Find the full code for this guide in this repository.",
+    icon: Github,
+  },
+  {
+    href: "https://res.cloudinary.com/dza7lstvk/raw/upload/v1752672124/OpenApi/PreOrder_nchc1w.yaml",
+    title: "OpenAPI Specs for Postman",
+    text: "Import this OpenAPI Specs file into tools like Postman.",
+    icon: PlaySolid,
+  },
+]} />
+
+---
+
+## Step 1: Install a Medusa Application
+
+<Prerequisites items={[
+  {
+    text: "Node.js v20+",
+    link: "https://nodejs.org/en/download"
+  },
+  {
+    text: "Git CLI tool",
+    link: "https://git-scm.com/downloads"
+  },
+  {
+    text: "PostgreSQL",
+    link: "https://www.postgresql.org/download/"
+  }
+]} />
+
+Start by installing the Medusa application on your machine with the following command:
+
+```bash
+npx create-medusa-app@latest
+```
+
+You'll first be asked for the project's name. Then, when asked whether you want to install the [Next.js Starter Storefront](../../../nextjs-starter/page.mdx), choose Yes.
+
+Afterward, the installation process will start, which will install the Medusa application in a directory with your project's name, and the Next.js Starter Storefront in a separate directory with the `{project-name}-storefront` name.
+
+<Note title="Why is the storefront installed separately?">
+
+The Medusa application is composed of a headless Node.js server and an admin dashboard. The storefront is installed or custom-built separately and connects to the Medusa application through its REST endpoints, called [API routes](!docs!/learn/fundamentals/api-routes). Learn more in [Medusa's Architecture documentation](!docs!/learn/introduction/architecture).
+
+</Note>
+
+Once the installation finishes successfully, the Medusa Admin dashboard will open with a form to create a new user. Enter the user's credentials and submit the form. Afterward, you can log in with the new user and explore the dashboard.
+
+<Note title="Ran into Errors?">
+
+Check out the [troubleshooting guides](../../../troubleshooting/create-medusa-app-errors/page.mdx) for help.
+
+</Note>
+
+---
+
+## Step 2: Create Preorder Module
+
+In Medusa, you can build custom features in a [module](!docs!/learn/fundamentals/modules). A module is a reusable package with the data models and functionalities related to a single feature or domain. Medusa integrates the module into your application without implications or side effects on your setup.
+
+In this step, you'll build a Preorder Module that defines the data models and logic to manage pre-orders. Later, you'll build commerce flows related to pre-orders around the module.
+
+<Note>
+
+Refer to the [Modules documentation](!docs!/learn/fundamentals/modules) to learn more.
+
+</Note>
+
+### a. Create Module Directory
+
+Create the directory `src/modules/preorder` that will hold the Preorder Module's code.
+
+### b. Create Data Models 
+
+A data model represents a table in the database. You create data models using Medusa's Data Model Language (DML). It simplifies defining a table's columns, relations, and indexes with straightforward methods and configurations.
+
+<Note>
+
+Refer to the [Data Models documentation](!docs!/learn/fundamentals/modules#1-create-data-model) to learn more.
+
+</Note>
+
+For the Preorder Module, you'll define a data model to represent pre-order configurations for a product variant, and another to represent a pre-order placed by a customer.
+
+#### PreorderVariant Data Model
+
+To create the first data model, create the file `src/modules/preorder/models/preorder-variant.ts` with the following content:
+
+export const preorderVariantHighlights = [
+  ["12", "id", "The pre-order variant's ID."],
+  ["13", "variant_id", "The ID of the associated product variant."],
+  ["14", "available_date", "The date when the variant will be available for delivery."],
+  ["15", "status", "The status of the pre-order variant's configurations."],
+  ["17", "preorders", "The pre-orders placed for this product variant."]
+]
+
+```ts title="src/modules/preorder/models/preorder-variant.ts" highlights={preorderVariantHighlights}
+import { model } from "@medusajs/utils"
+import { Preorder } from "./preorder"
+
+export enum PreorderVariantStatus {
+  ENABLED = "enabled",
+  DISABLED = "disabled",
+}
+
+export const PreorderVariant = model.define(
+  "preorder_variant",
+  {
+    id: model.id().primaryKey(),
+    variant_id: model.text().unique(),
+    available_date: model.dateTime().index(),
+    status: model.enum(Object.values(PreorderVariantStatus))
+      .default(PreorderVariantStatus.ENABLED),
+    preorders: model.hasMany(() => Preorder, {
+      mappedBy: "item",
+    }),
+  }
+)
+```
+
+The `PreorderVariant` data model has the following properties:
+
+- `id`: The primary key of the table.
+- `variant_id`: The ID of the product variant that this pre-order variant configurations applies to.
+    - Later, you'll learn how to link this data model to Medusa's `ProductVariant` data model.
+- `available_date`: The date when the product variant will be available for delivery.
+- `status`: The status of the pre-order variant configuration, which can be either `enabled` or `disabled`.
+- `preorders`: A relation to the `Preorder` data model, which you'll create next.
+
+<Note title="Tip">
+
+Data relevant for pre-orders like price, inventory, etc... are all either included in the `ProductVariant` data model or its linked records. So, you don't need to duplicate this information in the `PreorderVariant` data model.
+
+</Note>
+
+<Note>
+
+Learn more about defining data model properties in the [Property Types documentation](!docs!/learn/fundamentals/data-models/properties).
+
+</Note>
+
+#### Preorder Data Model
+
+Next, you'll create the `Preorder` data model that represents a customer's purchase of a pre-order product variant.
+
+Create the file `src/modules/preorder/models/preorder.ts` with the following content:
+
+export const preorderHighlights = [
+  ["13", "id", "The pre-order's ID."],
+  ["14", "order_id", "The ID of the associated order."],
+  ["15", "item", "The pre-ordered variant."],
+  ["18", "status", "The status of the pre-order."],
+  ["21", "indexes", "Indexes for the pre-order data model."]
+]
+
+```ts title="src/modules/preorder/models/preorder.ts" highlights={preorderHighlights}
+import { model } from "@medusajs/utils"
+import { PreorderVariant } from "./preorder-variant"
+
+export enum PreorderStatus {
+  PENDING = "pending",
+  FULFILLED = "fulfilled",
+  CANCELLED = "cancelled",
+}
+
+export const Preorder = model.define(
+  "preorder",
+  {
+    id: model.id().primaryKey(),
+    order_id: model.text().index(),
+    item: model.belongsTo(() => PreorderVariant, {
+      mappedBy: "preorders",
+    }),
+    status: model.enum(Object.values(PreorderStatus))
+      .default(PreorderStatus.PENDING),
+  }
+).indexes([
+  {
+    on: ["item_id", "status"],
+  },
+])
+```
+
+The `Preorder` data model has the following properties:
+
+- `id`: The primary key of the table.
+- `order_id`: The ID of the Medusa order that this pre-order belongs to.
+    - Later, you'll learn how to link this data model to Medusa's `Order` data model.
+- `item`: A relation to the `PreorderVariant` data model, which represents the item that was pre-ordered.
+- `status`: The status of the pre-order, which can be either `pending`, `fulfilled`, or `cancelled`.
+
+You also define an index on the `item_id` and `status` columns to optimize queries that filter by these properties.
+
+### c. Create Module's Service
+
+You can manage your module's data models in a service.
+
+A service is a TypeScript class that the module exports. In the service's methods, you can connect to the database, allowing you to manage your data models, or connect to a third-party service, which is useful if you're integrating with external services.
+
+<Note>
+
+Refer to the [Module Service documentation](!docs!/learn/fundamentals/modules#2-create-service) to learn more.
+
+</Note>
+
+To create the Preorder Module's service, create the file `src/modules/preorder/services/preorder.ts` with the following content:
+
+```ts title="src/modules/preorder/services/preorder.ts"
+import { MedusaService } from "@medusajs/framework/utils"
+import { PreorderVariant } from "./models/preorder-variant"
+import { Preorder } from "./models/preorder"
+
+export default class PreorderModuleService extends MedusaService({
+  PreorderVariant,
+  Preorder,
+}) {}
+```
+
+The `PreorderModuleService` extends `MedusaService`, which generates a class with data-management methods for your module's data models. This saves you time on implementing Create, Read, Update, and Delete (CRUD) methods.
+
+So, the `PreorderModuleService` class now has methods like `createPreorders` and `retrievePreorder`.
+
+<Note>
+
+Find all methods generated by the `MedusaService` in [the Service Factory reference](../../../service-factory-reference/page.mdx).
+
+</Note>
+
+### Export Module Definition
+
+The final piece to a module is its definition, which you export in an `index.ts` file at its root directory. This definition tells Medusa the name of the module and its service.
+
+So, create the file `src/modules/preorder/index.ts` with the following content:
+
+```ts title="src/modules/preorder/index.ts"
+import { Module } from "@medusajs/framework/utils"
+import PreorderModuleService from "./service"
+
+export const PREORDER_MODULE = "preorder"
+
+export default Module(PREORDER_MODULE, {
+  service: PreorderModuleService,
+})
+```
+
+You use the `Module` function to create the module's definition. It accepts two parameters:
+
+1. The module's name, which is `preorder`.
+2. An object with a required property `service` indicating the module's service.
+
+You also export the module's name as `PREORDER_MODULE` so you can reference it later.
+
+### Add Module to Medusa's Configurations
+
+Once you finish building the module, add it to Medusa's configurations to start using it.
+
+In `medusa-config.ts`, add a `modules` property and pass an array with your custom module:
+
+```ts title="medusa-config.ts"
+module.exports = defineConfig({
+  // ...
+  modules: [
+    {
+      resolve: "./src/modules/preorder",
+    },
+  ],
+})
+```
+
+Each object in the `modules` array has a `resolve` property, whose value is either a path to the module's directory, or an `npm` package’s name.
+
+### Generate Migrations
+
+Since data models represent tables in the database, you define how they're created in the database with migrations. A migration is a TypeScript class that defines database changes made by a module.
+
+<Note>
+
+Refer to the [Migrations documentation](!docs!/learn/fundamentals/modules#5-generate-migrations) to learn more.
+
+</Note>
+
+Medusa's CLI tool can generate the migrations for you. To generate a migration for the Preorder Module, run the following command in your Medusa application's directory:
+
+```bash
+npx medusa db:generate preorder
+```
+
+The `db:generate` command of the Medusa CLI accepts the name of the module to generate the migration for. You'll now have a `migrations` directory under `src/modules/preorder` that holds the generated migration.
+
+Then, to reflect these migrations on the database, run the following command:
+
+```bash
+npx medusa db:migrate
+```
+
+The tables for the `PreorderVariant` and `Preorder` data models are now created in the database.
+
+---
+
+## Step 3: Link Preorder and Medusa Data Models
+
+Since Medusa isolates modules to integrate them into your application without side effects, you can't directly create relationships between data models of different modules.
+
+Instead, Medusa provides a mechanism to define links between data models, and retrieve and manage linked records while maintaining module isolation.
+
+<Note>
+
+Refer to the [Module Isolation documentation](!docs!/learn/fundamentals/modules/isolation) to learn more.
+
+</Note>
+
+In this step, you'll define a link between the data models in the Preorder Module and the data models in Medusa's Commerce Modules.
+
+### a. PreorderVariant \<\> ProductVariant Link
+
+To define a link between the `PreorderVariant` and `ProductVariant` data models, create the file `src/links/preorder-variant.ts` with the following content:
+
+```ts title="src/links/preorder-variant.ts"
+import { defineLink } from "@medusajs/framework/utils"
+import PreorderModule from "../modules/preorder"
+import ProductModule from "@medusajs/medusa/product"
+
+export default defineLink(
+  PreorderModule.linkable.preorderVariant,
+  ProductModule.linkable.productVariant
+)
+```
+
+You define a link using the `defineLink` function. It accepts two parameters:
+
+1. An object indicating the first data model part of the link. A module has a special `linkable` property that contains link configurations for its data models. You pass the linkable configurations of the Preorder Module's `PreorderVariant` data model.
+2. An object indicating the second data model part of the link. You pass the linkable configurations of the Product Module's `ProductVariant` data model.
+
+In later steps, you'll learn how this link allows you to retrieve and manage product variants and their pre-order configurations.
+
+<Note title="Tip">
+
+Refer to the [Module Links](!docs!/learn/fundamentals/module-links) documentation to learn more about defining links.
+
+</Note>
+
+### b. Preorder \<\> Order Link
+
+Next, you'll define a read-only link between the `Preorder` data model and Medusa's `Order` data model. Read-only links allow you to retrieve the order that a pre-order belongs to without the need to manage the link in the database.
+
+Create the file `src/links/preorder-order.ts` with the following content:
+
+```ts title="src/links/preorder-order.ts"
+import { defineLink } from "@medusajs/framework/utils"
+import PreorderModule from "../modules/preorder"
+import OrderModule from "@medusajs/medusa/order"
+
+export default defineLink(
+  {
+    linkable: PreorderModule.linkable.preorder,
+    field: "order_id",
+  },
+  OrderModule.linkable.order,
+  {
+    readOnly: true,
+  }
+)
+```
+
+You define the link in a similar way to the previous one, passing three parameters to the `defineLink` function:
+
+1. The first data model part of the link, which is the `Preorder` data model. You also pass a `field` property that indicates the column in the `Preorder` data model that holds the ID of the linked `Order`.
+2. The second data model part of the link, which is the `Order` data model.
+3. An object that has a `readOnly` property, marking this link as read-only.
+
+In later steps, you'll learn how to use this link to retrieve the order that a pre-order belongs to.
+
+### c. Sync Links to Database
+
+After defining links, you need to sync them to the database. This creates the necessary tables to manage the links.
+
+<Note>
+
+This doesn't apply to read-only links, as they don't require database changes.
+
+</Note>
+
+To sync the links to the database, run the migrations command again in the Medusa application's directory:
+
+```bash
+npx medusa db:migrate
+```
+
+This command will create the necessary table to manage the `PreorderVariant` \<\> `ProductVariant` link.
+
+---
+
+## Step 4: Manage Pre-Order Variant Functionalities
+
+In this step, you'll implement the logic to manage pre-order configurations of product variants. This includes creating, updating, and disabling pre-order configurations.
+
+When you build commerce features in Medusa that can be consumed by client applications, such as the Medusa Admin dashboard or a storefront, you need to implement:
+
+1. A [workflow](!docs!/learn/fundamentals/workflows) with steps that define the business logic of the feature.
+2. An [API route](!docs!/learn/fundamentals/api-routes) that exposes the workflow's functionality to client applications.
+
+In this step, you'll implement the workflows and API routes to manage pre-order configurations of product variants.
+
+### a. Upsert Pre-Order Variant Workflow
+
+The first workflow you'll implement allows merchants to create or update pre-order configurations of product variants.
+
+A workflow is a series of queries and actions, called steps, that complete a task. A workflow is similar to a function, but it allows you to track its executions' progress, define roll-back logic, and configure other advanced features.
+
+<Note>
+
+Refer to the [Workflows documentation](!docs!/learn/fundamentals/workflows) to learn more.
+
+</Note>
+
+The workflow you'll build will have the following steps:
+
+<WorkflowDiagram
+  workflow={{
+    name: "upsertProductVariantPreorderWorkflow",
+    steps: [
+      {
+        type: "step",
+        name: "useQueryGraphStep",
+        description: "Confirm that the product variant exists.",
+        link: "/references/helper-steps/useQueryGraphStep",
+        depth: 1,
+      },
+      {
+        type: "step",
+        name: "useQueryGraphStep",
+        description: "Try to retrieve existing pre-order configurations.",
+        link: "/references/helper-steps/useQueryGraphStep",
+        depth: 2,
+      },
+      {
+        type: "when",
+        condition: "preorderVariants.length > 0",
+        steps: [
+          {
+            type: "step",
+            name: "updatePreorderVariantStep",
+            description: "Update existing pre-order configurations.",
+            depth: 1
+          }
+        ],
+        depth: 3
+      },
+      {
+        type: "when",
+        condition: "data.preorderVariants.length === 0",
+        steps: [
+          {
+            type: "step",
+            name: "createPreorderVariantStep",
+            description: "Create pre-order configurations for product variant.",
+            depth: 1
+          },
+          {
+            type: "step",
+            name: "createRemoteLinkStep",
+            description: "Link the pre-order configurations to the product variant.",
+            link: "/references/helper-steps/createRemoteLinkStep",
+            depth: 2
+          }
+        ],
+        depth: 4
+      },
+    ]
+  }}
+/>
+
+The `useQueryGraphStep` and `createRemoteLinkStep` are available through Medusa's `@medusajs/medusa/core-flows` package. You'll implement other steps in the workflow.
+
+#### updatePreorderVariantStep
+
+The `updatePreorderVariantStep` updates an existing pre-order variant.
+
+To create the step, create the file `src/workflows/steps/update-preorder-variant.ts` with the following content:
+
+export const updatePreorderVariantStepHighlights = [
+  ["16", "preorderModuleService", "Resolve the Preorder Module's service from the Medusa container."],
+  ["20", "oldData", "Retrieve existing record to undo updates if an error occurs."],
+  ["24", "preorderVariant", "Update the pre-order variant."],
+  ["28", "preorderVariant", "Return the updated pre-order variant."],
+  ["28", "oldData", "Pass the old data to the compensation function."],
+  ["39", "updatePreorderVariants", "Undo updates if an error occurs during the workflow execution."]
+]
+
+```ts title="src/workflows/steps/update-preorder-variant.ts" highlights={updatePreorderVariantStepHighlights}
+import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
+import { 
+  PreorderVariantStatus,
+} from "../../modules/preorder/models/preorder-variant"
+
+type StepInput = {
+  id: string
+  variant_id?: string
+  available_date?: Date
+  status?: PreorderVariantStatus
+}
+
+export const updatePreorderVariantStep = createStep(
+  "update-preorder-variant",
+  async (input: StepInput, { container }) => {
+    const preorderModuleService = container.resolve(
+      "preorder"
+    )
+    
+    const oldData = await preorderModuleService.retrievePreorderVariant(
+      input.id
+    )
+    
+    const preorderVariant = await preorderModuleService.updatePreorderVariants(
+      input
+    )
+
+    return new StepResponse(preorderVariant, oldData)
+  },
+  async (preorderVariant, { container }) => {
+    if (!preorderVariant) {
+      return
+    }
+
+    const preorderModuleService = container.resolve(
+      "preorder"
+    )
+
+    await preorderModuleService.updatePreorderVariants({
+      id: preorderVariant.id,
+      variant_id: preorderVariant.variant_id,
+      available_date: preorderVariant.available_date,
+    })
+  }
+)
+```
+
+You create a step with the `createStep` function. It accepts three parameters:
+
+1. The step's unique name.
+2. An async function that receives two parameters:
+    - The step's input, which is an object with the pre-order variant's properties.
+    - An object that has properties including the [Medusa container](!docs!/learn/fundamentals/medusa-container), which is a registry of Framework and commerce tools that you can access in the step.
+3. An async compensation function that undoes the actions performed by the step function. This function is only executed if an error occurs during the workflow's execution.
+
+In the step function, you resolve the Preorder Module's service from the Medusa container using its `resolve` method, passing it the module's name as a parameter.
+
+Then, you retrieve the existing configurations to undo the updates if an error occurs during the workflow's execution.
+
+After that, you update the preorder variant using the generated `updatePreorderVariants` method of the Preorder Module's service.
+
+Finally, a step function must return a `StepResponse` instance. The `StepResponse` constructor accepts two parameters:
+
+1. The step's output, which is the pre-order variant created.
+2. Data to pass to the step's compensation function.
+
+In the compensation function, you undo the updates made to the preorder variant if an error occurs in the workflow.
+
+#### createPreorderVariantStep
+
+The `createPreorderVariantStep` creates a pre-order variant record.
+
+To create the step, create the file `src/workflows/steps/create-preorder-variant.ts` with the following content:
+
+export const createPreorderVariantStepHighlights = [
+  ["15", "preorderVariant", "Create the pre-order variant."],
+  ["19", "preorderVariant", "Return the created pre-order variant."],
+  ["19", "id", "Pass the ID to the compensation function."],
+  ["30", "deletePreorderVariants", "Delete the pre-order variant if an error occurs during the workflow execution."]
+]
+
+```ts title="src/workflows/steps/create-preorder-variant.ts" highlights={createPreorderVariantStepHighlights}
+import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
+
+type StepInput = {
+  variant_id: string
+  available_date: Date
+}
+
+export const createPreorderVariantStep = createStep(
+  "create-preorder-variant",
+  async (input: StepInput, { container }) => {
+    const preorderModuleService = container.resolve(
+      "preorder"
+    )
+
+    const preorderVariant = await preorderModuleService.createPreorderVariants(
+      input
+    )
+
+    return new StepResponse(preorderVariant, preorderVariant.id)
+  },
+  async (preorderVariantId, { container }) => {
+    if (!preorderVariantId) {
+      return
+    }
+
+    const preorderModuleService = container.resolve(
+      "preorder"
+    )
+
+    await preorderModuleService.deletePreorderVariants(preorderVariantId)
+  }
+)
+```
+
+In the step, you create a preorder variant record using the data received as input.
+
+In the step's compensation function, you delete the preorder variant if an error occurs in the workflow's execution.
+
+#### Create Workflow
+
+You now have the necessary steps to build the workflow that upserts a preorder variant's configurations.
+
+To create the workflow, create the file `src/workflows/upsert-product-variant-preorder.ts` with the following content:
+
+export const upsertProductVariantPreorderWorkflowHighlights = [
+  ["18", "useQueryGraphStep", "Confirm that the product variant exists."],
+  ["29", "useQueryGraphStep", "Try to retrieve the existing pre-order variant."],
+  ["37", "when", "Check if there's an existing pre-order variant."],
+  ["41", "updatePreorderVariantStep", "Update the existing pre-order variant."],
+  ["51", "when", "Check if there isn't an existing pre-order variant."],
+  ["55", "createPreorderVariantStep", "Create a pre-order variant for the product variant."],
+  ["57", "createRemoteLinkStep", "Link the pre-order variant to the product variant."],
+  ["71", "transform", "Return either the created or updated pre-order variant."],
+  ["78", "preorderVariant", "Return the pre-order variant to the workflow's executor."],
+]
+
+```ts title="src/workflows/upsert-product-variant-preorder.ts" highlights={upsertProductVariantPreorderWorkflowHighlights}
+import { createWorkflow, transform, when, WorkflowResponse } from "@medusajs/framework/workflows-sdk"
+import { createRemoteLinkStep, useQueryGraphStep } from "@medusajs/medusa/core-flows"
+import { updatePreorderVariantStep } from "./steps/update-preorder-variant"
+import { createPreorderVariantStep } from "./steps/create-preorder-variant"
+import { PREORDER_MODULE } from "../modules/preorder"
+import { Modules } from "@medusajs/framework/utils"
+import { PreorderVariantStatus } from "../modules/preorder/models/preorder-variant"
+
+type WorkflowInput = {
+  variant_id: string;
+  available_date: Date;
+}
+
+export const upsertProductVariantPreorderWorkflow = createWorkflow(
+  "upsert-product-variant-preorder",
+  (input: WorkflowInput) => {
+    // confirm that product variant exists
+    useQueryGraphStep({
+      entity: "product_variant",
+      fields: ["id"],
+      filters: {
+        id: input.variant_id,
+      },
+      options: {
+        throwIfKeyNotFound: true,
+      },
+    })
+
+    const { data: preorderVariants } = useQueryGraphStep({
+      entity: "preorder_variant",
+      fields: ["*"],
+      filters: {
+        variant_id: input.variant_id,
+      },
+    }).config({ name: "retrieve-preorder-variant" })
+
+    const updatedPreorderVariant = when(
+      { preorderVariants }, 
+      (data) => data.preorderVariants.length > 0
+    ).then(() => {
+      const preorderVariant = updatePreorderVariantStep({
+        id: preorderVariants[0].id,
+        variant_id: input.variant_id,
+        available_date: input.available_date,
+        status: PreorderVariantStatus.ENABLED,
+      })
+
+      return preorderVariant
+    })
+
+    const createdPreorderVariant = when(
+      { preorderVariants }, 
+      (data) => data.preorderVariants.length === 0
+    ).then(() => {
+      const preorderVariant = createPreorderVariantStep(input)
+      
+      createRemoteLinkStep([
+        {
+          [PREORDER_MODULE]: {
+            preorder_variant_id: preorderVariant.id,
+          },
+          [Modules.PRODUCT]: {
+            product_variant_id: preorderVariant.variant_id,
+          },
+        },
+      ])
+
+      return preorderVariant
+    })
+
+    const preorderVariant = transform({
+      updatedPreorderVariant,
+      createdPreorderVariant,
+    }, (data) => 
+      data.createdPreorderVariant || data.updatedPreorderVariant
+    )
+
+    return new WorkflowResponse(preorderVariant)
+  }
+)
+```
+
+You create a workflow using the `createWorkflow` function. It accepts the workflow's unique name as a first parameter.
+
+It accepts as a second parameter a constructor function that holds the workflow's implementation. The function accepts an input object holding the variant's ID and its available date.
+
+In the workflow, you:
+
+1. Try to retrieve the variant's details to confirm it exists. The [useQueryGraphStep](/references/helper-steps/useQueryGraphStep) uses [Query](!docs!/learn/fundamentals/module-links/query) which allows you to retrieve data across modules.
+    - If it doesn't exist, an error is thrown and the workflow will stop executing.
+2. Try to retrieve the variant's existing preorder configurations, if any.
+3. Use [when-then](!docs!/learn/fundamentals/workflows/conditions) to check if there are existing pre-order configurations.
+    - If so, you update the pre-order variant record.
+4. Use `when-then` to check if there are no existing pre-order configurations.
+    - If so, you create a pre-order variant record and link it to the product variant.
+5. Use `transform` to return either the created or updated preorder variant.
+
+A workflow must return an instance of `WorkflowResponse` that accepts the data to return to the workflow's executor.
+
+<Note title="Tip">
+
+`when-then` and `transform` allow you to access the values of data during execution. Learn more in the [Data Manipulation](!docs!/learn/fundamentals/workflows/variable-manipulation) and [When-Then](!docs!/learn/fundamentals/workflows/conditions) documentation.
+
+</Note>
+
+### b. Upsert Pre-Order Variant API Route
+
+Next, you'll create the API route that exposes the workflow's functionality to clients.
+
+An API route is created in a `route.ts` file under a sub-directory of the `src/api` directory. The path of the API route is the file's path relative to `src/api`.
+
+<Note>
+
+Refer to the [API routes](!docs!/learn/fundamentals/api-routes) to learn more about them.
+
+</Note>
+
+Create the file `src/api/admin/variants/[id]/preorders/route.ts` with the following content:
+
+export const upsertPreorderVariantRouteHighlights = [
+  ["10", "UpsertPreorderVariantSchema", "The schema to validate the request body."],
+  ["18", "POST", "Expose a POST API route."],
+  ["24", "upsertProductVariantPreorderWorkflow", "Execute the workflow to create or update pre-order variant configurations."],
+  ["32", "preorder_variant", "Return the created or updated pre-order variant in the response."],
+]
+
+```ts title="src/api/admin/variants/[id]/preorders/route.ts" highlights={upsertPreorderVariantRouteHighlights}
+import { 
+  AuthenticatedMedusaRequest, 
+  MedusaResponse,
+} from "@medusajs/framework/http"
+import { 
+  upsertProductVariantPreorderWorkflow, 
+} from "../../../../../workflows/upsert-product-variant-preorder"
+import { z } from "zod"
+
+export const UpsertPreorderVariantSchema = z.object({
+  available_date: z.string().datetime(),
+})
+
+type UpsertPreorderVariantSchema = z.infer<
+  typeof UpsertPreorderVariantSchema
+>
+
+export const POST = async (
+  req: AuthenticatedMedusaRequest<UpsertPreorderVariantSchema>,
+  res: MedusaResponse
+) => {
+  const variantId = req.params.id
+
+  const { result } = await upsertProductVariantPreorderWorkflow(req.scope)
+    .run({
+      input: {
+        variant_id: variantId,
+        available_date: new Date(req.validatedBody.available_date),
+      },
+    })
+
+  res.json({
+    preorder_variant: result,
+  })
+}
+```
+
+You create the `UpsertPreorderVariantSchema` schema that is used to validate request bodies sent to this API route with [Zod](https://zod.dev/).
+
+Then, you export a `POST` function, which will expose a `POST` API route at `/admin/variants/:id/preorders`.
+
+In the API route, you execute the `upsertProductVariantPreorderWorkflow`, passing it the variant ID from the path parameter and the availability date from the request body.
+
+Finally, you return the created or updated pre-order variant record in the response.
+
+#### Add Validation Middleware
+
+To validate the body parameters of requests sent to the API route, you need to apply a [middleware](!docs!/learn/fundamentals/api-routes/middlewares).
+
+To apply a middleware to a route, create the file `src/api/middlewares.ts` with the following content:
+
+export const middlewaresHighlights = [
+  ["9", "defineMiddlewares", "Define the middlewares for the API routes."],
+  ["12", "matcher" , "The API route to apply the middleware to."],
+  ["13", "methods", "The HTTP method to apply the middleware to."],
+  ["15", "validateAndTransformBody", "Apply the validation middleware to the request body."],
+]
+
+```ts title="src/api/middlewares.ts" highlights={middlewaresHighlights}
+import { 
+  defineMiddlewares, 
+  validateAndTransformBody,
+} from "@medusajs/framework/http"
+import { 
+  UpsertPreorderVariantSchema,
+} from "./admin/variants/[id]/preorders/route"
+
+export default defineMiddlewares({
+  routes: [
+    {
+      matcher: "/admin/variants/:id/preorders",
+      methods: ["POST"],
+      middlewares: [
+        validateAndTransformBody(UpsertPreorderVariantSchema),
+      ],
+    },
+  ],
+})
+```
+
+You apply Medusa's `validateAndTransformBody` middleware to `POST` requests sent to the `/admin/variants/:id/preorders` API route.
+
+The middleware function accepts a Zod schema, which you created in the API route's file.
+
+<Note title="Tip">
+
+Refer to the [Middlewares](!docs!/learn/fundamentals/api-routes/middlewares) documentation to learn more.
+
+</Note>
+
+You'll test this API route later when you customize the Medusa Admin.
+
+### c. Disable Pre-Order Variant Workflow
+
+Next, you'll create a workflow that will disable the pre-order variant configuration. This is useful if the merchant doesn't want the variant to be preorderable anymore.
+
+This workflow has the following steps:
+
+<WorkflowDiagram
+  workflow={{
+    name: "disablePreorderVariantWorkflow",
+    steps: [
+      {
+        type: "step",
+        name: "useQueryGraphStep",
+        description: "Retrieve the pre-order configurations of a variant.",
+        link: "/references/helper-steps/useQueryGraphStep",
+        depth: 1,
+      },
+      {
+        type: "step",
+        name: "disablePreorderVariantStep",
+        description: "Disable the pre-order variant configurations.",
+        depth: 2,
+      }
+    ]
+  }}
+  hideLegend
+/>
+
+You only need to implement the `disablePreorderVariantStep`.
+
+#### disablePreorderVariantStep
+
+The `disablePreorderVariantStep` changes the status of a pre-order variant record to `disabled`.
+
+Create the file `src/workflows/steps/disable-preorder-variant.ts` with the following content:
+
+export const disablePreorderVariantStepHighlights = [
+  ["15", "oldData", "Retrieve existing record to undo updates if an error occurs."],
+  ["17", "preorderVariant", "Update the pre-order variant."],
+  ["19", "DISABLED", "Set the pre-order variant's status to `disabled`."],
+  ["22", "preorderVariant", "Return the updated pre-order variant."],
+  ["22", "oldData", "Pass the old data to the compensation function."],
+  ["31", "updatePreorderVariants", "Undo updates if an error occurs during the workflow execution."]
+]
+
+```ts title="src/workflows/steps/disable-preorder-variant.ts" highlights={disablePreorderVariantStepHighlights}
+import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
+import { 
+  PreorderVariantStatus,
+} from "../../modules/preorder/models/preorder-variant"
+
+type StepInput = {
+  id: string
+}
+
+export const disablePreorderVariantStep = createStep(
+  "disable-preorder-variant",
+  async ({ id }: StepInput, { container }) => {
+    const preorderModuleService = container.resolve("preorder")
+
+    const oldData = await preorderModuleService.retrievePreorderVariant(id)
+    
+    const preorderVariant = await preorderModuleService.updatePreorderVariants({
+      id,
+      status: PreorderVariantStatus.DISABLED,
+    })
+
+    return new StepResponse(preorderVariant, oldData)
+  },
+  async (preorderVariant, { container }) => {
+    if (!preorderVariant) {
+      return
+    }
+
+    const preorderModuleService = container.resolve("preorder")
+
+    await preorderModuleService.updatePreorderVariants({
+      id: preorderVariant.id,
+      status: preorderVariant.status,
+    })
+  }
+)
+```
+
+The step receives the ID of the pre-order variant, and changes its status to `disabled`.
+
+In the compensation function, you revert the pre-order variant's status to its previous value.
+
+#### Create Workflow
+
+To create the workflow that disables the pre-order variant configuration, create the file `src/workflows/disable-preorder-variant.ts` with the following content:
+
+export const disablePreorderVariantWorkflowHighlights = [
+  ["12", "useQueryGraphStep", "Retrieve the pre-order variant."],
+  ["20", "disablePreorderVariantStep", "Disable the pre-order variant configurations."],
+  ["24", "preorderVariant", "Return the updated pre-order variant."],
+]
+
+```ts title="src/workflows/disable-preorder-variant.ts" highlights={disablePreorderVariantWorkflowHighlights}
+import { createWorkflow, WorkflowResponse } from "@medusajs/framework/workflows-sdk"
+import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+import { disablePreorderVariantStep } from "./steps/disable-preorder-variant"
+
+type WorkflowInput = {
+  variant_id: string
+}
+
+export const disablePreorderVariantWorkflow = createWorkflow(
+  "disable-preorder-variant",
+  (input: WorkflowInput) => {
+    const { data: preorderVariants } = useQueryGraphStep({
+      entity: "preorder_variant",
+      fields: ["*"],
+      filters: {
+        variant_id: input.variant_id,
+      },
+    })
+
+    const preorderVariant = disablePreorderVariantStep({
+      id: preorderVariants[0].id,
+    })
+
+    return new WorkflowResponse(preorderVariant)
+  }
+)
+```
+
+In the workflow, you:
+
+1. Retrieve the pre-order variant configuration.
+2. Disable the pre-order variant configuration.
+
+You return the updated pre-order variant record.
+
+### d. Disable Pre-Order Variant API Route
+
+To expose the functionality to disable a variant's pre-order configurations, you'll create an API route that executes the workflow.
+
+In the file `src/api/admin/variants/[id]/preorders/route.ts`, add the following import at the top of the file:
+
+```ts title="src/api/admin/variants/[id]/preorders/route.ts"
+import { 
+  disablePreorderVariantWorkflow,
+} from "../../../../../workflows/disable-preorder-variant"
+```
+
+Then, add the following function at the end of the file:
+
+```ts title="src/api/admin/variants/[id]/preorders/route.ts"
+export const DELETE = async (
+  req: AuthenticatedMedusaRequest,
+  res: MedusaResponse
+) => {
+  const variantId = req.params.id
+
+  const { result } = await disablePreorderVariantWorkflow(req.scope).run({
+    input: {
+      variant_id: variantId,
+    },
+  })
+
+  res.json({
+    preorder_variant: result,
+  })
+}
+```
+
+You expose a `DELETE` API route at `/admin/variants/:id/preorders`.
+
+In the API route, you execute the `disablePreorderVariantWorkflow` and return the updated preorder variant record.
+
+You'll test out this functionality when you customize the Medusa Admin in the next step.
+
+---
+
+## Step 5: Add Widget in Product Variant Admin Page
+
+In this step, you'll customize the Medusa Admin to allow admin users to manage pre-order configurations of product variants.
+
+The Medusa Admin dashboard is customizable, allowing you to insert widgets into existing pages, or create new pages.
+
+<Note title="Tip">
+
+Refer to the [Admin Development](!docs!/learn/fundamentals/admin) documentation to learn more.
+
+</Note>
+
+In this step, you'll insert a widget into the product variant page that allows admin users to manage pre-order configurations.
+
+### a. Initialize JS SDK
+
+To send requests to the Medusa server, you'll use the [JS SDK](../../../js-sdk/page.mdx). It's already installed in your Medusa project, but you need to initialize it before using it in your customizations.
+
+Create the file `src/admin/lib/sdk.ts` with the following content:
+
+```ts title="src/admin/lib/sdk.ts"
+import Medusa from "@medusajs/js-sdk"
+
+export const sdk = new Medusa({
+  baseUrl: import.meta.env.VITE_BACKEND_URL || "/",
+  debug: import.meta.env.DEV,
+  auth: {
+    type: "session",
+  },
+})
+```
+
+Learn more about the initialization options in the [JS SDK](../../../js-sdk/page.mdx) reference.
+
+### b. Define Types
+
+Next, you'll define types that you'll use in your admin customizations.
+
+Create the file `src/admin/lib/types.ts` with the following content:
+
+export const typesHighlights = [
+  ["3", "PreorderVariant", "The pre-order variant type."],
+  ["12", "Preorder", "The pre-order type."],
+  ["24", "PreordersResponse", "The response type for pre-orders."],
+  ["28", "PreorderVariantResponse", "The response type for a pre-order variant."],
+  ["34", "CreatePreorderVariantData", "The data type for creating a pre-order variant."],
+]
+
+```ts title="src/admin/lib/types.ts" highlights={typesHighlights}
+import { HttpTypes } from "@medusajs/framework/types"
+
+export interface PreorderVariant {
+  id: string
+  variant_id: string
+  available_date: string
+  status: "enabled" | "disabled"
+  created_at: string
+  updated_at: string
+}
+
+export interface Preorder {
+  id: string
+  order_id: string
+  status: "pending" | "fulfilled" | "cancelled"
+  created_at: string
+  updated_at: string
+  item: PreorderVariant & {
+    product_variant?: HttpTypes.AdminProductVariant
+  }
+  order?: HttpTypes.AdminOrder
+}
+
+export interface PreordersResponse {
+  preorders: Preorder[]
+}
+
+export interface PreorderVariantResponse {
+  variant: HttpTypes.AdminProductVariant & {
+    preorder_variant?: PreorderVariant
+  }
+}
+
+export interface CreatePreorderVariantData {
+  available_date: Date
+}
+```
+
+You define types for pre-order variants, pre-orders, and request and response types.
+
+### c. Define Pre-order Variant Hook
+
+To send requests to the Medusa server with support for caching and refetching capabilities, you'll wrap JS SDK methods with [Tanstack (React) Query](https://tanstack.com/query/latest).
+
+So, you'll create a hook that exposes queries and mutations to manage pre-order configurations.
+
+<Note>
+
+Refer to the [Admin Development Tips](!docs!/learn/fundamentals/admin/tips#send-requests-to-api-routes) documentation to learn more.
+
+</Note>
+
+Create the file `src/admin/hooks/use-preorder-variant.ts` with the following content:
+
+export const usePreorderVariantHighlights = [
+  ["7", "usePreorderVariant", "The hook to retrieve and manage pre-order variants."],
+  ["10", "data", "The pre-order variant record."],
+  ["10", "isLoading", "Whether the pre-order variant record is being retrieved."],
+  ["10", "error", "Errors that occur while retrieving the pre-order variant."],
+  ["19", "upsertMutation", "A mutation to create or update a pre-order variant."],
+  ["35", "disableMutation", "A mutation to disable a pre-order variant."],
+  ["57", "isUpserting", "Whether the pre-order variant record is being created or updated."],
+  ["58", "isDisabling", "Whether the pre-order variant record is being disabled."],
+]
+
+```ts title="src/admin/hooks/use-preorder-variant.ts" highlights={usePreorderVariantHighlights}
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { toast } from "@medusajs/ui"
+import { sdk } from "../lib/sdk"
+import { PreorderVariantResponse, CreatePreorderVariantData } from "../lib/types"
+import { HttpTypes } from "@medusajs/framework/types"
+
+export const usePreorderVariant = (variant: HttpTypes.AdminProductVariant) => {
+  const queryClient = useQueryClient()
+
+  const { data, isLoading, error } = useQuery<PreorderVariantResponse>({
+    queryFn: () => sdk.admin.product.retrieveVariant(
+      variant.product_id!,
+      variant.id,
+      { fields: "*preorder_variant" }
+    ),
+    queryKey: ["preorder-variant", variant.id],
+  })
+
+  const upsertMutation = useMutation({
+    mutationFn: async (data: CreatePreorderVariantData) => {
+      return sdk.client.fetch(`/admin/variants/${variant.id}/preorders`, {
+        method: "POST",
+        body: data,
+      })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["preorder-variant", variant.id] })
+      toast.success("Preorder configuration saved successfully")
+    },
+    onError: (error) => {
+      toast.error(`Failed to save preorder configuration: ${error.message}`)
+    },
+  })
+
+  const disableMutation = useMutation({
+    mutationFn: async () => {
+      return sdk.client.fetch(`/admin/variants/${variant.id}/preorders`, {
+        method: "DELETE",
+      })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["preorder-variant", variant.id] })
+      toast.success("Preorder configuration removed successfully")
+    },
+    onError: (error) => {
+      toast.error(`Failed to remove preorder configuration: ${error.message}`)
+    },
+  })
+
+  return {
+    preorderVariant: data?.variant.preorder_variant?.status === "enabled" ? 
+      data.variant.preorder_variant : null,
+    isLoading,
+    error,
+    upsertPreorder: upsertMutation.mutate,
+    disablePreorder: disableMutation.mutate,
+    isUpserting: upsertMutation.isPending,
+    isDisabling: disableMutation.isPending,
+  }
+}
+```
+
+The `usePreorderVariant` hook returns an object with the following properties:
+
+- `preorderVariant`: The pre-order variant. It's retrieved from Medusa's [Retrieve Variant](!api!/admin#products_getproductsidvariantsvariant_id) API route, which allows expanding linked records using the `fields` query parameter.
+- `isLoading`: Whether the pre-order variant is being retrieved.
+- `error`: Errors that occur while retrieving the pre-order variant.
+- `upsertPreorder`: A mutation to create or update a pre-order variant.
+- `disablePreorder`: A mutation to disable a pre-order variant.
+- `isUpserting`: Whether the pre-order variant is being created or updated.
+- `isDisabling`: Whether the pre-order variant is being disabled.
+
+### d. Define Pre-order Variant Widget
+
+You can now add the widget that allows admin users to manage pre-order configurations of product variants.
+
+Widgets are created in a `.tsx` file under the `src/admin/widgets` directory. So, create the file `src/admin/widgets/preorder-variant-widget.tsx` with the following content:
+
+export const preorderVariantWidgetHighlights = [
+  ["24", "PreorderWidget", "The widget component that renders the pre-order variant management UI."],
+  ["41", "usePreorderVariant", "Retrieve and manage pre-order variants."],
+  ["43", "handleSubmit", "Handle form submission for creating or updating a pre-order variant."],
+  ["60", "handleDisable", "Handle disabling the pre-order variant."],
+  ["71", "formatDate", "Format dates for display."],
+  ["79", "useEffect", "Set the available date when the pre-order variant changes."],
+  ["90", "config", "Export the widget configuration."]
+]
+
+```tsx title="src/admin/widgets/preorder-variant-widget.tsx" collapsibleLines="1-23" expandButtonLabel="Show Imports" highlights={preorderVariantWidgetHighlights}
+import { defineWidgetConfig } from "@medusajs/admin-sdk"
+import { 
+  Container, 
+  Heading, 
+  Text, 
+  Button, 
+  Drawer,
+  Label,
+  DatePicker,
+  DropdownMenu,
+  IconButton,
+  clx,
+  usePrompt,
+  StatusBadge,
+} from "@medusajs/ui"
+import { useEffect, useState } from "react"
+import { 
+  DetailWidgetProps, 
+  AdminProductVariant,
+} from "@medusajs/framework/types"
+import { Calendar, EllipsisHorizontal, Pencil, Plus, XCircle } from "@medusajs/icons"
+import { usePreorderVariant } from "../hooks/use-preorder-variant"
+
+const PreorderWidget = ({ 
+  data: variant,
+}: DetailWidgetProps<AdminProductVariant>) => {
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+  const [availableDate, setAvailableDate] = useState(
+    new Date().toString()
+  )
+
+  const dialog = usePrompt()
+
+  const {
+    preorderVariant,
+    isLoading,
+    upsertPreorder: createPreorder,
+    disablePreorder: deletePreorder,
+    isUpserting: isCreating,
+    isDisabling,
+  } = usePreorderVariant(variant)
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!availableDate) {
+      return
+    }
+
+    createPreorder(
+      { available_date: new Date(availableDate) },
+      {
+        onSuccess: () => {
+          setIsDrawerOpen(false)
+          setAvailableDate(new Date().toString())
+        },
+      }
+    )
+  }
+
+  const handleDisable = async () => {
+    const confirmed = await dialog({
+      title: "Are you sure?",
+      description: "This will remove the preorder configuration for this variant. Any existing preorders will not be automatically fulfilled.",
+      variant: "danger",
+    })
+    if (confirmed) {
+      deletePreorder()
+    }
+  }
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })
+  }
+
+  useEffect(() => {
+    if (preorderVariant) {
+      setAvailableDate(preorderVariant.available_date)
+    } else {
+      setAvailableDate(new Date().toString())
+    }
+  }, [preorderVariant])
+
+  // TODO add a return statement
+}
+
+export const config = defineWidgetConfig({
+  zone: "product_variant.details.side.after",
+})
+
+export default PreorderWidget
+```
+
+A widget file must export:
+
+- A default React component. This component renders the widget's UI.
+- A `config` object created with `defineWidgetConfig` from the Admin SDK. It accepts an object with the `zone` property that indicates where the widget will be rendered in the Medusa Admin dashboard.
+
+In the widget's component, you retrieve the preorder variant using the `usePreorderVariant` hook.
+
+You also add a function to handle saving the pre-order configuration, and another to handle disabling the pre-order configuration.
+
+Next, you need to render the widget's UI. Add the following return statement at the end of the widget's component:
+
+```tsx title="src/admin/widgets/preorder-variant-widget.tsx"
+const PreorderWidget = ({ 
+  data: variant,
+}: DetailWidgetProps<AdminProductVariant>) => {
+  // ...
+  return (
+    <>
+      <Container className="divide-y p-0">
+        <div className="flex items-center justify-between px-6 py-4">
+          <div className="flex items-center gap-2">
+            <Heading level="h2">Pre-order</Heading>
+            {preorderVariant?.status === "enabled" && (
+              <StatusBadge color={"green"}>
+                Enabled
+              </StatusBadge>
+            )}
+          </div>
+          <DropdownMenu>
+            <DropdownMenu.Trigger asChild>
+              <IconButton size="small" variant="transparent">
+                <EllipsisHorizontal />
+              </IconButton>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content>
+              <DropdownMenu.Item
+                disabled={isCreating || isDisabling}
+                onClick={() => setIsDrawerOpen(true)}
+                className={clx(
+                  "[&_svg]:text-ui-fg-subtle flex items-center gap-x-2",
+                  {
+                    "[&_svg]:text-ui-fg-disabled": isCreating || isDisabling,
+                  }
+                )}
+              >
+                { preorderVariant ? <Pencil /> : <Plus />}
+                <span>
+                  { preorderVariant ? "Edit" : "Add" } Pre-order Configuration
+                </span>
+              </DropdownMenu.Item>
+              <DropdownMenu.Item
+                disabled={isCreating || isDisabling || !preorderVariant}
+                onClick={handleDisable}
+                className={clx(
+                  "[&_svg]:text-ui-fg-subtle flex items-center gap-x-2",
+                  {
+                    "[&_svg]:text-ui-fg-disabled": isCreating || isDisabling || !preorderVariant,
+                  }
+                )}
+              >
+                <XCircle />
+                <span>
+                  Remove Pre-order Configuration
+                </span>
+              </DropdownMenu.Item>
+            </DropdownMenu.Content>
+
+          </DropdownMenu>
+        </div>
+        
+        <div className="px-6 py-4">
+          {isLoading ? (
+            <Text>Loading pre-order information...</Text>
+          ) : preorderVariant ? (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-ui-fg-subtle">
+                <Calendar className="w-4 h-4" />
+                <Text size="small">
+                  Available: {formatDate(preorderVariant.available_date)}
+                </Text>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-4">
+              <Text className="text-ui-fg-subtle">
+                This variant is not configured for pre-order
+              </Text>
+              <Text size="small" className="text-ui-fg-muted mt-1">
+                Set up pre-order configuration to allow customers to order the product variant, then automatically fulfill it when it becomes available.
+              </Text>
+            </div>
+          )}
+        </div>
+      </Container>
+
+      <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+        <Drawer.Content>
+          <Drawer.Header>
+            <Drawer.Title>
+              {preorderVariant ? "Edit" : "Add"} Pre-order Configuration
+            </Drawer.Title>
+          </Drawer.Header>
+          
+          <Drawer.Body>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="available-date">Available Date</Label>
+                <DatePicker
+                  id="available-date"
+                  value={new Date(availableDate)}
+                  onChange={(date) => setAvailableDate(date?.toString() || "")}
+                  minValue={new Date()}
+                  isRequired={true}
+                />
+                <Text size="small" className="text-ui-fg-subtle">
+                  Customers can pre-order this variant until this date, when it becomes available for regular purchase.
+                </Text>
+              </div>
+            </form>
+          </Drawer.Body>
+
+          <Drawer.Footer>
+            <Button 
+              variant="secondary" 
+              onClick={() => setIsDrawerOpen(false)}
+              disabled={isCreating}
+            >
+              Cancel
+            </Button>
+            <Button 
+              type="submit"
+              onClick={handleSubmit}
+              isLoading={isCreating}
+            >
+              Save
+            </Button>
+          </Drawer.Footer>
+        </Drawer.Content>
+      </Drawer>
+    </>
+  )
+}
+```
+
+You render the variant's pre-order configurations if available. You also give the admin user the option to add or edit pre-order configurations and remove (disable) them.
+
+To show the pre-order configuration form, you use the [Drawer](!ui!/components/drawer) component from Medusa UI.
+
+### Test the Customizations
+
+You can now test the customizations you made in the Medusa server and admin dashboard.
+
+Start the Medusa application with the following command:
+
+```bash npm2yarn
+npm run dev
+```
+
+Then, open the Medusa Admin dashboard at `http://localhost:9000/app` and log in.
+
+Go to any product, then click on one of its variants. You'll find a new "Pre-order" section in the side column.
+
+![Pre-order variant widget in the Medusa Admin dashboard](https://res.cloudinary.com/dza7lstvk/image/upload/v1752735553/Medusa%20Resources/CleanShot_2025-07-17_at_09.52.30_2x_ftojti.png)
+
+To add pre-order configuration using the widget:
+
+1. Click on the <InlineIcon Icon={EllipsisHorizontal} alt="three-dots" /> icon in the top right corner of the widget.
+2. Click on "Add Pre-order Configuration".
+3. In the drawer, select the available date for the pre-order.
+4. Click the "Save" button.
+
+The widget will be updated to show the pre-order configuration details.
+
+![Pre-order variant widget showing the pre-order configuration](https://res.cloudinary.com/dza7lstvk/image/upload/v1752735733/Medusa%20Resources/CleanShot_2025-07-17_at_10.01.03_2x_bdvzo9.png)
+
+You can also disable the pre-order configuration by clicking on the <InlineIcon Icon={EllipsisHorizontal} alt="three-dots" /> icon, then choosing "Remove Pre-order Configuration" from the dropdown.
+
+---
+
+## Step 6: Customize Cart Completion
+
+When customers purchase a pre-order variant, you want to create a `Preorder` record for every pre-order item in the cart.
+
+In this step, you'll wrap custom logic around Medusa's cart completion logic in a workflow, then execute that workflow in a custom API route.
+
+### a. Create Complete Pre-order Cart Workflow
+
+The workflow that completes a cart with pre-order items has the following steps:
+
+<WorkflowDiagram
+  workflow={{
+    name: "completeCartPreorderWorkflow",
+    steps: [
+      {
+        type: "workflow",
+        name: "completeCartWorkflow",
+        description: "Complete the cart with pre-order items.",
+        link: "/references/medusa-workflows/completeCartWorkflow",
+        depth: 1,
+      },
+      {
+        type: "step",
+        name: "useQueryGraphStep",
+        description: "Retrieve all line items in the cart.",
+        link: "/references/helper-steps/useQueryGraphStep",
+        depth: 2,
+      },
+      {
+        type: "step",
+        name: "retrievePreorderItemIdsStep",
+        description: "Retrieve the IDs of pre-order variants in the cart.",
+        depth: 3,
+      },
+      {
+        type: "when",
+        condition: "preorderItemIds.length > 0",
+        steps: [
+          {
+            type: "step",
+            name: "createPreordersStep",
+            description: "Create pre-order records for the pre-order items in the cart.",
+            depth: 1,
+          }
+        ],
+        depth: 4
+      },
+      {
+        type: "step",
+        name: "useQueryGraphStep",
+        description: "Retrieve the created order.",
+        link: "/references/helper-steps/useQueryGraphStep",
+        depth: 5,
+      },
+    ]
+  }}
+/>
+
+You only need to implement the `retrievePreorderItemIdsStep` and `createPreordersStep` steps.
+
+#### retrievePreorderItemIdsStep
+
+The `retrievePreorderItemIdsStep` receives all cart line items and returns the IDs of the pre-order variants.
+
+Create the file `src/workflows/steps/retrieve-preorder-items.ts` with the following content:
+
+```ts title="src/workflows/steps/retrieve-preorder-items.ts"
+import { CartLineItemDTO, ProductVariantDTO } from "@medusajs/framework/types"
+import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
+
+export type RetrievePreorderItemIdsStepInput = {
+  line_items: (CartLineItemDTO & {
+    variant: ProductVariantDTO & {
+      preorder_variant?: {
+        id: string
+      }
+    }
+  })[]
+}
+
+export const retrievePreorderItemIdsStep = createStep(
+  "retrieve-preorder-item-ids",
+  async ({ line_items }: RetrievePreorderItemIdsStepInput) => {
+    const variantIds: string[] = []
+
+    line_items.forEach((item) => {
+      if (item.variant.preorder_variant) {
+        variantIds.push(item.variant.preorder_variant.id)
+      }
+    })
+
+    return new StepResponse(variantIds)
+  }
+)
+```
+
+In the step, you find the items in the cart whose variants have a linked `PreorderVariant` record. You return the IDs of those pre-order variants.
+
+#### createPreordersStep
+
+The `createPreordersStep` creates a `Preorder` record for each pre-order variant in the cart.
+
+Create the file `src/workflows/steps/create-preorders.ts` with the following content:
+
+export const createPreordersStepHighlights = [
+  ["16", "preorders", "Create pre-orders."],
+  ["23", "preorders", "Return the pre-orders."],
+  ["32", "deletePreorders", "Delete pre-orders if an error occurs during the workflow execution."],
+]
+
+```ts title="src/workflows/steps/create-preorders.ts" highlights={createPreordersStepHighlights}
+import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
+
+type StepInput = {
+  preorder_variant_ids: string[]
+  order_id: string
+}
+
+export const createPreordersStep = createStep(
+  "create-preorders",
+  async ({
+    preorder_variant_ids,
+    order_id,
+  }: StepInput, { container }) => {
+    const preorderModuleService = container.resolve("preorder")
+
+    const preorders = await preorderModuleService.createPreorders(
+      preorder_variant_ids.map((id) => ({
+        item_id: id,
+        order_id,
+      }))
+    )
+
+    return new StepResponse(preorders, preorders.map((p) => p.id))
+  },
+  async (preorderIds, { container }) => {
+    if (!preorderIds) {
+      return
+    }
+
+    const preorderModuleService = container.resolve("preorder")
+
+    await preorderModuleService.deletePreorders(preorderIds)
+  }
+)
+```
+
+The step function receives the ID of the Medusa order and the IDs of the pre-order variants in the cart.
+
+In the step function, you create a `Preorder` record for each pre-order variant. You set the `order_id` of the `Preorder` record to the ID of the Medusa order.
+
+In the compensation function, you delete the created `Preorder` records if an error occurs in the workflow's execution.
+
+#### Create Workflow
+
+You can now create the workflow that completes a cart with pre-order items.
+
+Create the file `src/workflows/complete-cart-preorder.ts` with the following content:
+
+export const completeCartPreorderWorkflowHighlights = [
+  ["13", "completeCartWorkflow", "Complete the cart and place the order."],
+  ["19", "useQueryGraphStep", "Retrieve all line items in the cart."],
+  ["30", "retrievePreorderItemIdsStep", "Retrieve the IDs of pre-order variants in the cart."],
+  ["34", "when", "Check if there are pre-order items in the cart."],
+  ["38", "createPreordersStep", "Create pre-ordersz for the pre-order items in the cart."],
+  ["44", "useQueryGraphStep", "Retrieve the created order."],
+  ["62", "order", "Return the created Medusa order."],
+]
+
+```ts title="src/workflows/complete-cart-preorder.ts" highlights={completeCartPreorderWorkflowHighlights}
+import { createWorkflow, when, WorkflowResponse } from "@medusajs/framework/workflows-sdk"
+import { completeCartWorkflow, useQueryGraphStep } from "@medusajs/medusa/core-flows"
+import { retrievePreorderItemIdsStep, RetrievePreorderItemIdsStepInput } from "./steps/retrieve-preorder-items"
+import { createPreordersStep } from "./steps/create-preorders"
+
+type WorkflowInput = {
+  cart_id: string
+}
+
+export const completeCartPreorderWorkflow = createWorkflow(
+  "complete-cart-preorder",
+  (input: WorkflowInput) => {
+    const { id } = completeCartWorkflow.runAsStep({
+      input: {
+        id: input.cart_id,
+      },
+    })
+
+    const { data: line_items } = useQueryGraphStep({
+      entity: "line_item",
+      fields: [
+        "variant.*",
+        "variant.preorder_variant.*",
+      ],
+      filters: {
+        cart_id: input.cart_id,
+      },
+    })
+
+    const preorderItemIds = retrievePreorderItemIdsStep({
+      line_items,
+    } as unknown as RetrievePreorderItemIdsStepInput)
+
+    when({
+      preorderItemIds,
+    }, (data) => data.preorderItemIds.length > 0)
+    .then(() => {
+      createPreordersStep({
+        preorder_variant_ids: preorderItemIds,
+        order_id: id,
+      })
+    })
+
+    const { data: orders } = useQueryGraphStep({
+      entity: "order",
+      fields: [
+        "*",
+        "items.*",
+        "items.variant.*",
+        "items.variant.preorder_variant.*",
+        "shipping_address.*",
+        "billing_address.*",
+        "payment_collections.*",
+        "shipping_methods.*",
+      ],
+      filters: {
+        id,
+      },
+    }).config({ name: "retrieve-order" })
+
+    return new WorkflowResponse({
+      order: orders[0],
+      
+    })
+  }
+)
+```
+
+The workflow receives the cart ID as input.
+
+In the workflow, you:
+
+1. Complete the cart using the [completeCartWorkflow](/references/medusa-workflows/completeCartWorkflow) as a step. This is Medusa's cart completion logic.
+2. Retrieve all line items in the cart using the [useQueryGraphStep](/references/helper-steps/useQueryGraphStep).
+3. Retrieve the IDs of the pre-order variants in the cart using the `retrievePreorderItemIdsStep`.
+4. Use [when-then](!docs!/learn/fundamentals/workflows/conditions) to check if there are pre-order items in the cart.
+    - If so, you create `Preorder` records for the pre-order items using the `createPreordersStep`.
+5. Retrieve the created order using the [useQueryGraphStep](/references/helper-steps/useQueryGraphStep).
+6. Return the created Medusa order.
+
+### b. Create Complete Pre-order Cart API Route
+
+Next, you'll create an API route that executes the `completeCartPreorderWorkflow`. Storefronts will use this API route to complete carts and place orders.
+
+Create the file `src/api/store/carts/[id]/complete-preorder/route.ts` with the following content:
+
+```ts title="src/api/store/carts/[id]/complete-preorder/route.ts"
+import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { completeCartPreorderWorkflow } from "../../../../../workflows/complete-cart-preorder"
+
+export const POST = async (
+  req: MedusaRequest,
+  res: MedusaResponse
+) => {
+  const { id } = req.params
+
+  const { result } = await completeCartPreorderWorkflow(req.scope).run({
+    input: {
+      cart_id: id,
+    },
+  })
+
+  res.json({
+    type: "order",
+    order: result.order,
+  })
+}
+```
+
+You expose a `POST` API route at `/store/carts/:id/complete-preorder`. In the API route, you execute the `completeCartPreorderWorkflow`, passing it the cart ID from the path parameter.
+
+Finally, you return the created order in the response.
+
+You'll test this functionality in the next step when you customize the storefront.
+
+---
+
+## Optional: Restrict Cart to Pre-order or Regular Items
+
+In some use cases, you may want to allow customers to either pre-order products, or order available ones, but not purchase both within the same order.
+
+In those cases, you can perform custom logic within Medusa's add-to-cart logic to validate an item before it's added to the cart.
+
+You do this using [workflow hooks](!docs!/learn/fundamentals/workflows/workflow-hooks). A workflow hook is a point in a workflow where you can inject custom functionality as a step function.
+
+To consume the `validate` hook of the `addToCartWorkflow` that holds the add-to-cart logic, create the file `src/workflows/hooks/validate-cart.ts` with the following content:
+
+export const validateCartHookHighlights = [
+  ["6", "isPreorderVariant", "Check if a pre-order variant is enabled and in the future."],
+  ["16", "validate", "Consume the `validate` hook of the `addToCartWorkflow`."],
+  ["20", "itemsInCart", "Retrieve all items in the cart."],
+  ["32", "variantsToAdd", "Retrieve the pre-order variants of the new items being added to the cart."],
+  ["42", "cartHasPreorderVariants", "Check if the cart has pre-order variants."],
+  ["48", "newItemsHavePreorderVariants", "Check if the new items being added have pre-order variants."],
+  ["55", "throw MedusaError", "Throw an error if the cart has mixed pre-order and available items."],
+]
+
+```ts title="src/workflows/hooks/validate-cart.ts" highlights={validateCartHookHighlights}
+import { MedusaError } from "@medusajs/framework/utils"
+import { addToCartWorkflow } from "@medusajs/medusa/core-flows"
+import { InferTypeOf } from "@medusajs/framework/types"
+import { PreorderVariant } from "../../modules/preorder/models/preorder-variant"
+
+function isPreorderVariant(
+  preorderVariant: InferTypeOf<typeof PreorderVariant> | undefined
+) {
+  if (!preorderVariant) {
+    return false
+  }
+  return preorderVariant.status === "enabled" && 
+    preorderVariant.available_date > new Date()
+}
+
+addToCartWorkflow.hooks.validate(
+  (async ({ input, cart }, { container }) => {
+    const query = container.resolve("query")
+
+    const { data: itemsInCart } = await query.graph({
+      entity: "line_item",
+      fields: ["variant.*", "variant.preorder_variant.*"],
+      filters: {
+        cart_id: cart.id,
+      },
+    })
+
+    if (!itemsInCart.length) {
+      return
+    }
+    
+    const { data: variantsToAdd } = await query.graph({
+      entity: "variant",
+      fields: ["preorder_variant.*"],
+      filters: {
+        id: input.items
+          .map((item) => item.variant_id)
+          .filter(Boolean) as string[],
+      },
+    })
+
+    const cartHasPreorderVariants = itemsInCart.some(
+      (item) => isPreorderVariant(
+        item.variant?.preorder_variant as InferTypeOf<typeof PreorderVariant>
+      )
+    )
+
+    const newItemsHavePreorderVariants = variantsToAdd.some(
+      (variant) => isPreorderVariant(
+        variant.preorder_variant as InferTypeOf<typeof PreorderVariant>
+      )
+    )
+
+    if (cartHasPreorderVariants !== newItemsHavePreorderVariants) {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        "The cart must either contain only preorder variants, or available variants."
+      )
+    }
+  })
+)
+```
+
+You consume the hook by calling `addToCartWorkflow.hooks.validate`, passing it a step function.
+
+In the step function, you check whether the cart's existing items have pre-order variants, and whether the new items have pre-order variants.
+
+If the checks don't match, you throw an error, preventing the new item from being added to the cart.
+
+<Note>
+
+Refer to the [Workflow Hooks](!docs!/learn/fundamentals/workflows/workflow-hooks) documentation to learn more.
+
+</Note>
+
+You can test this out after customizing the storefront in the next section.
+
+---
+
+## Step 7: Customize Storefront for Pre-orders
+
+In this step, you'll customize the Next.js Starter Storefront to show when products are pre-orderable, use the custom complete pre-order cart API route, and show pre-order information in the order confirmation page.
+
+<Note title="Reminder" forceMultiline>
+
+The Next.js Starter Storefront was installed in a separate directory from Medusa. The directory's name is `{your-project}-storefront`.
+
+So, if your Medusa application's directory is `medusa-preorder`, you can find the storefront by going back to the parent directory and changing to the `medusa-preorder-storefront` directory:
+
+```bash
+cd ../medusa-preorder-storefront # change based on your project name
+```
+
+</Note>
+
+### a. Add Pre-order Types
+
+You'll start by defining types related to pre-orders that you'll use in the storefront.
+
+In `src/types/global.ts`, add the following import at the top of the file:
+
+```ts title="src/types/global.ts" badgeLabel="Storefront" badgeColor="blue"
+import { StorePrice } from "@medusajs/types"
+```
+
+Then, add the following type definitions at the end of the file:
+
+export const globalTypesHighlights = [
+  ["1", "StorePreorderVariant", "The pre-order variant type."],
+  ["8", "StoreProductVariantWithPreorder", "The product variant type with pre-order information."],
+  ["12", "StoreCartLineItemWithPreorder", "The cart line item type with pre-order information."],
+]
+
+```ts title="src/types/global.ts" highlights={globalTypesHighlights} badgeLabel="Storefront" badgeColor="blue"
+export type StorePreorderVariant = {
+  id: string
+  variant_id: string
+  available_date: string
+  status: "enabled" | "disabled"
+}
+
+export type StoreProductVariantWithPreorder = HttpTypes.StoreProductVariant & {
+  preorder_variant?: StorePreorderVariant
+}
+
+export type StoreCartLineItemWithPreorder = HttpTypes.StoreCartLineItem & {
+  variant: StoreProductVariantWithPreorder
+}
+```
+
+You'll use these type definitions in other customizations.
+
+### b. Add isPreorder Utility
+
+In product, cart, and order related pages, you'll need to check if a product variant is a pre-order variant. So, you'll create a utility function that you can reuse in those pages.
+
+Create the file `src/lib/util/is-preorder.ts` with the following content:
+
+```ts title="src/lib/util/is-preorder.ts" badgeLabel="Storefront" badgeColor="blue"
+import { StorePreorderVariant } from "../../types/global"
+
+export function isPreorder(
+  preorderVariant: StorePreorderVariant | undefined
+): boolean {
+  return preorderVariant?.status === "enabled" &&
+    (preorderVariant.available_date
+      ? new Date(preorderVariant.available_date) > new Date()
+      : false)
+}
+```
+
+The function returns `true` if the pre-order variant has a `status` of `enabled` and an `available_date` in the future.
+
+### c. Show Pre-order Information in Product Page
+
+In this section, you'll customize the product page to show pre-order information when a customer selects a pre-order variant.
+
+#### Retrieve Pre-order Variant Information
+
+First, you'll retrieve the pre-order variant information along with the product variant from the Medusa server.
+
+Since the `PreorderVariant` model is linked to the `ProductVariant` model, you can retrieve pre-order variants when retrieving product variants using the `fields` query parameter.
+
+In the file `src/lib/data/products.ts`, find the `listProducts` function and update the `fields` property in the `sdk.client.fetch` method to include the pre-order variant:
+
+```ts title="src/lib/data/products.ts" highlights={[["17"]]} badgeLabel="Storefront" badgeColor="blue"
+export const listProducts = async ({
+  // ...
+}: {
+  // ...
+}): Promise<{
+  // ...
+}> => {
+  // ...
+  return sdk.client
+    .fetch<{ products: HttpTypes.StoreProduct[]; count: number }>(
+      `/store/products`,
+      {
+        method: "GET",
+        query: {
+          // ...
+          fields:
+            "*variants.calculated_price,+variants.inventory_quantity,+metadata,+tags,*variants.preorder_variant",
+          // ...
+        },
+        // ...
+      }
+    )
+  // ...
+}
+```
+
+You add `*variants.preorder_variant` at the end of the `fields` query parameter to retrieve the pre-order variant information along with the product variants.
+
+#### Customize ProductActions Component
+
+Next, you'll customize the `ProductActions` component to show the pre-order information when a pre-order variant is selected.
+
+In `src/modules/products/components/product-actions/index.tsx`, add the following imports at the top of the file:
+
+```tsx title="src/modules/products/components/product-actions/index.tsx" badgeLabel="Storefront" badgeColor="blue"
+import { Text } from "@medusajs/ui"
+import { StoreProductVariantWithPreorder } from "../../../../types/global"
+import { isPreorder } from "../../../../lib/util/is-preorder"
+```
+
+Then, in the `ProductActions` component, add the following variable before the return statement:
+
+```tsx title="src/modules/products/components/product-actions/index.tsx" badgeLabel="Storefront" badgeColor="blue"
+const isSelectedVariantPreorder = useMemo(() => {
+  return isPreorder(
+    (selectedVariant as StoreProductVariantWithPreorder)?.preorder_variant
+  )
+}, [selectedVariant])
+```
+
+The `isSelectedVariantPreorder` variable is a boolean that indicates whether the selected product variant is a pre-order variant.
+
+Next, find the `Button` component in the `return` statement and update its children to the following:
+
+```tsx title="src/modules/products/components/product-actions/index.tsx" highlights={[["11"]]} badgeLabel="Storefront" badgeColor="blue"
+return (
+  <>
+    {/* ... other components ... */}
+    <Button
+      // ...
+    >
+      {!selectedVariant && !options
+        ? "Select variant"
+        : !inStock || !isValidVariant
+        ? "Out of stock"
+        : isSelectedVariantPreorder ? "Pre-order" : "Add to cart"}
+    </Button>
+    {/* ... other components ... */}
+  </>
+)
+```
+
+You set the button text to "Pre-order" if the selected variant is a pre-order variant.
+
+Finally, add the following code after the `Button` component in the `return` statement:
+
+```tsx title="src/modules/products/components/product-actions/index.tsx" highlights={[["9"], ["10"], ["11"], ["12"], ["13"], ["14"], ["15"], ["16"]]} badgeLabel="Storefront" badgeColor="blue"
+return (
+  <>
+    {/* ... other components ... */}
+    <Button
+      // ...
+    >
+      {/* ... */}
+    </Button>
+    {isSelectedVariantPreorder && (
+      <Text className="text-ui-fg-muted text-xs text-center">
+        This item will be shipped on{" "}
+        {new Date(
+          (selectedVariant as StoreProductVariantWithPreorder)!.preorder_variant!.available_date
+        ).toLocaleDateString()}.
+      </Text>
+    )}
+    {/* ... other components ... */}
+  </>
+)
+```
+
+You show a message below the button that indicates when the pre-order item will be shipped.
+
+#### Test the Product Page Customizations
+
+To test out the changes to the product page, start the Medusa application with the following command:
+
+```bash npm2yarn badgeLabel="Medusa Application" badgeColor="green"
+npm run dev
+```
+
+And in the Next.js Starter Storefront directory, start the Next.js application with the following command:
+
+```bash npm2yarn badgeLabel="Storefront" badgeColor="blue"
+npm run dev
+```
+
+Open the storefront at `http://localhost:8000` and go to Menu -> Store.
+
+Choose a product that has a pre-order variant, then select the pre-order variant's options. The button text will change to "Pre-order" and a message will appear below the button indicating when the item will be shipped.
+
+![Pre-order product variant in the Next.js Starter Storefront](https://res.cloudinary.com/dza7lstvk/image/upload/v1752739520/Medusa%20Resources/CleanShot_2025-07-17_at_11.04.56_2x_fefjo6.png)
+
+You can click on the "Pre-order" button to add the item to the cart.
+
+<Note>
+
+If you consumed the `validate` hook of the `addToCartWorkflow` as explained in the [optional step](#optional-restrict-cart-to-pre-order-or-regular-items), you can test it out now by trying to add a regular item to the cart.
+
+</Note>
+
+### d. Show Pre-order Information in Cart Page
+
+Next, you'll customize the component showing items in the cart and checkout pages to show pre-order information.
+
+#### Retrieve Pre-order Information in Cart
+
+To show the pre-order information of items in the cart, you need to retrieve the pre-order variant information when retrieving the cart.
+
+In the file `src/lib/data/cart.ts`, find the `retrieveCart` function and update the `fields` property in the `sdk.client.fetch` method to include the pre-order variant:
+
+```ts title="src/lib/data/cart.ts" highlights={[["8"]]} badgeLabel="Storefront" badgeColor="blue"
+export async function retrieveCart(cartId?: string) {
+  // ...
+  return await sdk.client
+    .fetch<HttpTypes.StoreCartResponse>(`/store/carts/${id}`, {
+      method: "GET",
+      query: {
+        fields:
+          "*items, *region, *items.product, *items.variant, *items.thumbnail, *items.metadata, +items.total, *promotions, +shipping_methods.name, *items.variant.preorder_variant",
+      },
+      // ...
+    })
+  // ...
+}
+```
+
+Notice that you added `*items.variant.preorder_variant` at the end of the retrieved fields.
+
+#### Customize Cart Item Component
+
+Next, you'll customize the `Item` component that shows each item in the cart and checkout pages to show pre-order information.
+
+In `src/modules/cart/components/item/index.tsx`, add the following imports at the top of the file:
+
+```tsx title="src/modules/cart/components/item/index.tsx" badgeLabel="Storefront" badgeColor="blue"
+import { StoreCartLineItemWithPreorder } from "../../../../types/global"
+import { isPreorder } from "../../../../lib/util/is-preorder"
+```
+
+Next, change the type of the `item` prop in `ItemProps`:
+
+```tsx title="src/modules/cart/components/item/index.tsx" badgeLabel="Storefront" badgeColor="blue"
+type ItemProps = {
+  item: StoreCartLineItemWithPreorder
+  // ...
+}
+```
+
+Then, in the `Item` component, add the following variable before the return statement:
+
+```tsx title="src/modules/cart/components/item/index.tsx" badgeLabel="Storefront" badgeColor="blue"
+const isPreorderItem = isPreorder(item.variant?.preorder_variant)
+```
+
+Finally, in the `return` statement, add the following after the `LineItemOptions` component:
+
+```tsx title="src/modules/cart/components/item/index.tsx" highlights={[["7"], ["8"], ["9"], ["10"], ["11"], ["12"], ["13"], ["14"]]} badgeLabel="Storefront" badgeColor="blue"
+return (
+  <Table.Row className="w-full" data-testid="product-row">
+    {/* ... other components ... */}
+    <LineItemOptions
+      // ...
+    />
+    {isPreorderItem && (
+      <Text className="text-ui-fg-muted text-xs">
+        Preorder available on{" "}
+        <span>
+          {new Date(item.variant!.preorder_variant!.available_date).toLocaleDateString()}
+        </span>
+      </Text>
+    )}
+    {/* ... other components ... */}
+  </Table.Row>
+)
+```
+
+You show a message below the line item options that indicates when the pre-order item will be available.
+
+The change in the `ItemProps` type will cause a type error in `src/modules/cart/templates/items.tsx` that uses this type.
+
+To fix it, add in `src/modules/cart/templates/items.tsx` the following import at the top of the file:
+
+```tsx title="src/modules/cart/templates/items.tsx" badgeLabel="Storefront" badgeColor="blue"
+import { StoreCartLineItemWithPreorder } from "../../../types/global"
+```
+
+Then, in the `return` statement of the `ItemsTemplate` component, find the `Item` component and change its `item` prop:
+
+```tsx title="src/modules/cart/templates/items.tsx" highlights={[["5"]]} badgeLabel="Storefront" badgeColor="blue"
+return (
+  <div>
+    {/* ... other components ... */}
+    <Item
+      item={item as StoreCartLineItemWithPreorder}
+      // ...
+    />
+    {/* ... other components ... */}
+  </div>
+)
+```
+
+#### Test the Cart Page Customizations
+
+To test the changes to the cart page, ensure that both the Medusa and Next.js applications are running.
+
+Then, in the storefront, click on the "Cart" link at the top right of the page. You'll find that pre-order items have a message indicating when they're available.
+
+![Pre-order item in the cart page of the Next.js Starter Storefront](https://res.cloudinary.com/dza7lstvk/image/upload/v1752740244/Medusa%20Resources/CleanShot_2025-07-17_at_11.17.04_2x_u4opzf.png)
+
+You can also see this message on the checkout page.
+
+### e. Use Custom Complete Pre-order Cart API Route
+
+Next, you'll use the custom API route you created to complete carts. This will allow you to create `Preorder` records for pre-order items in the cart when the customer places an order.
+
+In `src/lib/data/cart.ts`, find the following lines in the `placeOrder` function:
+
+```ts title="src/lib/data/cart.ts" badgeLabel="Storefront" badgeColor="blue"
+export async function placeOrder(cartId?: string) {
+  // ...
+  const cartRes = await sdk.store.cart
+  .complete(id, {}, headers)
+  // ...
+}
+```
+
+And replace them with the following:
+
+```ts title="src/lib/data/cart.ts" badgeLabel="Storefront" badgeColor="blue"
+export async function placeOrder(cartId?: string) {
+  // ...
+  const cartRes = await sdk.client.fetch<HttpTypes.StoreCompleteCartResponse>(
+    `/store/carts/${id}/complete-preorder`, 
+    {
+      headers,
+      method: "POST",
+    }
+  )
+  // ...
+}
+```
+
+You change the `placeOrder` function, which is executed when the customer places an order, to use the custom API route you created to complete carts with pre-order items.
+
+#### Test Cart Completion
+
+To test the cart completion with pre-order items, ensure that both the Medusa and Next.js applications are running.
+
+Then, in the storefront, proceed to checkout with a pre-order item in the cart.
+
+When you place the order, the custom API route will be executed and the order will be placed.
+
+### f. Show Pre-order Information in Order Confirmation Page
+
+Finally, you'll show the pre-order information in the order confirmation and detail pages.
+
+#### Retrieve Pre-order Information in Order
+
+To show the pre-order information in the order confirmation and detail pages, you need to retrieve the pre-order variant information when retrieving the order.
+
+In the file `src/lib/data/orders.ts`, find the `retrieveOrder` function and update the `fields` property in the `sdk.client.fetch` method to include the pre-order variant:
+
+```ts title="src/lib/data/orders.ts" highlights={[["8"]]} badgeLabel="Storefront" badgeColor="blue"
+export const retrieveOrder = async (id: string) => {
+  // ...
+  return sdk.client
+    .fetch<HttpTypes.StoreOrderResponse>(`/store/orders/${id}`, {
+      method: "GET",
+      query: {
+        fields:
+          "*payment_collections.payments,*items,*items.metadata,*items.variant,*items.product,*items.variant.preorder_variant",
+      },
+      // ...
+    })
+  // ...
+}
+```
+
+Notice that you added `*items.variant.preorder_variant` at the end of the retrieved fields.
+
+#### Customize Order Item Component
+
+Next, you'll customize the `Item` component that renders each item in the order confirmation and detail pages to show pre-order information.
+
+In `src/modules/order/components/item/index.tsx`, add the following imports at the top of the file:
+
+```tsx title="src/modules/order/components/item/index.tsx" badgeLabel="Storefront" badgeColor="blue"
+import { StoreProductVariantWithPreorder } from "../../../../types/global"
+import { isPreorder } from "../../../../lib/util/is-preorder"
+```
+
+Then, change the type of the `item` prop in `ItemProps`:
+
+```tsx title="src/modules/order/components/item/index.tsx" badgeLabel="Storefront" badgeColor="blue"
+type ItemProps = {
+  item: (HttpTypes.StoreCartLineItem | HttpTypes.StoreOrderLineItem) & {
+    variant?: StoreProductVariantWithPreorder
+  }
+  // ...
+}
+```
+
+Next, in the `Item` component, add the following variable:
+
+```tsx title="src/modules/order/components/item/index.tsx" badgeLabel="Storefront" badgeColor="blue"
+const isPreorderItem = isPreorder(item.variant?.preorder_variant)
+```
+
+Finally, in the `return` statement, add the following after the `LineItemOptions` component:
+
+```tsx title="src/modules/order/components/item/index.tsx" highlights={[["7"], ["8"], ["9"], ["10"], ["11"], ["12"], ["13"], ["14"]]} badgeLabel="Storefront" badgeColor="blue"
+return (
+  <Table.Row className="w-full" data-testid="product-row">
+    {/* ... other components ... */}
+    <LineItemOptions
+      // ...
+    />
+    {isPreorderItem && (
+      <Text className="text-ui-fg-muted text-xs">
+        Preorder available on{" "}
+        <span>
+          {new Date(item.variant!.preorder_variant!.available_date).toLocaleDateString()}
+        </span>
+      </Text>
+    )}
+    {/* ... other components ... */}
+  </Table.Row>
+)
+```
+
+#### Test the Order Confirmation Page Customizations
+
+To test the changes to the order confirmation page, ensure that both the Medusa and Next.js applications are running.
+
+Then, in the storefront, either open the same confirmation page you got earlier after placing the order, or place a new order with a pre-order item in the cart.
+
+You'll find the pre-order information below the product variant options in the order confirmation page.
+
+![Pre-order item in the order confirmation page of the Next.js Starter Storefront](https://res.cloudinary.com/dza7lstvk/image/upload/v1752741220/Medusa%20Resources/CleanShot_2025-07-17_at_11.33.17_2x_anitlq.png)
+
+The information will also be shown in the order details page for logged-in customers.
+
+---
+
+## Step 8: Show Pre-Order Information in Order Admin Page
+
+In this step, you'll customize the Medusa Admin to show pre-order information in the order details page.
+
+### a. Retrieve Pre-order Information API Route
+
+You'll start by creating an API route that retrieves the pre-order information for an order. You'll send requests to this API route in the widget you'll create in the next step.
+
+Create the file `src/api/admin/orders/[id]/preorders/route.ts` with the following content:
+
+```ts title="src/api/admin/orders/[id]/preorders/route.ts"
+import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+
+export const GET = async (
+  req: AuthenticatedMedusaRequest,
+  res: MedusaResponse
+) => {
+  const query = req.scope.resolve("query")
+  const { id: orderId } = req.params
+
+  const { data: preorders } = await query.graph({
+    entity: "preorder",
+    fields: [
+      "*", 
+      "item.*", 
+      "item.product_variant.*", 
+      "item.product_variant.product.*",
+    ],
+    filters: {
+      order_id: orderId,
+    },
+  })
+
+  res.json({ preorders })
+}
+```
+
+You expose a `GET` API route at `/admin/orders/:id/preorders`.
+
+In the API route, you use Query to retrieve the pre-order information for the specified order ID. You return the pre-order information in the response.
+
+### b. Add Pre-order React Hook
+
+Next, you'll add a React hook that retrieves the pre-order information from the API route you created.
+
+Create the file `src/admin/hooks/use-preorders.ts` with the following content:
+
+export const usePreordersHighlights = [
+  ["5", "usePreorders", "Retrieves pre-order information."],
+  ["6", "data", "The retrieved pre-orders."],
+]
+
+```ts title="src/admin/hooks/use-preorders.ts" highlights={usePreordersHighlights}
+import { useQuery } from "@tanstack/react-query"
+import { sdk } from "../lib/sdk"
+import { Preorder, PreordersResponse } from "../lib/types"
+
+export const usePreorders = (orderId: string) => {
+  const { data, isLoading, error } = useQuery<PreordersResponse>({
+    queryFn: () => sdk.client.fetch(`/admin/orders/${orderId}/preorders`),
+    queryKey: ["orders", orderId],
+    retry: 2,
+    refetchOnWindowFocus: false,
+  })
+
+  return {
+    preorders: data?.preorders || [],
+    isLoading,
+    error,
+  }
+}
+
+export type { Preorder }
+```
+
+The `usePreorders` hook retrieves the pre-order information for the specified order ID using the API route you created.
+
+### c. Create Pre-order Widget
+
+Finally, you'll create a widget that shows the pre-order information in the order details page.
+
+Create the file `src/admin/widgets/preorder-widget.tsx` with the following content:
+
+export const preorderWidgetHighlights = [
+  ["10", "preorders", "Retrieve pre-orders using the `usePreorders` hook."],
+  ["29", "preorders", "Show the pre-orders in a list."]
+]
+
+```tsx title="src/admin/widgets/preorder-widget.tsx" highlights={preorderWidgetHighlights}
+import { defineWidgetConfig } from "@medusajs/admin-sdk"
+import { DetailWidgetProps, HttpTypes } from "@medusajs/framework/types"
+import { Container, Heading, StatusBadge, Text } from "@medusajs/ui"
+import { Link } from "react-router-dom"
+import { usePreorders } from "../hooks/use-preorders"
+
+const PreordersWidget = ({
+  data: order,
+}: DetailWidgetProps<HttpTypes.AdminOrder>) => {
+  const { preorders, isLoading } = usePreorders(order.id)
+
+  if (!preorders.length && !isLoading) {
+    return <></>
+  }
+
+  return (
+    <Container className="divide-y p-0">
+      <div className="flex flex-col justify-between py-4">
+        <div className="flex flex-col gap-2 px-6">
+          <Heading level="h2">
+            Pre-orders
+          </Heading>
+          <Text className="text-ui-fg-muted" size="small">
+            The following items will be automatically fulfilled on their available date.
+          </Text>
+        </div>
+        {isLoading && <div>Loading...</div>}
+        <div className="flex flex-col gap-4 pt-4 px-6">
+          {preorders.map((preorder) => (
+            <div key={preorder.id} className="flex items-center gap-2">
+              {preorder.item.product_variant?.product?.thumbnail && <img 
+                src={preorder.item.product_variant.product.thumbnail} 
+                alt={preorder.item.product_variant.title || "Product Thumbnail"} 
+                className="w-20 h-20 rounded-lg border"
+              />}
+              <div className="flex flex-col gap-1">
+                <div className="flex gap-2">
+                  <Text>{preorder.item.product_variant?.title || "Unnamed Variant"}</Text>
+                  <StatusBadge color={getStatusBadgeColor(preorder.status)}>
+                    {preorder.status.charAt(0).toUpperCase() + preorder.status.slice(1)}
+                  </StatusBadge>
+                </div>
+                <Text size="small" className="text-ui-fg-subtle">
+                  Available on: {new Date(preorder.item.available_date).toLocaleDateString()}
+                </Text>
+                <Link to={`/products/${preorder.item.product_variant?.product_id}/variants/${preorder.item.variant_id}`}>
+                  <Text size="small" className="text-ui-fg-interactive">
+                    View Product Variant
+                  </Text>
+                </Link>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </Container>
+  )
+}
+
+const getStatusBadgeColor = (status: string) => {
+  switch (status) {
+    case "fulfilled":
+      return "green"
+    case "pending":
+      return "orange"
+    default:
+      return "grey"
+  }
+}
+
+export const config = defineWidgetConfig({
+  zone: "order.details.side.after",
+})
+
+export default PreordersWidget
+```
+
+The `PreordersWidget` will be injected into the side column of the order details page in the Medusa Admin dashboard.
+
+In the component, you retrieve the pre-order information using the `usePreorders` hook and display it in a list.
+
+### Test the Pre-order Widget
+
+To test the pre-order widget, ensure that the Medusa application is running.
+
+Then, in the Medusa Admin dashboard, go to any order that has pre-order items. You should see the "Pre-orders" section in the side column with the pre-order information.
+
+![Pre-orders Section in the Medusa Admin dashboard](https://res.cloudinary.com/dza7lstvk/image/upload/v1752741736/Medusa%20Resources/CleanShot_2025-07-17_at_11.41.55_2x_w8aiw2.png)
+
+You can see the pre-order variant's title, status, available date, and a link to view the associated product variant.
+
+---
+
+## Step 9: Automatically Fulfill Pre-orders
+
+When a pre-order variant reaches its available date, you want to automatically fulfill the pre-order items in the order.
+
+In this step, you'll create a workflow that automatically fulfills a pre-order. Then, you'll execute the workflow in a [scheduled job](!docs!/learn/fundamentals/scheduled-jobs) that runs every day.
+
+### a. Create Auto Fulfill Pre-order Workflow
+
+The workflow that automatically fulfills a pre-order has the following steps:
+
+<WorkflowDiagram
+  workflow={{
+    name: "fulfillPreorderWorkflow",
+    steps: [
+      {
+        type: "step",
+        name: "useQueryGraphStep",
+        description: "Retrieve the Medusa order details.",
+        link: "/references/helper-steps/useQueryGraphStep",
+        depth: 1
+      },
+      {
+        type: "step",
+        name: "retrieveItemsToFulfillStep",
+        description: "Retrieve the items to fulfill in the order.",
+        depth: 2,
+      },
+      {
+        type: "workflow",
+        name: "createOrderFulfillmentWorkflow",
+        description: "Create a fulfillment for the Medusa order.",
+        link: "/references/medusa-workflows/createOrderFulfillmentWorkflow",
+        depth: 3
+      },
+      {
+        type: "step",
+        name: "updatePreordersStep",
+        description: "Update the status of the pre-order.",
+        depth: 4,
+      },
+      {
+        type: "step",
+        name: "emitEventStep",
+        description: "Emit an event indicating that a pre-order was fulfilled.",
+        link: "/references/helper-steps/emitEventStep",
+        depth: 5,
+      },
+    ]
+  }}
+  hideLegend
+/>
+
+You only need to implement the `retrieveItemsToFulfillStep` and `updatePreordersStep` steps.
+
+#### retrieveItemsToFulfillStep
+
+The `retrieveItemsToFulfillStep` retrieves the line items to fulfill in an order based on the supplied pre-order variants.
+
+Create the file `src/workflows/steps/retrieve-items-to-fulfill.ts` with the following content:
+
+export const retrieveItemsToFulfillHighlights = [
+  ["6", "preorder_variant", "The pre-order variant to fulfill."],
+  ["7", "line_items", "The line items in the Medusa order."],
+  ["16", "itemsToFulfill", "The items to fulfill in the order."],
+  ["17", "", "Check that the line item's variant ID matches the pre-order variant."]
+]
+
+```ts title="src/workflows/steps/retrieve-items-to-fulfill.ts" highlights={retrieveItemsToFulfillHighlights}
+import { InferTypeOf, OrderLineItemDTO } from "@medusajs/framework/types"
+import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
+import { PreorderVariant } from "../../modules/preorder/models/preorder-variant"
+
+export type RetrieveItemsToFulfillStepInput = {
+  preorder_variant: InferTypeOf<typeof PreorderVariant>
+  line_items: OrderLineItemDTO[]
+}
+
+export const retrieveItemsToFulfillStep = createStep(
+  "retrieve-items-to-fulfill",
+  async ({
+    preorder_variant,
+    line_items,
+  }: RetrieveItemsToFulfillStepInput) => {
+    const itemsToFulfill = line_items.filter((item) =>
+      item.variant_id && preorder_variant.variant_id === item.variant_id
+    ).map((item) => ({
+      id: item.id,
+      quantity: item.quantity,
+    }))
+
+    return new StepResponse({
+      items_to_fulfill: itemsToFulfill,
+    })
+  }
+)
+```
+
+The step receives the pre-order variant to be fulfilled as an input, and the line items in the Medusa order.
+
+In the step, you find the items in the Medusa order that are associated with the pre-order variant and return them.
+
+#### updatePreordersStep
+
+The `updatePreordersStep` updates the details of pre-order records.
+
+Create the file `src/workflows/steps/update-preorders.ts` with the following content:
+
+export const updatePreordersHighlights = [
+  ["13", "preorders", "The pre-orders to update."],
+  ["16", "oldPreorders", "The pre-orders before the update."],
+  ["20", "updatedPreorders", "Update the pre-orders."],
+  ["24", "updatedPreorders", "Return the updated pre-orders."],
+  ["24", "oldPreorders", "Pass the old pre-orders to the compensation function."],
+  ["33", "updatePreorders", "Revert the pre-order updates if an error occurs during the workflow's execution."]
+]
+
+```ts title="src/workflows/steps/update-preorders.ts" highlights={updatePreordersHighlights}
+import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
+import { PreorderStatus } from "../../modules/preorder/models/preorder"
+
+type StepInput = {
+  id: string
+  status?: PreorderStatus
+  item_id?: string
+  order_id?: string
+}[]
+
+export const updatePreordersStep = createStep(
+  "update-preorders",
+  async (preorders: StepInput, { container }) => {
+    const preorderModuleService = container.resolve("preorder")
+
+    const oldPreorders = await preorderModuleService.listPreorders({
+      id: preorders.map((preorder) => preorder.id),
+    })
+
+    const updatedPreorders = await preorderModuleService.updatePreorders(
+      preorders
+    )
+
+    return new StepResponse(updatedPreorders, oldPreorders)
+  },
+  async (preorders, { container }) => {
+    if (!preorders) {
+      return
+    }
+
+    const preorderModuleService = container.resolve("preorder")
+
+    await preorderModuleService.updatePreorders(
+      preorders.map((preorder) => ({
+        id: preorder.id,
+        status: preorder.status,
+        item_id: preorder.item_id,
+        order_id: preorder.order_id,
+      }))
+    )
+  }
+)
+```
+
+The step receives an array of pre-order records to update.
+
+In the step, you update the pre-order records. In the compensation function, you undo the update if an error occurs during the workflow's execution.
+
+#### Create Workflow
+
+Finally, you'll create the workflow that automatically fulfills a pre-order.
+
+Create the file `src/workflows/fulfill-preorder.ts` with the following content:
+
+export const fulfillPreorderWorkflowHighlights = [
+  ["10", "preorder_id", "The ID of the pre-order to fulfill."],
+  ["11", "item", "The pre-order variant to fulfill."],
+  ["12", "order_id", "The ID of the Medusa order containing the pre-ordered variant."],
+  ["18", "useQueryGraphStep", "Retrieve the Medusa order."],
+  ["29", "retrieveItemsToFulfillStep", "Retrieve the items to fulfill in the order."],
+  ["34", "createOrderFulfillmentWorkflow.runAsStep", "Create a fulfillment for the Medusa order."],
+  ["41", "updatePreordersStep", "Update the pre-order status to `fulfilled`."],
+  ["46", "emitEventStep", "Emit an event indicating that a pre-order was fulfilled."],
+  ["55", "fulfillment", "Return the fulfillment."]
+]
+
+```ts title="src/workflows/fulfill-preorder.ts" highlights={fulfillPreorderWorkflowHighlights} collapsibleLines="1-8" expandButtonLabel="Show Imports"
+import { InferTypeOf } from "@medusajs/framework/types"
+import { PreorderVariant } from "../modules/preorder/models/preorder-variant"
+import { createWorkflow, WorkflowResponse } from "@medusajs/framework/workflows-sdk"
+import { createOrderFulfillmentWorkflow, emitEventStep, useQueryGraphStep } from "@medusajs/medusa/core-flows"
+import { retrieveItemsToFulfillStep, RetrieveItemsToFulfillStepInput } from "./steps/retrieve-items-to-fulfill"
+import { updatePreordersStep } from "./steps/update-preorders"
+import { PreorderStatus } from "../modules/preorder/models/preorder"
+
+type WorkflowInput = {
+  preorder_id: string
+  item: InferTypeOf<typeof PreorderVariant>
+  order_id: string
+}
+
+export const fulfillPreorderWorkflow = createWorkflow(
+  "fulfill-preorder",
+  (input: WorkflowInput) => {
+    const { data: orders } = useQueryGraphStep({
+      entity: "order",
+      fields: ["items.*"],
+      filters: {
+        id: input.order_id,
+      },
+      options: {
+        throwIfKeyNotFound: true,
+      },
+    })
+
+    const { items_to_fulfill } = retrieveItemsToFulfillStep({
+      preorder_variant: input.item,
+      line_items: orders[0].items,
+    } as unknown as RetrieveItemsToFulfillStepInput)
+
+    const fulfillment = createOrderFulfillmentWorkflow.runAsStep({
+      input: {
+        order_id: input.order_id,
+        items: items_to_fulfill,
+      },
+    })
+
+    updatePreordersStep([{
+      id: input.preorder_id,
+      status: PreorderStatus.FULFILLED,
+    }])
+
+    emitEventStep({
+      eventName: "preorder.fulfilled",
+      data: {
+        order_id: input.order_id,
+        preorder_variant_id: input.item.id,
+      },
+    })
+
+    return new WorkflowResponse({
+      fulfillment,
+    })
+  }
+)
+```
+
+The workflow receives as an input:
+
+- `preorder_id`: The ID of the pre-order to fulfill.
+- `item`: The pre-order variant to fulfill.
+- `order_id`: The ID of the Medusa order containing the pre-ordered variant.
+
+In the workflow, you:
+
+- Retrieve the Medusa order using the [useQueryGraphStep](/references/helper-steps/useQueryGraphStep).
+- Retrieve the items to fulfill in the order using the `retrieveItemsToFulfillStep`.
+- Create a fulfillment for the Medusa order using the [createOrderFulfillmentWorkflow](/references/medusa-workflows/createOrderFulfillmentWorkflow) as a step.
+- Update the pre-order status to `FULFILLED` using the `updatePreordersStep`.
+- Emit an event indicating that a pre-order was fulfilled using the [emitEventStep](/references/helper-steps/emitEventStep).
+- Return the fulfillment in the response.
+
+#### Optional: Capture Payment
+
+By default, Medusa authorizes an order's payment when it's placed. The admin user can capture the payment later manually.
+
+<Note>
+
+Some payment providers may automatically capture the payment when the order is placed, depending on their configuration.
+
+</Note>
+
+In some use cases, you may want to capture the payment for the pre-order when fulfilling it.
+
+To do that, you can use Medusa's [capturePaymentWorkflow](/references/medusa-workflows/capturePaymentWorkflow) to capture the payment for the order in the workflow.
+
+First, change the `retrieveItemsToFulfillStep` to return the total of the pre-ordered items:
+
+```ts title="src/workflows/steps/retrieve-items-to-fulfill.ts" highlights={[["16"], ["20"], ["29"]]}
+import { InferTypeOf, OrderLineItemDTO } from "@medusajs/framework/types"
+import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
+import { PreorderVariant } from "../../modules/preorder/models/preorder-variant"
+
+export type RetrieveItemsToFulfillStepInput = {
+  preorder_variant: InferTypeOf<typeof PreorderVariant>
+  line_items: OrderLineItemDTO[]
+}
+
+export const retrieveItemsToFulfillStep = createStep(
+  "retrieve-items-to-fulfill",
+  async ({
+    preorder_variant,
+    line_items,
+  }: RetrieveItemsToFulfillStepInput) => {
+    let total = 0
+    const itemsToFulfill = line_items.filter((item) =>
+      item.variant_id && preorder_variant.variant_id === item.variant_id
+    ).map((item) => {
+      total += item.total as number
+      return {
+        id: item.id,
+        quantity: item.quantity,
+      }
+    })
+
+    return new StepResponse({
+      items_to_fulfill: itemsToFulfill,
+      items_total: total,
+    })
+  }
+)
+```
+
+Then, update the workflow to the following:
+
+export const fulfillPreorderWorkflowHighlights2 = [
+  ["22"], ["23"], ["24"], ["25"], ["37"], ["55"], ["56"], ["57"], ["58"],
+  ["59"], ["60"], ["61"],  ["62"], ["63"], ["64"], ["65"], ["66"], ["67"], 
+  ["68"], ["69"], ["70"], ["71"], ["72"], ["73"], ["74"], ["75"], ["76"], 
+  ["77"], ["78"], ["79"], ["80"],
+]
+
+```ts title="src/workflows/fulfill-preorder.ts" highlights={fulfillPreorderWorkflowHighlights2}
+import { InferTypeOf } from "@medusajs/framework/types"
+import { PreorderVariant } from "../modules/preorder/models/preorder-variant"
+import { createWorkflow, transform, when, WorkflowResponse } from "@medusajs/framework/workflows-sdk"
+import { capturePaymentWorkflow, createOrderFulfillmentWorkflow, emitEventStep, useQueryGraphStep } from "@medusajs/medusa/core-flows"
+import { retrieveItemsToFulfillStep, RetrieveItemsToFulfillStepInput } from "./steps/retrieve-items-to-fulfill"
+import { updatePreordersStep } from "./steps/update-preorders"
+import { PreorderStatus } from "../modules/preorder/models/preorder"
+
+type WorkflowInput = {
+  preorder_id: string
+  item: InferTypeOf<typeof PreorderVariant>
+  order_id: string
+}
+
+export const fulfillPreorderWorkflow = createWorkflow(
+  "fulfill-preorder",
+  (input: WorkflowInput) => {
+    const { data: orders } = useQueryGraphStep({
+      entity: "order",
+      fields: [
+        "items.*", 
+        "payment_collections.*", 
+        "payment_collections.payments.*", 
+        "total", 
+        "shipping_methods.*",
+      ],
+      filters: {
+        id: input.order_id,
+      },
+      options: {
+        throwIfKeyNotFound: true,
+      },
+    })
+
+    const { 
+      items_to_fulfill, 
+      items_total,
+    } = retrieveItemsToFulfillStep({
+      preorder_variant: input.item,
+      line_items: orders[0].items,
+    } as unknown as RetrieveItemsToFulfillStepInput)
+
+    const fulfillment = createOrderFulfillmentWorkflow.runAsStep({
+      input: {
+        order_id: input.order_id,
+        items: items_to_fulfill,
+      },
+    })
+
+    updatePreordersStep([{
+      id: input.preorder_id,
+      status: PreorderStatus.FULFILLED,
+    }])
+
+    const totalCaptureAmount = transform({
+      items_total,
+      shipping_option_id: fulfillment.shipping_option_id,
+      shipping_methods: orders[0].shipping_methods,
+    }, (data) => {
+      const shippingPrice = data.shipping_methods?.find(
+        (sm) => sm?.shipping_option_id === data.shipping_option_id
+      )?.amount || 0
+      return data.items_total + shippingPrice
+    })
+
+    when({
+      payment_collection: orders[0].payment_collections?.[0],
+      capture_total: totalCaptureAmount,
+    }, (data) => {
+      return data.payment_collection?.amount !== undefined && data.payment_collection.captured_amount !== null &&  
+        (data.payment_collection.amount - data.payment_collection.captured_amount >= data.capture_total)
+    }).then(() => {
+      capturePaymentWorkflow.runAsStep({
+        input: {
+          // @ts-ignore
+          payment_id: orders[0].payment_collections?.[0]?.payments[0].id,
+          amount: totalCaptureAmount,
+        },
+      })
+    })
+
+    emitEventStep({
+      eventName: "preorder.fulfilled",
+      data: {
+        order_id: input.order_id,
+        preorder_variant_id: input.item.id,
+      },
+    })
+
+    return new WorkflowResponse({
+      fulfillment,
+    })
+  }
+)
+```
+
+The changes you made are:
+
+- Retrieved more order fields using `useQueryGraphStep`, including the payment collection and its payments.
+- Retrieved the total of the fulfilled items from `retrieveItemsToFulfillStep`.
+- Calculated the amount to be captured by adding the fulfilled items' total to the shipping method's amount.
+- If the total amount to be captured is less than or equal to the amount that can be captured, you capture the amount.
+
+### b. Create Scheduled Job to Run Workflow
+
+Next, you'll create a scheduled job that runs the `fulfillPreorderWorkflow` every day to automatically fulfill pre-orders.
+
+A scheduled job is an asynchronous function that executes tasks in the background at specified intervals.
+
+<Note>
+
+Refer to the [Scheduled Jobs](!docs!/learn/fundamentals/scheduled-jobs) documentation to learn more.
+
+</Note>
+
+To create a scheduled job, create the file `src/jobs/fulfill-preorders.ts` with the following content:
+
+export const fulfillPreordersJobHighlights = [
+  ["8", "fulfillPreordersJob", "The scheduled job that fulfills pre-orders."],
+  ["19", "schedule", "The cron schedule for the job."]
+]
+
+```ts title="src/jobs/fulfill-preorders.ts" highlights={fulfillPreordersJobHighlights}
+import {
+  InferTypeOf,
+  MedusaContainer,
+} from "@medusajs/framework/types"
+import { fulfillPreorderWorkflow } from "../workflows/fulfill-preorder"
+import { PreorderVariant } from "../modules/preorder/models/preorder-variant"
+
+export default async function fulfillPreordersJob(container: MedusaContainer) {
+  const query = container.resolve("query")
+  const logger = container.resolve("logger")
+
+  logger.info("Starting daily fulfill preorders job...")
+
+  // TODO add fulfillment logic
+}
+
+export const config = {
+  name: "daily-fulfill-preorders",
+  schedule: "0 0 * * *", // Every day at midnight
+}
+```
+
+A scheduled job file must export:
+
+- An asynchronous function that is executed at the specified interval in the configuration object.
+- A configuration object that specifies when to execute the scheduled job. The schedule is defined as a cron pattern.
+
+So far, you only resolve Query and the Logger utility from the Medusa container passed as input to the scheduled job.
+
+Replace the `TODO` in the scheduled job with the following:
+
+export const fulfillPreordersJobHighlights2 = [
+  ["1", "startToday", "The start of the day."],
+  ["4", "endToday", "The end of the day."],
+  ["10", "totalPreordersCount", "The total count of fulfilled pre-orders."],
+  ["14", "preorderVariants", "The pre-order variants retrieved."],
+  ["15", "metadata", "The pagination details of the query."],
+  ["24", "available_date", "Retrieve only the pre-order variants available today."],
+  ["43", "unfulfilledPreorders", "The unfulfilled pre-orders retrieved."],
+  ["44", "preorderMetadata", "The pagination details of the pre-order query."],
+  ["66", "fulfillPreorderWorkflow.run", "Fulfill a pre-order of the variant."],
+]
+
+```ts title="src/jobs/fulfill-preorders.ts" highlights={fulfillPreordersJobHighlights2}
+const startToday = new Date()
+startToday.setHours(0, 0, 0, 0)
+
+const endToday = new Date()
+endToday.setHours(23, 59, 59, 59)
+
+const limit = 1000
+let preorderVariantsOffset = 0
+let preorderVariantsCount = 0
+let totalPreordersCount = 0
+
+do {
+  const { 
+    data: preorderVariants,
+    metadata,
+  } = await query.graph({
+    entity: "preorder_variant",
+    fields: [
+      "*",
+      "product_variant.*",
+    ],
+    filters: {
+      status: "enabled",
+      available_date: {
+        $gte: startToday,
+        $lte: endToday,
+      },
+    },
+    pagination: {
+      take: limit,
+      skip: preorderVariantsOffset,
+    },
+  })
+
+  preorderVariantsCount = metadata?.count || 0
+  preorderVariantsOffset += limit
+
+  let preordersOffset = 0
+  let preordersCount = 0
+  
+  do {
+    const { 
+      data: unfulfilledPreorders,
+      metadata: preorderMetadata,
+    } = await query.graph({
+      entity: "preorder",
+      fields: ["*"],
+      filters: {
+        item_id: preorderVariants.map((variant) => variant.id),
+        status: "pending",
+      },
+      pagination: {
+        take: limit,
+        skip: preordersOffset,
+      },
+    })
+    if (!unfulfilledPreorders.length) {
+      continue
+    }
+
+    preordersCount = preorderMetadata?.count || 0
+    preordersOffset += limit
+    for (const preorder of unfulfilledPreorders) {
+      const variant = preorderVariants.find((v) => v.id === preorder.item_id)
+      try {
+        await fulfillPreorderWorkflow(container)
+        .run({
+          input: {
+            preorder_id: preorder!.id,
+            item: variant as unknown as InferTypeOf<typeof PreorderVariant>,
+            order_id: preorder!.order_id,
+          },
+        })
+      } catch (e) {
+        logger.error(`Failed to fulfill preorder ${preorder.id}: ${e.message}`)
+      }
+    }
+  } while (preordersCount > limit * preordersOffset)
+  totalPreordersCount += preordersCount
+} while (preorderVariantsCount > limit * preorderVariantsOffset)
+
+logger.info(`Fulfilled ${totalPreordersCount} preorders.`)
+```
+
+You retrieve the pre-order variants whose:
+
+- `status` is `enabled`.
+- `available_date` is within the current day.
+
+Then, you retrieve the pre-orders of those variants whose status is `pending`, and fulfill each of those pre-orders.
+
+You apply pagination on both the retrieved pre-order variants and pre-orders.
+
+Finally, you log the number of fulfilled pre-orders.
+
+### Test Scheduled Job
+
+To test out the scheduled job, you can change the `schedule` in the job's configuration to run once a minute:
+
+```ts title="src/jobs/fulfill-preorders.ts"
+export const config = {
+  // ...
+  schedule: "* * * * *", // Every minute for testing purposes
+}
+```
+
+And comment-out the `available_date` condition in the first `query.graph` usage to retrieve all pre-order variants and fulfill their pre-orders:
+
+```ts title="src/jobs/fulfill-preorders.ts" highlights={[["12"], ["13"], ["14"], ["15"]]}
+const { 
+  data: preorderVariants,
+  metadata,
+} = await query.graph({
+  entity: "preorder_variant",
+  fields: [
+    "*",
+    "product_variant.*",
+  ],
+  filters: {
+    status: "enabled",
+    // available_date: {
+    //   $gte: startToday,
+    //   $lte: endToday
+    // }
+  },
+  pagination: {
+    take: limit,
+    skip: preorderVariantsOffset,
+  },
+})
+```
+
+Next, start the Medusa application:
+
+```bash npm2yarn
+npm run dev
+```
+
+After a minute, you'll see the following messages in the logs:
+
+```bash
+info:    Starting daily fulfill preorders job...
+info:    Fulfilled 1 preorders.
+```
+
+This indicates that the scheduled job ran successfully and fulfilled one pre-order.
+
+<Note title="Tip">
+
+Make sure to revert the changes once you're done testing.
+
+</Note>
+
+### Optional: Send Notification to Customer
+
+In the `fulfillPreorderWorkflow`, you emitted the `preorder.fulfilled` event. This is useful for performing actions when a pre-order is fulfilled separately from the main flow.
+
+For example, you may want to send a notification to the customer when their pre-order is fulfilled. You can do this by creating a [subscriber](!docs!/learn/fundamentals/events-and-subscribers).
+
+A subscriber is an asynchronous function that is executed when its associated event is emitted.
+
+To create a subscriber that sends a notification to the customer when a pre-order is fulfilled, create the file `src/subscribers/preorder-notification.ts` with the following content:
+
+export const preorderNotificationHighlights = [
+  ["6", "productCreateHandler", "The function that's executed when the event is emitted."],
+  ["18", "preorderVariants", "Retrieve the pre-order variant details."],
+  ["26", "order", "Retrieve the order details."],
+  ["34", "notificationModuleService.createNotifications", "Send a notification to the customer."],
+  ["36", "channel", "The channel to send the notification with."],
+  ["36", `"feed"`, "The feed channel is useful for debugging."],
+  ["46", "event", "The event that the subscriber is listening to."],
+]
+
+```ts title="src/subscribers/preorder-notification.ts" highlights={preorderNotificationHighlights}
+import type {
+  SubscriberArgs,
+  SubscriberConfig,
+} from "@medusajs/framework"
+
+export default async function productCreateHandler({
+  event: { data },
+  container,
+}: SubscriberArgs<{ 
+  order_id: string;
+  preorder_variant_id: string;
+ }>) {
+  const query = container.resolve("query")
+  const notificationModuleService = container.resolve(
+    "notification"
+  )
+
+  const { data: preorderVariants } = await query.graph({
+    entity: "preorder_variant",
+    fields: ["*"],
+    filters: {
+      id: data.preorder_variant_id,
+    },
+  })
+
+  const { data: [order] } = await query.graph({
+    entity: "order",
+    fields: ["*"],
+    filters: {
+      id: data.order_id,
+    },
+  })
+
+  await notificationModuleService.createNotifications([{
+    template: "preorder_fulfilled",
+    channel: "feed",
+    to: order.email!,
+    data: {
+      preorder_variant: preorderVariants[0],
+      order: order,
+    },
+  }])
+}
+
+export const config: SubscriberConfig = {
+  event: "preorder.fulfilled",
+}
+```
+
+A subscriber file must export:
+
+- An asynchronous function that is executed when its associated event is emitted.
+- An object that indicates the event that the subscriber is listening to.
+
+The subscriber receives among its parameters the data payload of the emitted event, which includes the IDs of the Medusa order and the pre-order variant.
+
+In the subscriber, you retrieve the details of the order and pre-order variants. Then, you use the [Notification Module](../.././../infrastructure-modules/notification/page.mdx) to send a notification.
+
+Notice that the `createNotifications` method receives a `channel` property for a notification. This indicates which [Notification Module Provider](../../../infrastructure-modules/notification/page.mdx#what-is-a-notification-module-provider) to send the notification with.
+
+The `feed` channel is useful for debugging, as it logs the notification in the terminal. To send an email, you can instead [set up a provider like SendGrid](../../../integrations/page.mdx#notification) and change the channel to `email`.
+
+To test the subscriber, [perform the steps to test fulfilling pre-orders](#test-scheduled-job). Once a pre-order is fulfilled, you'll see the following message logged in your terminal:
+
+```bash
+info:    Processing preorder.fulfilled which has 1 subscribers
+```
+
+<Note>
+
+Learn more about sending notifications in the [Notification Module](../.././../infrastructure-modules/notification/page.mdx) documentation.
+
+</Note>
+
+---
+
+## Step 10: Handle Order Cancelation
+
+Admin users can cancel orders from the dashboard. In those scenarios, you need to also cancel the pre-orders related to that order.
+
+In this step, you'll create a workflow that cancels the pre-orders of an order. Then, you'll execute the workflow in a subscriber that listens to the order cancelation event.
+
+### a. Cancel Pre-Orders Workflow
+
+The workflow that cancels pre-orders of an order has the following steps:
+
+<WorkflowDiagram
+  workflow={{
+    name: "cancelPreordersWorkflow",
+    steps: [
+      {
+        type: "step",
+        name: "updatePreordersStep",
+        description: "Update the statuses of the pre-orders to canceled.",
+        depth: 2
+      },
+      {
+        type: "step",
+        name: "emitEventStep",
+        description: "Emit an event for the pre-orders cancelation.",
+        depth: 3
+      }
+    ]
+  }}
+  hideLegend
+/>
+
+These steps are already available, so you can implement the workflow.
+
+Create the file `src/workflows/cancel-preorders.ts` with the following content:
+
+export const cancelPreordersWorkflowHighlights = [
+  ["15", "updateData", "Prepare the data to update the pre-orders."],
+  ["24", "updatePreordersStep", "Update the pre-orders' status to `cancelled`."],
+  ["26", "preordersCancelledEvent", "Prepare the data to emit an event."],
+  ["36", "emitEventStep", "Emit the `preorder.cancelled` event."],
+  ["42", "preorders", "Return the updated pre-orders."]
+]
+
+```ts title="src/workflows/cancel-preorders.ts" highlights={cancelPreordersWorkflowHighlights}
+import { InferTypeOf } from "@medusajs/framework/types"
+import { createWorkflow, transform, WorkflowResponse } from "@medusajs/framework/workflows-sdk"
+import { emitEventStep } from "@medusajs/medusa/core-flows"
+import { updatePreordersStep } from "./steps/update-preorders"
+import { Preorder, PreorderStatus } from "../modules/preorder/models/preorder"
+
+export type CancelPreordersWorkflowInput = {
+  preorders: InferTypeOf<typeof Preorder>[]
+  order_id: string
+}
+
+export const cancelPreordersWorkflow = createWorkflow(
+  "cancel-preorders",
+  (input: CancelPreordersWorkflowInput) => {
+    const updateData = transform({
+      preorders: input.preorders,
+    }, (data) => {
+      return data.preorders.map((preorder) => ({
+        id: preorder.id,
+        status: PreorderStatus.CANCELLED,
+      }))
+    })
+
+    const updatedPreorders = updatePreordersStep(updateData)
+
+    const preordersCancelledEvent = transform({
+      preorders: updatedPreorders,
+      input,
+    }, (data) => {
+      return data.preorders.map((preorder) => ({
+        id: preorder.id,
+        order_id: data.input.order_id,
+      }))
+    })
+
+    emitEventStep({
+      eventName: "preorder.cancelled",
+      data: preordersCancelledEvent,
+    })
+
+    return new WorkflowResponse({
+      preorders: updatedPreorders,
+    })
+  }
+)
+```
+
+The workflow receives the preorders and the order ID as a parameter.
+
+In the workflow, you:
+
+1. Update the pre-orders' status to `cancelled`.
+2. Emit the `preorder.cancelled` event.
+    - You can handle the event similar to the [preorder.fulfilled](#optional-send-notification-to-customer) event to notify the customer.
+
+### b. Cancel Pre-Orders Subscriber
+
+Next, you'll create the subscriber that listens to the `order.canceled` event and executes the workflow you created.
+
+Create the file `src/subscribers/order-canceled.ts` with the following content:
+
+export const orderCanceledHighlights = [
+  ["14", "workflowInput", "Prepare the input to pass to the workflow."],
+  ["24", "preorders", "Retrieve the pre-orders of the order."],
+  ["41", "push", "Add the pre-orders to the workflow input."],
+  ["46", "cancelPreordersWorkflow.run", "Execute the cancel pre-orders workflow."],
+]
+
+```ts title="src/subscribers/order-canceled.ts" highlights={orderCanceledHighlights}
+import { SubscriberArgs, type SubscriberConfig } from "@medusajs/framework"
+import { InferTypeOf } from "@medusajs/framework/types"
+import { cancelPreordersWorkflow, CancelPreordersWorkflowInput } from "../workflows/cancel-preorders"
+import { Preorder } from "../modules/preorder/models/preorder"
+
+export default async function orderCanceledHandler({
+  event: { data },
+  container,
+}: SubscriberArgs<{
+  id: string
+}>) {
+  const query = container.resolve("query")
+
+  const workflowInput: CancelPreordersWorkflowInput = {
+    preorders: [],
+    order_id: data.id,
+  }
+  const limit = 1000
+  let offset = 0
+  let count = 0
+
+  do {
+    const { 
+      data: preorders,
+      metadata,
+    } = await query.graph({
+      entity: "preorder",
+      fields: ["*"],
+      filters: {
+        order_id: data.id,
+        status: "pending",
+      },
+      pagination: {
+        take: limit,
+        skip: offset,
+      },
+    })
+    offset += limit
+    count = metadata?.count || 0
+
+    workflowInput.preorders.push(
+      ...preorders as InferTypeOf<typeof Preorder>[]
+    )
+  } while (count > offset + limit)
+    
+  await cancelPreordersWorkflow(container).run({
+    input: workflowInput,
+  })
+}
+
+export const config: SubscriberConfig = {
+  event: "order.canceled",
+}
+```
+
+The subscriber receives the ID of the canceled order in the event payload.
+
+In the subscriber, you retrieve the preorders of the order with pagination. Then, you execute the `cancelPreordersWorkflow`, passing it the order ID and pre-orders.
+
+### Test Order Cancelation
+
+To test order cancelation, start the Medusa application.
+
+Then, cancel an order that has a pre-order item. If you refresh the page, the pre-order item's status will be changed to `canceled` as well.
+
+![Pre-order item's status is canceled in a canceled order](https://res.cloudinary.com/dza7lstvk/image/upload/v1752752393/Medusa%20Resources/CleanShot_2025-07-17_at_14.38.50_2x_cxqscy.png)
+
+---
+
+## Step 11: Handle Order Edits
+
+Admin users can edit orders to add or remove items. You should handle those scenarios to:
+
+- Cancel a pre-order if its item is removed from the order.
+- Create a pre-order for a new item associated with a pre-order variant.
+
+In this step, you'll create a workflow that cancels or creates pre-orders based on changes in an order. Then, you'll execute the workflow in a subscriber whenever an order edit is confirmed.
+
+### a. Handle Order Edit Workflow
+
+The workflow that will handle order edits has the following steps:
+
+<WorkflowDiagram
+  workflow={{
+    name: "handleOrderEditWorkflow",
+    steps: [
+      {
+        type: "step",
+        name: "useQueryGraphStep",
+        description: "Retrieve the order's items with their pre-order variants.",
+        link: "/references/helper-steps/useQueryGraphStep",
+        depth: 1
+      },
+      {
+        type: "step",
+        name: "useQueryGraphStep",
+        description: "Retrieve the pre-orders of the order.",
+        link: "/references/helper-steps/useQueryGraphStep",
+        depth: 2
+      },
+      {
+        type: "step",
+        name: "retrievePreorderUpdatesStep",
+        description: "Retrieve the pre-orders that need to be created and canceled.",
+        depth: 3
+      },
+      {
+        type: "step",
+        name: "updatePreordersStep",
+        description: "Update the status of orders to be canceled.",
+        depth: 4
+      },
+      {
+        type: "step",
+        name: "createPreordersStep",
+        description: "Create pre-orders for new pre-order items.",
+        depth: 5
+      },
+      {
+        type: "step",
+        name: "emitEventStep",
+        description: "Emit events about canceled pre-orders.",
+        depth: 6
+      }
+    ]
+  }}
+  hideLegend
+/>
+
+You only need to implement the `retrievePreorderUpdatesStep`.
+
+#### retrievePreorderUpdatesStep
+
+The `retrievePreorderUpdatesStep` retrieves the pre-orders to be canceled and those to be created.
+
+Create the file `src/workflows/steps/retrieve-preorder-updates.ts` with the following content:
+
+export const retrievePreorderUpdatesStepHighlights = [
+  ["20", "preordersToCancel", "The pre-orders to cancel."],
+  ["24", "preordersToCreate", "The pre-orders to create."],
+  ["20", "preorder_variant", "The pre-order variant associated with the item."],
+  ["32", "", "Find the new pre-order items."],
+  ["44", "push", "Add the pre-order variant to the pre-orders to create."],
+  ["50", "", "Find the pre-order items that need to be canceled."],
+  ["55", "push", "Add the pre-order to the pre-orders to cancel."],
+]
+
+```ts title="src/workflows/steps/retrieve-preorder-updates.ts" highlights={retrievePreorderUpdatesStepHighlights}
+import { InferTypeOf, OrderDTO, OrderLineItemDTO, ProductVariantDTO } from "@medusajs/framework/types"
+import { PreorderVariant } from "../../modules/preorder/models/preorder-variant"
+import { Preorder, PreorderStatus } from "../../modules/preorder/models/preorder"
+import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
+
+export type RetrievePreorderUpdatesStep = {
+  order: OrderDTO & {
+    items: (OrderLineItemDTO & {
+      variant?: ProductVariantDTO & {
+        preorder_variant?: InferTypeOf<typeof PreorderVariant>
+      }
+    })[]
+  }
+  preorders?: InferTypeOf<typeof Preorder>[]
+}
+
+export const retrievePreorderUpdatesStep = createStep(
+  "retrieve-preorder-updates",
+  async ({ order, preorders }: RetrievePreorderUpdatesStep) => {
+    const preordersToCancel: {
+      id: string
+      status: PreorderStatus.CANCELLED
+    }[] = []
+    const preordersToCreate: {
+      preorder_variant_ids: string[]
+      order_id: string
+    } = {
+      preorder_variant_ids: [],
+      order_id: order.id,
+    }
+
+    for (const item of order.items) {
+      if (
+        !item.variant?.preorder_variant || 
+        item.variant.preorder_variant.status === "disabled" || 
+        item.variant.preorder_variant.available_date < new Date()
+      ) {
+        continue
+      }
+      const preorder = preorders?.find(
+        (p) => p.item.variant_id === item.variant_id
+      )
+      if (!preorder) {
+        preordersToCreate.preorder_variant_ids.push(
+          item.variant.preorder_variant.id
+        )
+      }
+    }
+
+    for (const preorder of (preorders || [])) {
+      const item = order.items.find(
+        (i) => i.variant_id === preorder.item.variant_id
+      )
+      if (!item) {
+        preordersToCancel.push({
+          id: preorder.id,
+          status: PreorderStatus.CANCELLED,
+        })
+      }
+    }
+
+    return new StepResponse({
+      preordersToCancel,
+      preordersToCreate,
+    })
+  }
+)
+```
+
+The step receives as input the details of the order, its items, and its pre-orders.
+
+In the step, you loop through the order's items to find pre-order variants that don't have associated pre-orders. You add those to the array of pre-orders to create.
+
+You also loop through the pre-orders to find those that don't have associated items in the order. You add those to the array of pre-orders to cancel.
+
+#### Create Workflow
+
+You can now create the workflow that handles order edits.
+
+Create the file `src/workflows/handle-order-edit.ts` with the following content:
+
+export const handleOrderEditWorkflowHighlights = [
+  ["14", "useQueryGraphStep", "Retrieve the order's items with their pre-order variants."],
+  ["30", "useQueryGraphStep", "Retrieve the pre-orders of the order."],
+  ["39", "retrievePreorderUpdatesStep", "Retrieve the pre-orders to cancel and create."],
+  ["44", "updatePreordersStep", "Update the pre-orders to cancel."],
+  ["46", "createPreordersStep", "Create the pre-orders to create."],
+  ["58", "emitEventStep", "Emit the `preorder.cancelled` event for canceled pre-orders."],
+  ["63", "WorkflowResponse", "Return the created and canceled pre-orders."]
+]
+
+```ts title="src/workflows/handle-order-edit.ts" highlights={handleOrderEditWorkflowHighlights} collapsibleLines="1-6" expandButtonLabel="Show Imports"
+import { createWorkflow, transform, WorkflowResponse } from "@medusajs/framework/workflows-sdk"
+import { emitEventStep, useQueryGraphStep } from "@medusajs/medusa/core-flows"
+import { RetrievePreorderUpdatesStep, retrievePreorderUpdatesStep } from "./steps/retrieve-preorder-updates"
+import { updatePreordersStep } from "./steps/update-preorders"
+import { createPreordersStep } from "./steps/create-preorders"
+
+type WorkflowInput = {
+  order_id: string
+}
+
+export const handleOrderEditWorkflow = createWorkflow(
+  "handle-order-edit",
+  (input: WorkflowInput) => {
+    const { data: orders } = useQueryGraphStep({
+      entity: "order",
+      fields: [
+        "*",
+        "items",
+        "items.variant.*",
+        "items.variant.preorder_variant.*",
+      ],
+      filters: {
+        id: input.order_id,
+      },
+      options: {
+        throwIfKeyNotFound: true,
+      },
+    })
+
+    const { data: preorders } = useQueryGraphStep({
+      entity: "preorder",
+      fields: ["*", "item.*"],
+      filters: {
+        order_id: input.order_id,
+        status: "pending",
+      },
+    }).config({ name: "retrieve-preorders" })
+
+    const { preordersToCancel, preordersToCreate } = retrievePreorderUpdatesStep({
+      order: orders[0],
+      preorders,
+    } as unknown as RetrievePreorderUpdatesStep)
+
+    updatePreordersStep(preordersToCancel)
+    
+    createPreordersStep(preordersToCreate)
+
+    const preordersCancelledEvent = transform({
+      preordersToCancel,
+      input,
+    }, (data) => {
+      return data.preordersToCancel.map((preorder) => ({
+        id: preorder.id,
+        order_id: data.input.order_id,
+      }))
+    })
+
+    emitEventStep({
+      eventName: "preorder.cancelled",
+      data: preordersCancelledEvent,
+    })
+
+    return new WorkflowResponse({
+      createdPreorders: preordersToCreate,
+      cancelledPreorders: preordersToCancel,
+    })
+  }
+)
+```
+
+The workflow receives the order ID as an input.
+
+In the workflow, you:
+
+1. Retrieve the order details using the [useQueryGraphStep](/references/helper-steps/useQueryGraphStep).
+2. Retrieve the pre-orders of the order using the [useQueryGraphStep](/references/helper-steps/useQueryGraphStep).
+3. Retrieve the pre-orders to cancel and create using the `retrievePreorderUpdatesStep`.
+4. Update the pre-orders to cancel using the `updatePreordersStep`.
+5. Create the pre-orders to create using the `createPreordersStep`.
+6. Emit the `preorder.cancelled` event for the pre-orders that were canceled using the [emitEventStep](/references/helper-steps/emitEventStep).
+    - You can handle the event similar to the [preorder.fulfilled](#optional-send-notification-to-customer) event to notify the customer.
+7. Return the created and canceled pre-orders in the response.
+
+### b. Handle Order Edit Subscriber
+
+Next, you'll create the subscriber that listens to the `order-edit.confirmed` event and executes the workflow you created.
+
+Create the file `src/subscribers/order-edit-confirmed.ts` with the following content:
+
+```ts title="src/subscribers/order-edit-confirmed.ts"
+import { SubscriberArgs, type SubscriberConfig } from "@medusajs/framework"
+import { OrderChangeActionDTO } from "@medusajs/framework/types"
+import { handleOrderEditWorkflow } from "../workflows/handle-order-edit"
+
+export default async function orderEditConfirmedHandler({
+  event: { data },
+  container,
+}: SubscriberArgs<{
+  order_id: string,
+  actions: OrderChangeActionDTO[]
+}>) {
+  await handleOrderEditWorkflow(container).run({
+    input: {
+      order_id: data.order_id,
+    },
+  })
+}
+
+export const config: SubscriberConfig = {
+  event: "order-edit.confirmed",
+}
+```
+
+The subscriber receives the order ID and the actions performed in the order edit in the event payload.
+
+You execute the `handleOrderEditWorkflow`, passing it the order ID.
+
+### Test Order Edit Handler
+
+To test out the order edit handler, start the Medusa application.
+
+Then, open an order in the Medusa Admin. It can be an order you want to remove a pre-order item from, or an order you want to add a new pre-order item to.
+
+To edit the order:
+
+1. Click the <InlineIcon Icon={EllipsisHorizontal} alt="three-dots" /> icon at the top right of the order details section.
+2. Choose Edit from the dropdown.
+3. In the order edit form, you can add or remove items from the order.
+    - Learn more about the order edit form in the [user guide](!user-guide!/orders/edit).
+4. Click the "Confirm Edit" button at the bottom of the form, then click "Continue" in the confirmation modal.
+5. The order edit request will be shown at the top of the page. Click the "Force confirm" button to confirm the order edit.
+
+If you refresh the page, you'll see that the pre-order items were updated accordingly.
+
+![Pre-order items updated in an order edit](https://res.cloudinary.com/dza7lstvk/image/upload/v1752754220/Medusa%20Resources/CleanShot_2025-07-17_at_15.09.55_2x_xkkfef.png)
+
+---
+
+## Next Steps
+
+You've now implemented the pre-order feature in Medusa. You can expand on this feature based on your use case. You can add features like:
+
+- Customize the storefront to show a badge for pre-order items or timers for when a pre-order item will be available.
+- Automate partially capturing the payment when the order is placed.
+- Add a feature to allow customers to cancel their pre-orders from the storefront.
+
+### Learn More about Medusa
+
+If you're new to Medusa, check out the [main documentation](!docs!/learn), where you'll get a more in-depth understanding of all the concepts you've used in this guide and more.
+
+To learn more about the commerce features that Medusa provides, check out Medusa's [Commerce Modules](../../../commerce-modules/page.mdx).
+
+### Troubleshooting
+
+If you encounter issues during your development, check out the [troubleshooting guides](../../../troubleshooting/page.mdx).
+
+### Getting Help
+
+If you encounter issues not covered in the troubleshooting guides:
+
+1. Visit the [Medusa GitHub repository](https://github.com/medusajs/medusa) to report issues or ask questions.
+2. Join the [Medusa Discord community](https://discord.gg/medusajs) for real-time support from community members.

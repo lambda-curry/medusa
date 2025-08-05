@@ -21,7 +21,7 @@ export class TaxProvider {
    * [List Tax Providers](https://docs.medusajs.com/api/admin#tax-providers_gettaxproviders)
    * API route.
    * 
-   * @version 2.8.0
+   * @since 2.8.0
    *
    * @param query - Filters and pagination configurations.
    * @param headers - Headers to pass in the request.

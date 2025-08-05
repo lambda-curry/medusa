@@ -928,8 +928,8 @@ class WorkflowsPlugin {
             commentText += ` -- ${event.deprecated_message}`
           }
         }
-        if (event.version) {
-          commentText += ` -- version: ${event.version}`
+        if (event.since) {
+          commentText += ` -- since: ${event.since}`
         }
         return new CommentTag(`@workflowEvent`, [
           {

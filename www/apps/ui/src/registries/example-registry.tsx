@@ -269,6 +269,44 @@ export const ExampleRegistry: ExampleRegistryType = {
     component: React.lazy(async () => import("@/examples/date-picker-demo")),
     file: "src/examples/date-picker-demo.tsx",
   },
+  "date-picker-controlled": {
+    name: "date-picker-controlled",
+    component: React.lazy(
+      async () => import("@/examples/date-picker-controlled")
+    ),
+    file: "src/examples/date-picker-controlled.tsx",
+  },
+  "date-picker-with-time": {
+    name: "date-picker-with-time",
+    component: React.lazy(
+      async () => import("@/examples/date-picker-with-time")
+    ),
+    file: "src/examples/date-picker-with-time.tsx",
+  },
+  "date-picker-min-max": {
+    name: "date-picker-min-max",
+    component: React.lazy(async () => import("@/examples/date-picker-min-max")),
+    file: "src/examples/date-picker-min-max.tsx",
+  },
+  "date-picker-business-hours": {
+    name: "date-picker-business-hours",
+    component: React.lazy(
+      async () => import("@/examples/date-picker-business-hours")
+    ),
+    file: "src/examples/date-picker-business-hours.tsx",
+  },
+  "date-picker-granularity": {
+    name: "date-picker-granularity",
+    component: React.lazy(
+      async () => import("@/examples/date-picker-granularity")
+    ),
+    file: "src/examples/date-picker-granularity.tsx",
+  },
+  "date-picker-form": {
+    name: "date-picker-form",
+    component: React.lazy(async () => import("@/examples/date-picker-form")),
+    file: "src/examples/date-picker-form.tsx",
+  },
   "drawer-demo": {
     name: "drawer-demo",
     component: React.lazy(async () => import("@/examples/drawer-demo")),

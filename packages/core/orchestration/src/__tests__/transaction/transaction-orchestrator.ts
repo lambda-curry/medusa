@@ -1,4 +1,8 @@
-import { TransactionStepState, TransactionStepStatus } from "@medusajs/utils"
+import {
+  MedusaError,
+  TransactionStepState,
+  TransactionStepStatus,
+} from "@medusajs/utils"
 import { setTimeout } from "timers/promises"
 import {
   DistributedTransaction,
@@ -688,6 +692,136 @@ describe("Transaction Orchestrator", () => {
 
     expect(mocks.one).toHaveBeenCalledTimes(2)
     expect(transaction.getState()).toBe(TransactionState.FAILED)
+  })
+
+  it("Should handle multiple types of errors", async () => {
+    const errorTypes = [
+      new Error("Regular error object"),
+      new MedusaError(MedusaError.Types.NOT_FOUND, "Not found error"),
+      { message: "Custom error object" },
+      "String error",
+      123,
+      {},
+      null,
+      [1, 2, "b"],
+      new Date(),
+    ]
+    async function handler(
+      actionId: string,
+      functionHandlerType: TransactionHandlerType,
+      payload: TransactionPayload
+    ) {
+      const command = {
+        [actionId]: {
+          [TransactionHandlerType.INVOKE]: () => {
+            throw errorTypes[+actionId.slice(-1) - 1]
+          },
+        },
+      }
+
+      return command[actionId][functionHandlerType](payload)
+    }
+
+    const flow: TransactionStepsDefinition = {
+      next: Array.from({ length: errorTypes.length }, (_, i) => ({
+        action: `a${i + 1}`,
+        maxRetries: 0,
+        noCompensation: true,
+      })),
+    }
+
+    const strategy = new TransactionOrchestrator({
+      id: "transaction-name",
+      definition: flow,
+    })
+
+    const transaction = await strategy.beginTransaction({
+      transactionId: "transaction_id_123",
+      handler,
+    })
+
+    await strategy.resume(transaction)
+
+    expect(transaction.getErrors()).toEqual([
+      {
+        action: "a1",
+        handlerType: "invoke",
+        error: {
+          message: "Regular error object",
+          name: "Error",
+          stack: expect.stringContaining("transaction-name -> a1 (invoke)"),
+        },
+      },
+      {
+        action: "a2",
+        handlerType: "invoke",
+        error: {
+          message: "Not found error",
+          name: "Error",
+          stack: expect.stringContaining("transaction-name -> a2 (invoke)"),
+          type: "not_found",
+          __isMedusaError: true,
+          code: undefined,
+          date: expect.any(Date),
+        },
+      },
+      {
+        action: "a3",
+        handlerType: "invoke",
+        error: {
+          message: "Custom error object",
+          stack: expect.stringContaining("transaction-name -> a3 (invoke)"),
+        },
+      },
+      {
+        action: "a4",
+        handlerType: "invoke",
+        error: {
+          message: '"String error"',
+          stack: expect.stringContaining("transaction-name -> a4 (invoke)"),
+        },
+      },
+      {
+        action: "a5",
+        handlerType: "invoke",
+        error: {
+          message: "123",
+          stack: expect.stringContaining("transaction-name -> a5 (invoke)"),
+        },
+      },
+      {
+        action: "a6",
+        handlerType: "invoke",
+        error: {
+          message: "{}",
+          stack: expect.stringContaining("transaction-name -> a6 (invoke)"),
+        },
+      },
+      {
+        action: "a7",
+        handlerType: "invoke",
+        error: {
+          message: "null",
+          stack: expect.stringContaining("transaction-name -> a7 (invoke)"),
+        },
+      },
+      {
+        action: "a8",
+        handlerType: "invoke",
+        error: {
+          message: '[1,2,"b"]',
+          stack: expect.stringContaining("transaction-name -> a8 (invoke)"),
+        },
+      },
+      {
+        action: "a9",
+        handlerType: "invoke",
+        error: {
+          message: expect.any(String),
+          stack: expect.stringContaining("transaction-name -> a9 (invoke)"),
+        },
+      },
+    ])
   })
 
   it("Should complete a transaction if a failing step has the flag 'continueOnPermanentFailure' set to true", async () => {

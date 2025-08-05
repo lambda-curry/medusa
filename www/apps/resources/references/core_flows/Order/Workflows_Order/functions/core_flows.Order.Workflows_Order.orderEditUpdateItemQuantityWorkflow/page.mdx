@@ -1,9 +1,8 @@
 ---
 slug: /references/medusa-workflows/orderEditUpdateItemQuantityWorkflow
 sidebar_label: orderEditUpdateItemQuantityWorkflow
-sidebar_description: Update the quantity of an existing order item in the order's edit.
+sidebar_description: Update or remove an existing order item's quantity in the order's edit.
 tags:
-  - remote query
   - order
   - workflow
 ---
@@ -17,10 +16,12 @@ This documentation provides a reference to the `orderEditUpdateItemQuantityWorkf
 This workflow updates the quantity of an existing item in an order's edit. It's used by the
 [Update Order Item Quantity Admin API Route](https://docs.medusajs.com/api/admin#order-edits\_postordereditsiditemsitemitem\_id).
 
+You can also use this workflow to remove an item from an order by setting its quantity to `0`.
+
 You can use this workflow within your customizations or your own custom workflows, allowing you to update the quantity of an existing 
 item in an order's edit in your custom flow.
 
-<SourceCodeLink link="https://github.com/medusajs/medusa/blob/e0b5bb0b224458ebc8c93111e72f9a10aecf0275/packages/core/core-flows/src/order/workflows/order-edit/order-edit-update-item-quantity.ts#L103" />
+<SourceCodeLink link="https://github.com/medusajs/medusa/blob/394226b5c18d11072da826ed6a07d4e602e62f18/packages/core/core-flows/src/order/workflows/order-edit/order-edit-update-item-quantity.ts#L105" />
 
 ## Examples
 
@@ -145,7 +146,7 @@ const myWorkflow = createWorkflow(
 
 ## Steps
 
-<WorkflowDiagram workflow={{"name":"orderEditUpdateItemQuantityWorkflow","steps":[{"type":"step","name":"useRemoteQueryStep","description":"This step fetches data across modules using the remote query.\n\nLearn more in the [Remote Query documentation](https://docs.medusajs.com/learn/fundamentals/module-links/query).\n\n:::note\n\nThis step is deprecated. Use [useQueryGraphStep](../../../../Common/Steps_Common/functions/core_flows.Common.Steps_Common.useQueryGraphStep/page.mdx) instead.\n\n:::","link":"../../../../Common/Steps_Common/functions/core_flows.Common.Steps_Common.useRemoteQueryStep/page.mdx","depth":1},{"type":"step","name":"useRemoteQueryStep","description":"This step fetches data across modules using the remote query.\n\nLearn more in the [Remote Query documentation](https://docs.medusajs.com/learn/fundamentals/module-links/query).\n\n:::note\n\nThis step is deprecated. Use [useQueryGraphStep](../../../../Common/Steps_Common/functions/core_flows.Common.Steps_Common.useQueryGraphStep/page.mdx) instead.\n\n:::","link":"../../../../Common/Steps_Common/functions/core_flows.Common.Steps_Common.useRemoteQueryStep/page.mdx","depth":2},{"type":"step","name":"orderEditUpdateItemQuantityValidationStep","description":"This step validates that the quantity of an existing item in an order can be updated in an order edit.\nIf the order is canceled or the order change is not active, the step will throw an error.\n\n:::note\n\nYou can retrieve an order and order change details using [Query](https://docs.medusajs.com/learn/fundamentals/module-links/query),\nor [useQueryGraphStep](https://docs.medusajs.com/resources/references/medusa-workflows/steps/useQueryGraphStep).\n\n:::","link":"../core_flows.Order.Workflows_Order.orderEditUpdateItemQuantityValidationStep/page.mdx","depth":3},{"type":"workflow","name":"createOrderChangeActionsWorkflow","description":"Create an order change action.","link":"../core_flows.Order.Workflows_Order.createOrderChangeActionsWorkflow/page.mdx","depth":4},{"type":"step","name":"previewOrderChangeStep","description":"This step retrieves a preview of an order change.","link":"../../../Steps_Order/functions/core_flows.Order.Steps_Order.previewOrderChangeStep/page.mdx","depth":5}]}} />
+<WorkflowDiagram workflow={{"name":"orderEditUpdateItemQuantityWorkflow","steps":[{"type":"step","name":"orderEditUpdateItemQuantityValidationStep","description":"This step validates that the quantity of an existing item in an order can be updated in an order edit.\nIf the order is canceled or the order change is not active, the step will throw an error.\n\n:::note\n\nYou can retrieve an order and order change details using [Query](https://docs.medusajs.com/learn/fundamentals/module-links/query),\nor [useQueryGraphStep](https://docs.medusajs.com/resources/references/medusa-workflows/steps/useQueryGraphStep).\n\n:::","link":"../core_flows.Order.Workflows_Order.orderEditUpdateItemQuantityValidationStep/page.mdx","depth":1},{"type":"workflow","name":"createOrderChangeActionsWorkflow","description":"Create an order change action.","link":"../core_flows.Order.Workflows_Order.createOrderChangeActionsWorkflow/page.mdx","depth":2},{"type":"step","name":"previewOrderChangeStep","description":"This step retrieves a preview of an order change.","link":"../../../Steps_Order/functions/core_flows.Order.Steps_Order.previewOrderChangeStep/page.mdx","depth":3}]}} />
 
 ## Input
 

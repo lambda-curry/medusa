@@ -539,18 +539,22 @@
     "fields": {
       "title": {
         "label": "Tiêu đề",
-        "hint": "Đặt cho sản phẩm một tiêu đề ngắn gọn và rõ ràng.<0/>Độ dài khuyến nghị là 50-60 ký tự để tối ưu hóa cho công cụ tìm kiếm."
+        "hint": "Đặt cho sản phẩm một tiêu đề ngắn gọn và rõ ràng.<0/>Độ dài khuyến nghị là 50-60 ký tự để tối ưu hóa cho công cụ tìm kiếm.",
+        "placeholder": "Áo khoác cho mùa đông"
       },
       "subtitle": {
-        "label": "Phụ đề"
+        "label": "Phụ đề",
+        "placeholder": "Ấm và mềm mại"
       },
       "handle": {
         "label": "Định danh",
-        "tooltip": "Định danh được sử dụng để tham chiếu sản phẩm trên giao diện cửa hàng của bạn. Nếu không chỉ định, định danh sẽ được tạo từ tiêu đề sản phẩm."
+        "tooltip": "Định danh được sử dụng để tham chiếu sản phẩm trên giao diện cửa hàng của bạn. Nếu không chỉ định, định danh sẽ được tạo từ tiêu đề sản phẩm.",
+        "placeholder": "ao-khoac-mua-dong"
       },
       "description": {
         "label": "Mô tả",
-        "hint": "Đặt cho sản phẩm một mô tả ngắn gọn và rõ ràng.<0/>Độ dài khuyến nghị là 120-160 ký tự để tối ưu hóa cho công cụ tìm kiếm."
+        "hint": "Đặt cho sản phẩm một mô tả ngắn gọn và rõ ràng.<0/>Độ dài khuyến nghị là 120-160 ký tự để tối ưu hóa cho công cụ tìm kiếm.",
+        "placeholder": "Áo khoác ấm và mềm mại"
       },
       "discountable": {
         "label": "Có thể giảm giá",
@@ -811,8 +815,10 @@
     "locationLevels": "Vị trí",
     "associatedVariants": "Biến thể liên quan",
     "manageLocations": "Quản lý vị trí",
+    "manageLocationQuantity": "Quản lý số vị trí",
     "deleteWarning": "Bạn sắp xóa một mục kho hàng. Hành động này không thể hoàn tác.",
     "editItemDetails": "Chỉnh sửa chi tiết mục",
+    "quantityAcrossLocations": "{{quantity}} trên {{locations}} địa điểm",
     "create": {
       "title": "Tạo mục kho hàng",
       "details": "Chi tiết",
@@ -1004,6 +1010,31 @@
     }
   },
   "orders": {
+    "giftCardsStoreCreditLines": "Thẻ quà tặng & hạn mức tín dụng",
+    "creditLines": {
+      "title": "Hạn mức tín dụng",
+      "total": "Tổng tất cả các hạn mức tín dụng",
+      "creditOrDebit": "Tín dụng / Ghi nợ",
+      "createCreditLine": "Tạo hạn mức tín dụng",
+      "createCreditLineSuccess": "Hạn mức tín dụng được tạo thành công",
+      "createCreditLineError": "Lỗi khi tạo hạn mức tín dụng",
+      "createCreditLineDescription": "Tạo một hạn mức tín dụng với số tiền {{amount}}",
+      "operation": "Thao tác",
+      "credit": "Tín dụng",
+      "creditDescription": "Thêm một khoản dương vào đơn hàng",
+      "debit": "Ghi nợ",
+      "debitDescription": "Trừ một khoản âm khỏi đơn hàng"
+    },
+    "balanceSettlement": {
+      "title": "Thanh toán số dư",
+      "settlementType": "Loại thanh toán",
+      "settlementTypes": {
+        "paymentMethod": "Phương thức thanh toán",
+        "paymentMethodDescription": "Hoàn tiền vào phương thức thanh toán",
+        "creditLine": "Tín dụng cửa hàng",
+        "creditLineDescription": "Hoàn tiền dưới dạng tín dụng cửa hàng"
+      }
+    },
     "domain": "Đơn hàng",
     "claim": "Khiếu nại",
     "exchange": "Đổi hàng",
@@ -1050,6 +1081,7 @@
       "title": "Thanh toán",
       "isReadyToBeCaptured": "Thanh toán <0/> đã sẵn sàng để ghi nhận.",
       "totalPaidByCustomer": "Tổng số tiền khách hàng đã thanh toán",
+      "totalStoreCreditRefunds": "Tổng số tiền hoàn lại cho cửa hàng",
       "capture": "Ghi nhận thanh toán",
       "capture_short": "Ghi nhận",
       "refund": "Hoàn tiền",
@@ -1133,7 +1165,7 @@
       "sendNotificationHint": "Thông báo cho khách hàng về việc trả hàng.",
       "returnTotal": "Tổng trả hàng",
       "inboundTotal": "Tổng hàng trả về",
-      "refundAmount": "Số tiền hoàn lại",
+      "estDifference": "Chênh lệch ước tính",
       "outstandingAmount": "Số tiền còn lại",
       "reason": "Lý do",
       "reasonHint": "Chọn lý do khách hàng muốn trả hàng.",
@@ -1712,10 +1744,15 @@
       "header": "Tạo khu vực thuế",
       "hint": "Tạo một khu vực thuế mới để xác định thuế suất cho một quốc gia cụ thể.",
       "errors": {
-        "rateIsRequired": "Thuế suất là bắt buộc khi tạo thuế suất mặc định.",
-        "nameIsRequired": "Tên là bắt buộc khi tạo thuế suất mặc định."
+        "missingProvider": "Nhà cung cấp là bắt buộc khi tạo khu vực thuế.",
+        "missingCountry": "Quốc gia là bắt buộc khi tạo khu vực thuế."
       },
       "successToast": "Khu vực thuế đã được tạo thành công."
+    },
+    "edit": {
+      "header": "Chỉnh sửa khu vực thuế",
+      "hint": "Chỉnh sửa thông tin chi tiết về khu vực thuế.",
+      "successToast": "Khu vực thuế đã được cập nhật thành công."
     },
     "province": {
       "header": "Tỉnh/Thành",
@@ -1723,6 +1760,9 @@
         "header": "Tạo khu vực thuế tỉnh/thành",
         "hint": "Tạo một khu vực thuế mới để xác định thuế suất cho một tỉnh/thành cụ thể."
       }
+    },
+    "provider": {
+      "header": "Nhà cung cấp thuế"
     },
     "state": {
       "header": "Bang",
@@ -1849,6 +1889,7 @@
       },
       "taxRate": "Thuế suất",
       "taxCode": "Mã thuế",
+      "taxProvider": "Nhà cung cấp thuế",
       "targets": {
         "label": "Đối tượng áp dụng",
         "hint": "Chọn các đối tượng mà thuế suất này sẽ áp dụng.",
@@ -1954,6 +1995,7 @@
       "allocation": "Phân bổ",
       "addCondition": "Thêm điều kiện",
       "clearAll": "Xóa tất cả",
+      "taxInclusive": "Bao gồm thuế",
       "amount": {
         "tooltip": "Chọn mã tiền tệ để kích hoạt cài đặt số tiền"
       },
@@ -2029,6 +2071,10 @@
           "title": "Không có chiến dịch",
           "description": "Tiếp tục mà không liên kết khuyến mãi với chiến dịch"
         }
+      },
+      "taxInclusive": {
+        "title": "Khuyến mãi có bao gồm thuế?",
+        "description": "Bật để áp dụng khuyến mãi sau thuế"
       },
       "status": {
         "label": "Trạng thái",
@@ -2465,7 +2511,6 @@
       "createTaxRate": "Tạo thuế suất",
       "createTaxRateHint": "Tạo một thuế suất mới cho khu vực.",
       "deleteRateDescription": "Bạn sắp xóa thuế suất {{name}}. Hành động này không thể hoàn tác.",
-      "editTaxRate": "Chỉnh sửa thuế suất",
       "editRateAction": "Chỉnh sửa thuế suất",
       "editOverridesAction": "Chỉnh sửa ghi đè",
       "editOverridesTitle": "Chỉnh sửa ghi đè thuế suất",
@@ -2828,6 +2873,8 @@
   },
   "fields": {
     "amount": "Số tiền",
+    "reference": "Tham chiếu",
+    "reference_id": "Mã tham chiếu",
     "refundAmount": "Số tiền hoàn lại",
     "name": "Tên",
     "default": "Mặc định",
@@ -2914,6 +2961,7 @@
     "account": "Tài khoản",
     "total": "Tổng đơn hàng",
     "paidTotal": "Tổng đã ghi nhận",
+    "creditTotal": "Tổng hạn mức tín dụng",
     "totalExclTax": "Tổng chưa gồm thuế",
     "subtotal": "Tạm tính",
     "shipping": "Vận chuyển",

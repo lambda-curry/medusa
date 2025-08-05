@@ -610,11 +610,11 @@ To retrieve the promotion applied on an order with [Query](!docs!/learn/fundamen
 const { data: orders } = await query.graph({
   entity: "order",
   fields: [
-    "promotion.*",
+    "promotions.*",
   ],
 })
 
-// orders[0].promotion
+// orders[0].promotions
 ```
 
   </CodeTab>
@@ -628,11 +628,11 @@ import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
 const { data: orders } = useQueryGraphStep({
   entity: "order",
   fields: [
-    "promotion.*",
+    "promotions.*",
   ],
 })
 
-// orders[0].promotion
+// orders[0].promotions
 ```
 
   </CodeTab>

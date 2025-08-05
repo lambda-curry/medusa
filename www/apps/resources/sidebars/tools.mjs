@@ -111,7 +111,7 @@ export const toolsSidebar = [
               {
                 type: "link",
                 path: "/nextjs-starter/guides/customize-stripe",
-                title: "Customize Stripe Integration",
+                title: "Use Stripe's Payment Element",
               },
               {
                 type: "link",

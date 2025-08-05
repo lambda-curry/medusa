@@ -80,6 +80,15 @@ function processAsString<Output>(
 }
 
 /**
+ * Processes a column value but ignores it (no-op processor for system-generated fields)
+ */
+function processAsIgnored<Output>(): ColumnProcessor<Output> {
+  return () => {
+    // Do nothing - this column is intentionally ignored
+  }
+}
+
+/**
  * Processes the column value as a boolean
  */
 function processAsBoolean<Output>(
@@ -159,9 +168,9 @@ const productStaticColumns: {
   "product id": processAsString("product id", "id"),
   "product handle": processAsString("product handle", "handle"),
   "product title": processAsString("product title", "title"),
+  "product subtitle": processAsString("product subtitle", "subtitle"),
   "product status": processAsString("product status", "status"),
   "product description": processAsString("product description", "description"),
-  "product subtitle": processAsString("product subtitle", "subtitle"),
   "product external id": processAsString("product external id", "external_id"),
   "product thumbnail": processAsString("product thumbnail", "thumbnail"),
   "product collection id": processAsString(
@@ -189,6 +198,12 @@ const productStaticColumns: {
     "shipping profile id",
     "shipping_profile_id"
   ),
+  // Product properties that should be imported
+  "product is giftcard": processAsBoolean("product is giftcard", "is_giftcard"),
+  // System-generated timestamp fields that should be ignored during import
+  "product created at": processAsIgnored(),
+  "product deleted at": processAsIgnored(),
+  "product updated at": processAsIgnored(),
 }
 
 /**
@@ -253,6 +268,12 @@ const variantStaticColumns: {
   ),
   "variant width": processAsNumber("variant width", "width"),
   "variant weight": processAsNumber("variant weight", "weight"),
+  // System-generated timestamp fields that should be ignored during import
+  "variant created at": processAsIgnored(),
+  "variant deleted at": processAsIgnored(),
+  "variant updated at": processAsIgnored(),
+  // This field should be ignored as it's redundant (variant already belongs to product)
+  "variant product id": processAsIgnored(),
 }
 
 /**

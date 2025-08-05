@@ -70,6 +70,87 @@ module.exports = defineConfig({
 
 The `projectConfig` object contains essential configurations related to the Medusa application, such as database and CORS configurations.
 
+### cookieOptions
+
+<Note>
+
+This option is available since Medusa [v2.8.5](https://github.com/medusajs/medusa/releases/tag/v2.8.5).
+
+</Note>
+
+The `projectConfig.cookieOptions` configuration defines cookie options to be passed to `express-session` when creating the session cookie. This configuration is useful when simulating a production environment locally, where you may need to set options like `secure` or `sameSite`.
+
+#### Example
+
+```ts title="medusa-config.ts"
+module.exports = defineConfig({
+  projectConfig: {
+    cookieOptions: {
+      sameSite: "lax",
+    },
+    // ...
+  },
+  // ...
+})
+```
+
+#### Properties
+
+Aside from the following options, you can pass any property that the [express-session's cookie option accepts](https://www.npmjs.com/package/express-session).
+
+<TypeList
+  types={[
+    {
+      name: "secure",
+      type: "`boolean`",
+      description: `Whether the cookie should only be sent over HTTPS. This is useful in production environments where you want to ensure that cookies are only sent over secure connections.`,
+      defaultValue: `false in development, true in production`
+    },
+    {
+      name: "sameSite",
+      type: "`lax` | `strict` | `none`",
+      description: `Controls the SameSite attribute of the cookie.`,
+      defaultValue: `"none" in production. In development, this attribute is not set.`
+    },
+    {
+      name: "maxAge",
+      type: "`number`",
+      description: "The maximum age of the cookie in milliseconds set in the `Set-Cookie` header.",
+      defaultValue: "Either the `sessionOptions.ttl` option, or `10` hours."
+    },
+    {
+      name: "httpOnly",
+      type: "`boolean`",
+      description: "Whether to set the `HttpOnly Set-Cookie` attribute.",
+      defaultValue: `true`
+    },
+    {
+      name: "priority",
+      type: "`low` \| `medium` \| `high`",
+      description: "The value of the [Priority Set-Cookie attribute](https://tools.ietf.org/html/draft-west-cookie-priority-00#section-4.1)",
+      defaultValue: `medium`
+    },
+    {
+      name: "domain",
+      type: "`string`",
+      description: "The value of the `Domain Set-Cookie` attribute. By default, no domain is set, and most clients will consider the cookie to apply to the current domain only."
+    },
+    {
+      name: "path",
+      type: "`string`",
+      description: "The value of the `Path Set-Cookie` attribute",
+      defaultValue: `/`
+    },
+    {
+      name: "signed",
+      type: "`boolean`",
+      description: "Whether to sign the cookie.",
+      defaultValue: `true`
+    }
+  ]}
+  openedLevel={1}
+/>
+
 ### databaseDriverOptions
 
 The `projectConfig.databaseDriverOptions` configuration is an object of additional options used to configure the PostgreSQL connection. For example, you can support TLS/SSL connection using this configuration's `ssl` property.
@@ -758,7 +839,7 @@ The value for this configuration can be one of the following:
 ```ts title="medusa-config.ts"
 module.exports = defineConfig({
   projectConfig: {
-    workerMode: process.env.WORKER_MODE || "shared",
+    workerMode: process.env.WORKER_MODE as "shared" | "worker" | "server" || "shared",
     // ...
   },
   // ...

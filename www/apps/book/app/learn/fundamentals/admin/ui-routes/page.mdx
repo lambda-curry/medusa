@@ -10,7 +10,7 @@ In this chapter, you’ll learn how to create a UI route in the admin dashboard.
 
 ## What is a UI Route?
 
-The Medusa Admin dashboard is customizable, allowing you to add new pages, called UI routes. You create a UI route as a React component showing custom content that allow admin users to perform custom actions.
+The Medusa Admin dashboard is customizable, allowing you to add new pages, called UI routes. You create a UI route as a React component showing custom content that allows admin users to perform custom actions.
 
 For example, you can add a new page to show and manage product reviews, which aren't available natively in Medusa.
 
@@ -110,7 +110,7 @@ The above example adds a new sidebar item with the label `Custom Route` and an i
 
 ### Nested UI Routes
 
-Consider that along the UI route above at `src/admin/routes/custom/page.tsx` you create a nested UI route at `src/admin/routes/custom/nested/page.tsx` that also exports route configurations:
+Consider that alongside the UI route above at `src/admin/routes/custom/page.tsx` you create a nested UI route at `src/admin/routes/custom/nested/page.tsx` that also exports route configurations:
 
 ![Example of nested UI route file in the application's directory structure](https://res.cloudinary.com/dza7lstvk/image/upload/v1732867243/Medusa%20Book/ui-route-dir-overview_tgju25.jpg)
 
@@ -142,8 +142,8 @@ This UI route is shown in the sidebar as an item nested in the parent "Custom Ro
 Some caveats for nested UI routes in the sidebar:
 
 - Nested dynamic UI routes, such as one created at `src/admin/routes/custom/[id]/page.tsx` aren't added to the sidebar as it's not possible to link to a dynamic route. If the dynamic route exports route configurations, a warning is logged in the browser's console.
-- Nested routes in setting pages aren't shown in the sidebar to follow the admin's design conventions.
-- The `icon` configuration is ignored for the sidebar item of nested UI route to follow the admin's design conventions.
+- Nested routes in settings pages aren't shown in the sidebar to follow the admin's design conventions.
+- The `icon` configuration is ignored for the sidebar item of nested UI routes to follow the admin's design conventions.
 
 ### Route Under Existing Admin Route
 
@@ -237,7 +237,135 @@ export default CustomPage
 
 You access the passed parameter using `react-router-dom`'s [useParams hook](https://reactrouter.com/en/main/hooks/use-params).
 
-If you run the Medusa application and go to `localhost:9000/app/custom/123`, you'll see `123` printed in the page.
+If you run the Medusa application and go to `http://localhost:9000/app/custom/123`, you'll see `123` printed in the page.
+
+---
+
+## Set UI Route Breadcrumbs
+
+The Medusa Admin dashboard shows breadcrumbs at the top of each page, if specified. This allows users to navigate through your custom UI routes.
+
+To set the breadcrumbs of a UI route, export a `handle` object with a `breadcrumb` property in the UI route's file:
+
+```tsx title="src/admin/routes/custom/page.tsx" highlights={[["16", "breadcrumb", "Set the breadcrumbs of the UI route."]]}
+import { Container, Heading } from "@medusajs/ui"
+
+const CustomPage = () => {
+  return (
+    <Container className="divide-y p-0">
+      <div className="flex items-center justify-between px-6 py-4">
+        <Heading level="h2">This is my custom route</Heading>
+      </div>
+    </Container>
+  )
+}
+
+export default CustomPage
+
+export const handle = {
+  breadcrumb: () => "Custom Route",
+}
+```
+
+The `breadcrumb`'s value is a function that returns the breadcrumb label as a string, or a React JSX element.
+
+### Set Breadcrumbs for Nested UI Routes
+
+If you set a breadcrumb for a nested UI route, and you open the route in the Medusa Admin, you'll see the breadcrumbs starting from its parent route to the nested route.
+
+For example, if you have the following UI route at `src/admin/routes/custom/nested/page.tsx` that's nested under the previous one:
+
+```tsx title="src/admin/routes/custom/nested/page.tsx" highlights={[["16", "breadcrumb", "Set the breadcrumbs of the nested UI route."]]}
+import { Container, Heading } from "@medusajs/ui"
+
+const NestedCustomPage = () => {
+  return (
+    <Container className="divide-y p-0">
+      <div className="flex items-center justify-between px-6 py-4">
+        <Heading level="h2">This is my nested custom route</Heading>
+      </div>
+    </Container>
+  )
+}
+
+export default NestedCustomPage
+
+export const handle = {
+  breadcrumb: () => "Nested Custom Route",
+}
+```
+
+Then, when you open the nested route at `http://localhost:9000/app/custom/nested`, you'll see the breadcrumbs as `Custom Route > Nested Custom Route`. Each breadcrumb is clickable, allowing users to navigate back to the parent route.
+
+### Set Breadcrumbs Dynamically
+
+In some use cases, you may want to show a dynamic breadcrumb for a UI route. For example, if you have a UI route that displays a brand's details, you can set the breadcrumb to show the brand's name dynamically.
+
+To do that, you can:
+
+1. Define and export a `loader` function in the UI route file that fetches the data needed for the breadcrumb.
+2. Receive the data in the `breadcrumb` function and return the dynamic label.
+
+For example, create a UI route at `src/admin/routes/brands/[id]/page.tsx` with the following content:
+
+export const dynamicBreadcrumbsHighlights = [
+  ["25", "loader", "Define a loader function to fetch the brand data."],
+  ["35", "breadcrumb", "Set the breadcrumb using the fetched brand data."],
+  ["36", "data", "The data returned by the loader function is passed as props to the breadcrumb function."],
+]
+
+```tsx title="src/admin/routes/brands/[id]/page.tsx" highlights={dynamicBreadcrumbsHighlights}
+import { Container, Heading } from "@medusajs/ui"
+import { LoaderFunctionArgs, UIMatch, useLoaderData } from "react-router-dom"
+import { sdk } from "../../../lib/sdk"
+
+type BrandResponse = {
+  brand: {
+    name: string
+  }
+}
+
+const BrandPage = () => {
+  const { brand } = useLoaderData() as Awaited<BrandResponse>
+
+  return (
+    <Container className="divide-y p-0">
+      <div className="flex items-center justify-between px-6 py-4">
+        <Heading level="h2">{brand.name}</Heading>
+      </div>
+    </Container>
+  )
+}
+
+export default BrandPage
+
+export async function loader({ params }: LoaderFunctionArgs) {
+  const { id } = params
+  const { brand } = await sdk.client.fetch<BrandResponse>(`/admin/brands/${id}`)
+
+  return {
+    brand,
+  }
+}
+
+export const handle = {
+  breadcrumb: (
+    { data }: UIMatch<BrandResponse>
+  ) => data.brand.name || "Brand",
+}
+```
+
+In the `loader` function, you retrieve the brands from a custom API route and return them.
+
+Then, in the `handle.breadcrumb` function, you receive `data` prop containing the brand information returned by the `loader` function. You can use this data to return a dynamic breadcrumb label.
+
+When you open the UI route at `http://localhost:9000/app/brands/123`, the breadcrumb will show the brand's name, such as `Acme`.
+
+<Note title="Tip">
+
+You also use the `useLoaderData` hook to access the data returned by the `loader` function in the UI route component. Learn more in the [Routing Customizations](../routing/page.mdx#fetch-data-with-route-loaders) chapter.
+
+</Note>
 
 ---
 

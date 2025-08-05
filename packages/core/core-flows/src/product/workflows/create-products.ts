@@ -144,10 +144,10 @@ export const createProductsWorkflowId = "create-products"
  *             ],
  *             manage_inventory: true,
  *           },
- *         ]
+ *         ],
+ *         shipping_profile_id: "sp_123",
  *       }
  *     ],
- *     shipping_profile_id: "sp_123",
  *     additional_data: {
  *       erp_id: "123"
  *     }

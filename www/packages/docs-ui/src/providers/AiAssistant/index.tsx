@@ -24,6 +24,7 @@ export type AiAssistantContextType = {
   inputRef: React.RefObject<HTMLInputElement | HTMLTextAreaElement | null>
   contentRef: React.RefObject<HTMLDivElement | null>
   loading: boolean
+  isCaptchaLoaded: boolean
 }
 
 export type AiAssistantThreadItem = {
@@ -59,6 +60,7 @@ const AiAssistantInnerProvider = ({
   setOnCompleteAction,
   type,
 }: AiAssistantInnerProviderProps) => {
+  const [isCaptchaLoaded, setIsCaptchaLoaded] = useState(false)
   const [chatOpened, setChatOpened] = useState(false)
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
@@ -129,9 +131,11 @@ const AiAssistantInnerProvider = ({
   useEffect(() => {
     setOnCompleteAction(() => {
       scrollToBottom()
-      inputRef.current?.focus({
-        preventScroll: true,
-      })
+      if (chatOpened) {
+        inputRef.current?.focus({
+          preventScroll: true,
+        })
+      }
     })
   }, [scrollToBottom])
 
@@ -146,6 +150,23 @@ const AiAssistantInnerProvider = ({
 
     const recaptchaElm = document.querySelector(".grecaptcha-badge")
     recaptchaElm?.parentElement?.classList.add("absolute")
+    const maxRetry = 10
+    let retries = 0
+    const interval = setInterval(() => {
+      if (window.grecaptcha) {
+        setIsCaptchaLoaded(true)
+        clearInterval(interval)
+        return
+      }
+      retries++
+      if (retries > maxRetry) {
+        clearInterval(interval)
+      }
+    }, 1000)
+
+    return () => {
+      clearInterval(interval)
+    }
   }, [isBrowser])
 
   return (
@@ -157,6 +178,7 @@ const AiAssistantInnerProvider = ({
         inputRef,
         contentRef,
         loading,
+        isCaptchaLoaded,
       }}
     >
       {children}
@@ -185,6 +207,7 @@ export const AiAssistantProvider = ({
           onQuerySubmit: () => setPreventAutoScroll(false),
         },
       }}
+      userTrackingMode="cookie"
     >
       <AiAssistantInnerProvider
         {...props}

@@ -6,7 +6,13 @@ export const metadata = {
 
 # {metadata.title}
 
-In this chapter, you'll learn how to write integration tests for workflows using [medusaIntegrationTestRunner](../page.mdx) from Medusa's Testing Framwork.
+In this chapter, you'll learn how to write integration tests for workflows using [medusaIntegrationTestRunner](../page.mdx) from Medusa's Testing Framework.
+
+<Note>
+
+For other debugging approaches, refer to the [Debug Workflows](../../../debug-workflows/page.mdx) chapter.
+
+</Note>
 
 <Prerequisites
   items={[
@@ -17,7 +23,7 @@ In this chapter, you'll learn how to write integration tests for workflows using
   ]}
 />
 
-## Write Integration Test for Workflow
+## Write Integration Test for a Workflow
 
 Consider you have the following workflow defined at `src/workflows/hello-world.ts`:
 
@@ -65,7 +71,7 @@ medusaIntegrationTestRunner({
 jest.setTimeout(60 * 1000)
 ```
 
-You use the `medusaIntegrationTestRunner` to write an integration test for the workflow. The test pases if the workflow returns the string `"Hello, World!"`.
+You use the `medusaIntegrationTestRunner` to write an integration test for the workflow. The test passes if the workflow returns the string `"Hello, World!"`.
 
 ### Jest Timeout
 
@@ -78,32 +84,32 @@ jest.setTimeout(60 * 1000)
 
 ---
 
-## Run Test
+## Run Tests
 
 Run the following command to run your tests:
 
 ```bash npm2yarn
-npm run test:integration
+npm run test:integration:http
 ```
 
 <Note title="Tip">
 
-If you don't have a `test:integration` script in `package.json`, refer to the [Medusa Testing Tools chapter](../../page.mdx#add-test-commands).
+If you don't have a `test:integration:http` script in `package.json`, refer to the [Medusa Testing Tools chapter](../../page.mdx#add-test-commands).
 
 </Note>
 
-This runs your Medusa application and runs the tests available under the `integrations/http` directory.
+This runs your Medusa application and runs the tests available under the `integration-tests/http` directory.
 
 ---
 
 ## Test That a Workflow Throws an Error
 
-You might want to test that a workflow throws an error in certain cases. To test this:
+You might want to verify that a workflow throws an error in certain edge cases. To test that a workflow throws an error:
 
 - Disable the `throwOnError` option when executing the workflow.
 - Use the returned `errors` property to check what errors were thrown.
 
-For example, if you have a step that throws this error:
+For example, if you have the following step in your workflow that throws a `MedusaError`:
 
 ```ts title="src/workflows/hello-world.ts"
 import { MedusaError } from "@medusajs/framework/utils"
@@ -123,7 +129,7 @@ import { helloWorldWorkflow } from "../../src/workflows/hello-world"
 medusaIntegrationTestRunner({
   testSuite: ({ getContainer }) => {
     describe("Test hello-world workflow", () => {
-      it("returns message", async () => {
+      it("should throw error when item doesn't exist", async () => {
         const { errors } = await helloWorldWorkflow(getContainer())
           .run({
             throwOnError: false,
@@ -139,6 +145,432 @@ medusaIntegrationTestRunner({
 jest.setTimeout(60 * 1000)
 ```
 
-The `errors` property contains an array of errors thrown during the execution of the workflow. Each error item has an `error` object, being the error thrown.
+The `errors` property contains an array of errors thrown during the execution of the workflow. Each error item has an `error` object, which is the error thrown.
 
 If you threw a `MedusaError`, then you can check the error message in `errors[0].error.message`.
+
+---
+
+## Test Long-Running Workflows
+
+Since [long-running workflows](../../../../fundamentals/workflows/long-running-workflow/page.mdx) run asynchronously, testing them requires a different approach than synchronous workflows.
+
+When testing long-running workflows, you need to:
+
+1. Set the asynchronous steps as successful manually.
+2. Subscribe to the workflow's events to listen for the workflow execution's completion.
+3. Verify the output of the workflow after it has completed.
+
+For example, consider you have the following long-running workflow defined at `src/workflows/long-running-workflow.ts`:
+
+```ts title="src/workflows/long-running-workflow.ts" highlights={[["15"]]}
+import { 
+  createStep,  
+  createWorkflow,
+  WorkflowResponse,
+  StepResponse,
+} from "@medusajs/framework/workflows-sdk"
+
+const step1 = createStep("step-1", async () => {
+  return new StepResponse({})
+})
+
+const step2 = createStep(
+  {
+    name: "step-2",
+    async: true,
+  },
+  async () => {
+    console.log("Waiting to be successful...")
+  }
+)
+
+const step3 = createStep("step-3", async () => {
+  return new StepResponse("Finished three steps")
+})
+
+const longRunningWorkflow = createWorkflow(
+  "long-running", 
+  function () {
+    step1()
+    step2()
+    const message = step3()
+
+    return new WorkflowResponse({
+      message,
+    })
+  }
+)
+
+export default longRunningWorkflow
+```
+
+`step2` in this workflow is an asynchronous step that you need to set as successful manually in your test.
+
+You can write the following test to ensure that the long-running workflow completes successfully:
+
+export const longRunningWorkflowHighlights1 = [
+  ["11", "longRunningWorkflow", "Execute the long-running workflow."],
+  ["14", "workflowEngineService", "Resolve the Workflow Engine Module's service."],
+  ["19", "workflowCompletion", "Create a promise to wait for the workflow's completion."],
+  ["30", "subscribe", "Subscribe to the workflow's events."],
+  ["44", "setStepSuccess", "Set the asynchronous step as successful."],
+  ["54", "afterSubscriber", "Wait for the promise to resolve when workflow execution completes."],
+  ["56", "expect", "Assert that the workflow's result matches the expected output."],
+]
+
+```ts title="integration-tests/http/long-running-workflow.spec.ts" highlights={longRunningWorkflowHighlights1}
+import { medusaIntegrationTestRunner } from "@medusajs/test-utils"
+import longRunningWorkflow from "../../src/workflows/long-running-workflow"
+import { Modules, TransactionHandlerType } from "@medusajs/framework/utils"
+import { StepResponse } from "@medusajs/framework/workflows-sdk"
+
+medusaIntegrationTestRunner({
+  testSuite: ({ getContainer }) => {
+    describe("Test long-running workflow", () => {
+      it("returns message", async () => {
+        const container = getContainer()
+        const { transaction } = await longRunningWorkflow(container)
+          .run()
+
+        const workflowEngineService = container.resolve(
+          Modules.WORKFLOW_ENGINE
+        )
+
+        let workflowOk: any
+        const workflowCompletion = new Promise((ok) => {
+          workflowOk = ok
+        })
+
+        const subscriptionOptions = {
+          workflowId: "long-running",
+          transactionId: transaction.transactionId,
+          subscriberId: "long-running-subscriber",
+        }
+
+
+        await workflowEngineService.subscribe({
+          ...subscriptionOptions,
+          subscriber: async (data) => {
+            if (data.eventType === "onFinish") {
+              workflowOk(data.result.message)
+              // unsubscribe
+              await workflowEngineService.unsubscribe({
+                ...subscriptionOptions,
+                subscriberOrId: subscriptionOptions.subscriberId,
+              })
+            }
+          },
+        })
+
+        await workflowEngineService.setStepSuccess({
+          idempotencyKey: {
+            action: TransactionHandlerType.INVOKE,
+            transactionId: transaction.transactionId,
+            stepId: "step-2",
+            workflowId: "long-running",
+          },
+          stepResponse: new StepResponse("Done!"),
+        })
+
+        const afterSubscriber = await workflowCompletion
+
+        expect(afterSubscriber).toBe("Finished three steps")
+      })
+    })
+  },
+})
+
+jest.setTimeout(60 * 1000)
+```
+
+In this test, you:
+
+1. Execute the long-running workflow and get the transaction details from the `run` method's result.
+2. Resolve the [Workflow Engine Module](!resources!/infrastructure-modules/workflow-engine)'s service from the Medusa container.
+3. Create a promise to wait for the workflow's completion.
+4. Subscribe to the workflow's events using the Workflow Engine Module's `subscribe` method.
+    - The `subscriber` function is called whenever an event related to the workflow occurs. On the `onFinish` event that indicates the workflow has completed, you resolve the promise with the workflow's result.
+5. Set the asynchronous step as successful using the `setStepSuccess` method of the Workflow Engine Module.
+6. Wait for the promise to resolve, which indicates that the workflow has completed successfully.
+7. Finally, you assert that the workflow's result matches the expected output.
+
+If you run the integration test, it will execute the long-running workflow and verify that it completes and returns the expected result.
+
+### Example with Multiple Asynchronous Steps
+
+If your long-running workflow has multiple asynchronous steps, you must set each of them as successful in your test before the workflow can complete.
+
+Here's how the test would look like if you had two asynchronous steps:
+
+export const longRunningWorkflowHighlights2 = [
+  ["43", "setStepSuccess", "Set the first asynchronous step as successful."],
+  ["53", "setStepSuccess", "Set the second asynchronous step as successful."],
+]
+
+```ts title="integration-tests/http/long-running-workflow-multiple-steps.spec.ts" highlights={longRunningWorkflowHighlights2}
+import { medusaIntegrationTestRunner } from "@medusajs/test-utils"
+import longRunningWorkflow from "../../src/workflows/long-running-workflow"
+import { Modules, TransactionHandlerType } from "@medusajs/framework/utils"
+import { StepResponse } from "@medusajs/framework/workflows-sdk"
+
+medusaIntegrationTestRunner({
+  testSuite: ({ getContainer }) => {
+    describe("Test long-running workflow with multiple async steps", () => {
+      it("returns message", async () => {
+        const container = getContainer()
+        const { transaction } = await longRunningWorkflow(container)
+          .run()
+
+        const workflowEngineService = container.resolve(
+          Modules.WORKFLOW_ENGINE
+        )
+
+        let workflowOk: any
+        const workflowCompletion = new Promise((ok) => {
+          workflowOk = ok
+        })
+
+        const subscriptionOptions = {
+          workflowId: "long-running",
+          transactionId: transaction.transactionId,
+          subscriberId: "long-running-subscriber",
+        }
+
+        await workflowEngineService.subscribe({
+          ...subscriptionOptions,
+          subscriber: async (data) => {
+            if (data.eventType === "onFinish") {
+              workflowOk(data.result.message)
+              // unsubscribe
+              await workflowEngineService.unsubscribe({
+                ...subscriptionOptions,
+                subscriberOrId: subscriptionOptions.subscriberId,
+              })
+            }
+          },
+        })
+
+        await workflowEngineService.setStepSuccess({
+          idempotencyKey: {
+            action: TransactionHandlerType.INVOKE,
+            transactionId: transaction.transactionId,
+            stepId: "step-2",
+            workflowId: "long-running",
+          },
+          stepResponse: new StepResponse("Done!"),
+        })
+
+        await workflowEngineService.setStepSuccess({
+          idempotencyKey: {
+            action: TransactionHandlerType.INVOKE,
+            transactionId: transaction.transactionId,
+            stepId: "step-3",
+            workflowId: "long-running",
+          },
+          stepResponse: new StepResponse("Done with step 3!"),
+        })
+
+        const afterSubscriber = await workflowCompletion
+
+        expect(afterSubscriber).toBe("Finished three steps")
+      })
+    })
+  },
+})
+```
+
+In this example, you set both `step-2` and `step-3` as successful before waiting for the workflow to complete.
+
+---
+
+## Test Database Operations in Workflows
+
+In real use cases, you'll often test workflows that perform database operations, such as creating a brand.
+
+When you test such workflows, you may need to:
+
+- Verify that the database operations were performed correctly. For example, that a brand was created with the expected properties.
+- Perform database actions before testing the workflow. For example, creating a brand before testing a workflow that deletes it.
+
+This section provides examples of both scenarios.
+
+### Verify Database Operations in Workflow Test
+
+To retrieve data from the database after running a workflow, you can resolve and use either the module's service (for example, the Brand Module's service) or [Query](../../../../fundamentals/module-links/query/page.mdx).
+
+For example, the following test verifies that a brand was created by a workflow:
+
+export const workflowBrandHighlights = [
+  ["10", "createBrandWorkflow", "Execute the create brand workflow."],
+  ["17", "brandModuleService", "Resolve the Brand Module's service."],
+  ["19", "retrieveBrand", "Retrieve the created brand from the database."],
+  ["21", "expect", "Assert that the brand was created with the expected properties."],
+]
+
+```ts title="integration-tests/http/workflow-brand.spec.ts" highlights={workflowBrandHighlights}
+import { medusaIntegrationTestRunner } from "@medusajs/test-utils"
+import { createBrandWorkflow } from "../../src/workflows/create-brand"
+import { BRAND_MODULE } from "../../src/modules/brand"
+
+medusaIntegrationTestRunner({
+  testSuite: ({ getContainer }) => {
+    describe("Test create brand workflow", () => {
+      it("creates a brand", async () => {
+        const container = getContainer()
+        const { result: brand } = await createBrandWorkflow(container)
+          .run({
+            input: {
+              name: "Test Brand",
+            },
+          })
+
+        const brandModuleService = container.resolve(BRAND_MODULE)
+
+        const createdBrand = await brandModuleService.retrieveBrand(brand.id)
+        expect(createdBrand).toBeDefined()
+        expect(createdBrand.name).toBe("Test Brand")
+      })
+    })
+  },
+})
+
+jest.setTimeout(60 * 1000)
+```
+
+In this test, you run the workflow, which creates a brand. Then, you retrieve the brand from the database using the Brand Module's service and verify that it was created with the expected properties.
+
+### Perform Database Actions Before Testing Workflow
+
+You can perform database actions before testing workflows in the `beforeAll` or `beforeEach` hooks of your test suite. In those hooks, you can create data that is useful for your workflow tests.
+
+<Note title="Tip">
+
+Learn more about test hooks in [Jest's Documentation](https://jestjs.io/docs/setup-teardown).
+
+</Note>
+
+You can perform the database actions before testing a workflow by either: 
+
+- Using the module's service (for example, the Brand Module's service).
+- Using an existing workflow that performs the database actions.
+
+#### Use Module's Service
+
+For example, the following test creates a brand using the Brand Module's service before running the workflow that deletes it:
+
+export const workflowBrandDeleteHighlights = [
+  ["14", "createBrands", "Create a brand using the Brand Module's service."],
+  ["24", "deleteBrandWorkflow", "Run the delete brand workflow."],
+  ["34", "expect", "Assert that the brand was deleted successfully."],
+]
+
+```ts title="integration-tests/http/workflow-brand-delete.spec.ts"
+import { medusaIntegrationTestRunner } from "@medusajs/test-utils"
+import { deleteBrandWorkflow } from "../../src/workflows/delete-brand"
+import { BRAND_MODULE } from "../../src/modules/brand"
+
+medusaIntegrationTestRunner({
+  testSuite: ({ getContainer }) => {
+    let brandId: string
+
+    beforeAll(async () => {
+      const container = getContainer()
+      
+      const brandModuleService = container.resolve(BRAND_MODULE)
+      
+      const brand = await brandModuleService.createBrands({
+        name: "Test Brand",
+      })
+
+      brandId = brand.id
+    })
+
+    describe("Test delete brand workflow", () => {
+      it("deletes a brand", async () => {
+        const container = getContainer()
+        const { result } = await deleteBrandWorkflow(container)
+          .run({
+            input: {
+              id: brandId,
+            },
+          })
+
+        expect(result.success).toBe(true)
+
+        const brandModuleService = container.resolve(BRAND_MODULE)
+        await expect(brandModuleService.retrieveBrand(brandId))
+          .rejects.toThrow()
+      })
+    })
+  },
+})
+```
+
+In this example, you:
+
+1. Use the `beforeAll` hook to create a brand before running the workflow that deletes it.
+2. Create a test that runs the `deleteBrandWorkflow` to delete the created brand.
+3. Verify that the brand was deleted successfully by checking that retrieving it throws an error.
+
+#### Use Existing Workflow
+
+Alternatively, if you already have a workflow that performs the database operations, you can use that workflow in the `beforeAll` or `beforeEach` hook. This is useful if the database operations are complex and are already encapsulated in a workflow.
+
+For example, you can modify the `beforeAll` hook to use the `createBrandWorkflow`:
+
+export const workflowBrandDeleteHighlights2 = [
+  ["13", "createBrandWorkflow", "Create a brand using the create brand workflow."],
+  ["26", "deleteBrandWorkflow", "Run the delete brand workflow."],
+  ["36", "expect", "Assert that the brand was deleted successfully."],
+]
+
+```ts title="integration-tests/http/workflow-brand-delete.spec.ts" highlights={workflowBrandDeleteHighlights2}
+import { medusaIntegrationTestRunner } from "@medusajs/test-utils"
+import { deleteBrandWorkflow } from "../../src/workflows/delete-brand"
+import { createBrandWorkflow } from "../../src/workflows/create-brand"
+import { BRAND_MODULE } from "../../src/modules/brand"
+
+medusaIntegrationTestRunner({
+  testSuite: ({ getContainer }) => {
+    let brandId: string
+
+    beforeAll(async () => {
+      const container = getContainer()
+      
+      const { result: brand } = await createBrandWorkflow(container)
+        .run({
+          input: {
+            name: "Test Brand",
+          },
+        })
+
+      brandId = brand.id
+    })
+
+    describe("Test delete brand workflow", () => {
+      it("deletes a brand", async () => {
+        const container = getContainer()
+        const { result } = await deleteBrandWorkflow(container)
+          .run({
+            input: {
+              id: brandId,
+            },
+          })
+
+        expect(result.success).toBe(true)
+
+        const brandModuleService = container.resolve(BRAND_MODULE)
+        await expect(brandModuleService.retrieveBrand(brandId))
+          .rejects.toThrow()
+      })
+    })
+  },
+})
+```
+
+In this example, you:
+
+1. Use the `beforeAll` hook to run the `createBrandWorkflow`, which creates a brand before running the workflow that deletes it.
+2. Create a test that runs the `deleteBrandWorkflow` to delete the created brand.
+3. Verify that the brand was deleted successfully by checking that retrieving it throws an error.

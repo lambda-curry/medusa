@@ -31,17 +31,7 @@
  *   content:
  *     application/json:
  *       schema:
- *         type: object
- *         description: The properties to update in the refund reason.
- *         properties:
- *           label:
- *             type: string
- *             title: label
- *             description: The refund reason's label.
- *           description:
- *             type: string
- *             title: description
- *             description: The refund reason's description.
+ *         $ref: "#/components/schemas/AdminUpdatePaymentRefundReason"
  * x-codeSamples:
  *   - lang: Shell
  *     label: cURL

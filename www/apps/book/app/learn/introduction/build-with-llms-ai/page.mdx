@@ -1,4 +1,13 @@
-import { InlineIcon } from "docs-ui"
+import { 
+  InlineIcon,
+  Tabs,
+  TabsContent,
+  TabsContentWrapper,
+  TabsList,
+  TabsTrigger,
+  Button,
+  Link
+} from "docs-ui"
 import { AiAssistent, AiAssistentLuminosity } from "@medusajs/icons"
 
 export const metadata = {
@@ -50,6 +59,70 @@ console.log("Hello, World!")
 ~~~
 
 You can add new lines using the `Shift + Enter` shortcut.
+
+---
+
+## MCP Remote Server
+
+The Medusa documentation provides a remote Model Context Protocol (MCP) server that allows you to find information from the Medusa documentation right in your IDEs or AI tools, such as Cursor.
+
+Medusa hosts a Streamable HTTP MCP server available at `https://docs.medusajs.com/mcp`. you can add it to AI agents that support connecting to MCP servers.
+
+<Tabs defaultValue="cursor">
+  <TabsList>
+    <TabsTrigger value="cursor">Cursor</TabsTrigger>
+    <TabsTrigger value="vscode">VSCode</TabsTrigger>
+    <TabsTrigger value="claude-code">Claude Code</TabsTrigger>
+  </TabsList>
+  <TabsContentWrapper className="mt-1">
+    <TabsContent value="cursor">
+
+      <Link href="https://cursor.com/install-mcp?name=medusa&config=eyJ1cmwiOiJodHRwczovL2RvY3MubWVkdXNhanMuY29tL21jcCJ9" target="_blank" rel="noopener noreferrer" variant="content">Click here</Link> to add the Medusa MCP server to Cursor.
+
+      To manually connect to the Medusa MCP server in Cursor, add the following to your `.cursor/mcp.json` file or Cursor settings, as explained in the [Cursor documentation](https://docs.cursor.com/context/model-context-protocol):
+
+```json
+{
+  "mcpServers": {
+    "medusa": {
+      "url": "https://docs.medusajs.com/mcp"
+    }
+  }
+}
+```
+
+      
+    </TabsContent>
+    <TabsContent value="vscode">
+
+      <Link href="https://vscode.dev/redirect/mcp/install?name=medusa&config=%7B%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fdocs.medusajs.com%2Fmcp%22%7D" target="_blank" rel="noopener noreferrer" variant="content">Click here</Link> to add the Medusa MCP server to VSCode.
+
+      To manually connect to the Medusa MCP server in VSCode, add the following to your `.vscode/mcp.json` file in your workspace:
+
+```json
+{
+  "servers": {
+    "medusa": {
+      "type": "http",
+      "url": "https://docs.medusajs.com/mcp"
+    }
+  }
+}
+```
+
+      Learn more in the [VSCode documentation](https://code.visualstudio.com/docs/copilot/chat/mcp-servers).
+
+    </TabsContent>
+    <TabsContent value="claude-code">
+      To manually connect to the Medusa MCP server in Claude Code, run the following command in your terminal:
+
+```sh
+claude mcp add --transport http medusa https://docs.medusajs.com/mcp
+```
+
+</TabsContent>
+  </TabsContentWrapper>
+</Tabs>
 
 ---
 

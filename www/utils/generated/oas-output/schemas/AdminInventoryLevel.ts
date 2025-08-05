@@ -58,6 +58,9 @@
  *   metadata:
  *     type: object
  *     description: The location level's metadata.
+ *     externalDocs:
+ *       url: https://docs.medusajs.com/api/admin#manage-metadata
+ *       description: Learn how to manage metadata
  *   inventory_item:
  *     $ref: "#/components/schemas/AdminInventoryItem"
  *   available_quantity:

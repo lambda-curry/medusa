@@ -240,11 +240,6 @@ medusaIntegrationTestRunner({
                     operator: "in",
                     values: ["cus_test"],
                   },
-                  {
-                    attribute: "currency_code",
-                    operator: "in",
-                    values: ["eur"],
-                  },
                 ],
                 application_method: {
                   type: "fixed",
@@ -275,11 +270,6 @@ medusaIntegrationTestRunner({
                   operator: "in",
                   values: ["cus_test"],
                 },
-                {
-                  attribute: "currency_code",
-                  operator: "in",
-                  values: ["eur"],
-                },
               ],
               application_method: {
                 type: "fixed",
@@ -300,7 +290,7 @@ medusaIntegrationTestRunner({
           ])
 
           const cart = await cartModuleService.createCarts({
-            currency_code: "eur",
+            currency_code: "usd",
             customer_id: "cus_test",
             items: [
               {

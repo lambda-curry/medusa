@@ -11,7 +11,7 @@ export const WorkflowDiagramLegend = ({
   hideLegend = false,
 }: WorkflowDiagramLegendProps) => {
   return (
-    <div className="flex gap-docs_0.5 mt-1">
+    <div className="flex gap-docs_0.5">
       {!hideLegend && (
         <>
           <div className="flex items-center gap-docs_0.5">

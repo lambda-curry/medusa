@@ -1,0 +1,88 @@
+import { CodeTabs, CodeTab } from "docs-ui"
+
+export const metadata = {
+  title: `${pageNumber} Automatically Generated Types`,
+}
+
+# {metadata.title}
+
+In this chapter, you'll learn about the types Medusa automatically generates under the `.medusa` directory and how you should use them.
+
+## What are Automatically Generated Types?
+
+Medusa automatically generates TypeScript types for:
+
+1. Data models collected in the [Query's graph](../module-links/query/page.mdx#querying-the-graph). These types provide you with auto-completion and type checking when using Query.
+    - Generated data model types are located in the `.medusa/types/query-entry-points.d.ts` file.
+2. Modules registered in the [Medusa container](../medusa-container/page.mdx). These types provide you with auto-completion and type checking when resolving modules from the container.
+    - Generated module registration names are located in the `.medusa/types/modules-bindings.d.ts` file.
+
+![Diagram showcasing the directory structure of the `.medusa` directory, highlighting the `types` folder and its contents.](https://res.cloudinary.com/dza7lstvk/image/upload/v1753448927/Medusa%20Book/generated-types-dir_bmvdts.jpg)
+
+---
+
+## How to Trigger Type Generation?
+
+The Medusa application generates these types automatically when you run the application with the `dev` command:
+
+```bash npm2yarn
+npm run dev
+```
+
+So, if you add a new data model or module and you don't find it in auto-completion or type checking, you can run the `dev` command to regenerate the types.
+
+---
+
+## How to Use the Generated Types?
+
+The generated types are only meant for auto-completion and type checking.
+
+For example, consider you have a Brand Module with a `Brand` data model. Due to the auto-generated types, you can do the following:
+
+<CodeTabs group="auto-generated-types">
+  <CodeTab value="query" label="Query">
+
+```ts
+const { data: [brand] } = await query.graph({
+  entity: "brand",
+  fields: ["*"],
+  filters: {
+    id: "brand_123",
+  },
+})
+
+// brands has the correct type, so you can access its properties with auto-completion and type checking
+console.log(brand.name)
+```
+
+  </CodeTab>
+  <CodeTab value="container" label="Container">
+
+```ts
+const brandModuleService = req.scope.resolve("brand")
+
+// brandModuleService has the correct type, so you can access its methods with auto-completion and type checking
+const brand = await brandModuleService.retrieveBrand("brand_123")
+```
+
+  </CodeTab>
+</CodeTabs>
+
+### Don't Import the Generated Types
+
+The generated types are only meant to help you in your development process by providing auto-completion and type checking. You should not import them directly in your code.
+
+Since you don't commit the `.medusa` directory to your version control system or your production environment, importing these types may lead to build errors.
+
+Instead, if you need to use a data model's type in your customizations, you can use the [InferTypeOf](../data-models/infer-type/page.mdx) utility function, which infers the type of a data model based on its properties.
+
+For example, if you want to use the `Brand` data model's type in your customizations, you can do the following:
+
+```ts
+import { InferTypeOf } from "@medusajs/framework/types"
+import { Brand } from "../modules/brand/models/brand" // relative path to the model
+
+export type BrandType = InferTypeOf<typeof Brand>
+```
+
+You can then use the `BrandType` type in your customizations, such as in workflow inputs or service method outputs.

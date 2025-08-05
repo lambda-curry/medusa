@@ -50,7 +50,7 @@ class EventsKindGenerator extends DefaultKindGenerator<ts.VariableDeclaration> {
 
         const commentsAndTags = ts.getJSDocCommentsAndTags(propertyAssignment)
         let payloadTag: ts.JSDocTag | undefined
-        let versionTag: ts.JSDocTag | undefined
+        let sinceTag: ts.JSDocTag | undefined
         let deprecatedTag: ts.JSDocTag | undefined
         let description: string | undefined
         commentsAndTags.forEach((comment) => {
@@ -67,8 +67,8 @@ class EventsKindGenerator extends DefaultKindGenerator<ts.VariableDeclaration> {
               payloadTag = tag
             }
 
-            if (tag.tagName.getText() === "version") {
-              versionTag = tag
+            if (tag.tagName.getText() === "since") {
+              sinceTag = tag
             }
 
             if (tag.tagName.getText() === "deprecated") {
@@ -84,7 +84,7 @@ class EventsKindGenerator extends DefaultKindGenerator<ts.VariableDeclaration> {
           payload: (payloadTag?.comment as string) ?? "",
           description,
           workflows,
-          version: versionTag?.comment as string,
+          since: sinceTag?.comment as string,
           deprecated: deprecatedTag !== undefined,
           deprecated_message: deprecatedTag?.comment as string,
         }

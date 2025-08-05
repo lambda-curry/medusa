@@ -151,7 +151,7 @@ moduleIntegrationTestRunner<IWorkflowEngineService>({
 
       describe("Testing basic workflow", function () {
         describe("Cancel transaction", function () {
-          it("should cancel an ongoing execution with async unfinished yet step", async () => {
+          it("should cancel an ongoing execution with async unfinished yet step", (done) => {
             const transactionId = "transaction-to-cancel-id"
             const step1 = createStep("step1", async () => {
               return new StepResponse("step1")
@@ -179,25 +179,42 @@ moduleIntegrationTestRunner<IWorkflowEngineService>({
               }
             )
 
-            await workflowOrcModule.run(workflowId, {
-              input: {},
-              transactionId,
-            })
+            workflowOrcModule
+              .run(workflowId, {
+                input: {},
+                transactionId,
+              })
+              .then(async () => {
+                await setTimeout(100)
 
-            await setTimeout(100)
+                await workflowOrcModule.cancel(workflowId, {
+                  transactionId,
+                })
 
-            await workflowOrcModule.cancel(workflowId, {
-              transactionId,
-            })
+                workflowOrcModule.subscribe({
+                  workflowId,
+                  transactionId,
+                  subscriber: async (event) => {
+                    if (event.eventType === "onFinish") {
+                      const execution =
+                        await workflowOrcModule.listWorkflowExecutions({
+                          transaction_id: transactionId,
+                        })
 
-            await setTimeout(1000)
+                      expect(execution.length).toEqual(1)
+                      expect(execution[0].state).toEqual(
+                        TransactionState.REVERTED
+                      )
+                      done()
+                    }
+                  },
+                })
+              })
 
-            const execution = await workflowOrcModule.listWorkflowExecutions({
-              transaction_id: transactionId,
-            })
-
-            expect(execution.length).toEqual(1)
-            expect(execution[0].state).toEqual(TransactionState.REVERTED)
+            failTrap(
+              done,
+              "should cancel an ongoing execution with async unfinished yet step"
+            )
           })
 
           it("should cancel a complete execution with a sync workflow running as async", async () => {
@@ -550,7 +567,14 @@ moduleIntegrationTestRunner<IWorkflowEngineService>({
               return e
             })
 
-          expect(setStepError).toEqual({ uhuuuu: "yeaah!" })
+          expect(setStepError).toEqual(
+            expect.objectContaining({
+              message: JSON.stringify({
+                uhuuuu: "yeaah!",
+              }),
+              stack: expect.any(String),
+            })
+          )
           ;({ data: executionsList } = await query.graph({
             entity: "workflow_executions",
             fields: ["id", "state", "context"],
@@ -817,6 +841,7 @@ moduleIntegrationTestRunner<IWorkflowEngineService>({
 
           void workflowOrcModule.subscribe({
             workflowId: "wf-when",
+            transactionId: "trx_123_when",
             subscriber: (event) => {
               if (event.eventType === "onFinish") {
                 done()

@@ -2773,7 +2773,7 @@ const generatedgeneratedReferencesSidebarSidebar = {
                   "type": "link",
                   "path": "/references/medusa-workflows/orderEditUpdateItemQuantityWorkflow",
                   "title": "orderEditUpdateItemQuantityWorkflow",
-                  "description": "Update the quantity of an existing order item in the order's edit.",
+                  "description": "Update or remove an existing order item's quantity in the order's edit.",
                   "children": []
                 },
                 {

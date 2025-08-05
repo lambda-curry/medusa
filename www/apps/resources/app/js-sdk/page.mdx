@@ -398,6 +398,151 @@ The method returns a Promise that, when resolved, has the data returned by the r
 
 ---
 
+## Stream Server-Sent Events
+
+The JS SDK supports streaming server-sent events (SSE) using the `client.fetchStream` method. This method is useful when you want to receive real-time updates from the server.
+
+For example, consider you have the following custom API route at `src/api/admin/stream/route.ts`:
+
+```ts title="src/api/admin/stream/route.ts"
+import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+
+export const GET = async (
+  req: MedusaRequest,
+  res: MedusaResponse
+) => {
+  res.writeHead(200, {
+    "Content-Type": "text/event-stream",
+    "Cache-Control": "no-cache",
+    Connection: "keep-alive",
+  })
+
+  const interval = setInterval(() => {
+    res.write("data: Streaming data...\n\n")
+  }, 3000)
+
+  req.on("close", () => {
+    clearInterval(interval)
+    res.end()
+  })
+  
+  req.on("end", () => {
+    clearInterval(interval)
+    res.end()
+  })
+}
+```
+
+Then, you can use the `client.fetchStream` method in a UI route to receive the streaming data:
+
+```tsx title="src/admin/route/stream/page.tsx"
+import { defineRouteConfig } from "@medusajs/admin-sdk"
+import { Container, Heading, Button, Text } from "@medusajs/ui"
+import { useState } from "react"
+import { sdk } from "../../lib/sdk"
+
+const StreamTestPage = () => {
+  const [messages, setMessages] = useState<string[]>([])
+  const [isStreaming, setIsStreaming] = useState(false)
+  const [abortStream, setAbortStream] = useState<(() => void) | null>(null)
+
+  const startStream = async () => {
+    setIsStreaming(true)
+    setMessages([])
+    
+    const { stream, abort } = await sdk.client.fetchStream("/admin/stream")
+
+    if (!stream) {
+      console.error("Failed to start stream")
+      setIsStreaming(false)
+      return
+    }
+
+    // Store the abort function for the abort button
+    setAbortStream(() => abort)
+
+    try {
+      for await (const chunk of stream) {
+        // Since the server sends plain text, convert to string
+        const message = typeof chunk === "string" ? chunk : (chunk.data || String(chunk))
+        setMessages((prev) => [...prev, message.trim()])
+      }
+    } catch (error) {
+      // Don't log abort errors as they're expected when user clicks abort
+      if (error instanceof Error && error.name !== "AbortError") {
+        console.error("Stream error:", error)
+      }
+    } finally {
+      setIsStreaming(false)
+      setAbortStream(null)
+    }
+  }
+
+  const handleAbort = () => {
+    if (abortStream) {
+      abortStream()
+      setIsStreaming(false)
+      setAbortStream(null)
+    }
+  }
+
+  return (
+    <Container className="p-6">
+      <Heading level="h1" className="mb-6">
+        fetchStream Example
+      </Heading>
+      
+      <div className="space-y-4">
+        <div className="flex gap-2">
+          <Button 
+            onClick={startStream} 
+            disabled={isStreaming}
+            variant="primary"
+          >
+            {isStreaming ? "Streaming..." : "Start Stream"}
+          </Button>
+          
+          <Button 
+            onClick={handleAbort} 
+            disabled={!isStreaming}
+            variant="secondary"
+          >
+            Abort Stream
+          </Button>
+        </div>
+        
+        <div className="border rounded p-4 h-64 overflow-y-auto bg-ui-bg-subtle">
+          {messages.length === 0 ? (
+            <Text className="text-ui-fg-muted">No messages yet...</Text>
+          ) : (
+            messages.map((msg, index) => (
+              <div key={index} className="mb-2 text-sm">
+                {msg}
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    </Container>
+  )
+}
+
+export const config = defineRouteConfig({
+  label: "Stream Test",
+})
+
+export default StreamTestPage
+```
+
+`fetchStream` accepts the same parameters as `fetch`, but it returns an object having two properties:
+
+- `stream`: An [AsyncGenerator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/AsyncGenerator) that you can use to iterate over the streaming data.
+- `abort`: A function that you can call to abort the stream. This is useful when you want to stop receiving data from the server.
+
+In this example, when the user clicks the "Start Stream" button, you start the stream and listen for incoming data. The data is received as chunks, which you can process and display in the UI.
+
+---
+
 ## Handle Errors
 
 If an error occurs in a request, the JS SDK throws a `FetchError` object. This object has the following properties:

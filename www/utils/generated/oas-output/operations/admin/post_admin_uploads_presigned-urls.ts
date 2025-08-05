@@ -2,7 +2,8 @@
  * @oas [post] /admin/uploads/presigned-urls
  * operationId: PostUploadsPresignedUrls
  * summary: Get Presigned Upload URL
- * description: Get a presigned URL for uploading a file to the configured File Module Provider. The presigned URL can be used to upload files directly to the third-party provider. This only works if your configured provider supports presigned URLs, such as the S3 provider.
+ * description: Get a presigned URL for uploading a file to the configured File Module Provider. The presigned URL can be used to upload files directly to the third-party provider. This only works if
+ *   your configured provider supports presigned URLs, such as the S3 provider.
  * x-authenticated: true
  * security:
  *   - api_token: []

@@ -1,0 +1,436 @@
+import { 
+  Prerequisites,
+  CodeTabs,
+  CodeTab
+} from "docs-ui"
+import Feedback from "@/components/Feedback"
+
+export const metadata = {
+  title: `${pageNumber} Install Medusa with Docker`,
+}
+
+# {metadata.title}
+
+In this chapter, you'll learn how to install and run a Medusa application using Docker.
+
+The main supported installation method is using [create-medusa-app](../page.mdx). However, since it requires prerequisites like PostgreSQL, Docker may be a preferred and easier option for some users. You can follow this guide to set up a Medusa application with Docker in this case.
+
+You can follow this guide on any operating system that supports Docker, including Windows, macOS, and Linux.
+
+<Prerequisites
+  items={[
+    {
+      text: "Docker",
+      link: "https://docs.docker.com/get-docker/"
+    },
+    {
+      text: "Docker Compose",
+      link: "https://docs.docker.com/compose/install/"
+    },
+    {
+      text: "Git CLI tool",
+      link: "https://git-scm.com/downloads"
+    },
+  ]} />
+
+## 1. Clone Medusa Starter Repository
+
+To get started, clone the Medusa Starter repository that a Medusa application is based on:
+
+```bash
+git clone https://github.com/medusajs/medusa-starter-default.git --depth=1 my-medusa-store
+```
+
+This command clones the repository into a directory named `my-medusa-store`.
+
+---
+
+## 2. Create `docker-compose.yml`
+
+In the cloned repository, create a file named `docker-compose.yml` with the following content:
+
+```yaml title="docker-compose.yml"
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: medusa_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: medusa-store
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - medusa_network
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    container_name: medusa_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - medusa_network
+
+  # Medusa Server
+  # This service runs the Medusa backend application
+  # and the admin dashboard.
+  medusa:
+    build: .
+    container_name: medusa_backend
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "9000:9000"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/medusa-store
+      - REDIS_URL=redis://redis:6379
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+      - /app/node_modules
+    networks:
+      - medusa_network
+
+volumes:
+  postgres_data:
+
+networks:
+  medusa_network:
+    driver: bridge
+```
+
+You define three services in this file:
+
+- `postgres`: The PostgreSQL database service that stores your Medusa application's data.
+- `redis`: The Redis service that stores session data.
+- `medusa`: The Medusa service that runs the server and the admin dashboard. It connects to the PostgreSQL and Redis services.
+
+You can add environment variables either in the `environment` section of the `medusa` service or in a separate `.env` file.
+
+### Recommendations for Multiple Local Projects
+
+If this isn't the first Medusa project you're setting up with Docker on your machine, make sure to:
+
+- Change the `container_name` for each service to avoid conflicts.
+    - For example, use `medusa_postgres_myproject`, `medusa_redis_myproject`, and `medusa_backend_myproject` instead of the current names.
+- Change the volume names to avoid conflicts.
+    - For example, use `postgres_data_myproject` instead of `postgres_data`.
+- Change the network name to avoid conflicts.
+    - For example, use `medusa_network_myproject` instead of `medusa_network`.
+- Change the ports to avoid conflicts with other projects. For example:
+    - Use `"5433:5432"` for PostgreSQL.
+    - Use `"6380:6379"` for Redis.
+    - Use `"9001:9000"` for the Medusa server.
+- Update the `DATABASE_URL` and `REDIS_URL` environment variables accordingly.
+
+---
+
+## 3. Create `start.sh`
+
+Next, you need to create a script file that [runs database migrations](../../fundamentals/data-models/write-migration/page.mdx) and starts the Medusa development server.
+
+Create the file `start.sh` with the following content:
+
+<CodeTabs group="npm2yarn" defaultValue="yarn">
+  <CodeTab value="yarn" label="Yarn">
+```shell title="start.sh"
+#!/bin/sh
+
+# Run migrations and start server
+echo "Running database migrations..."
+npx medusa db:migrate
+
+echo "Seeding database..."
+yarn seed || echo "Seeding failed, continuing..."
+
+echo "Starting Medusa development server..."
+yarn dev
+```
+
+  </CodeTab>
+  <CodeTab value="npm" label="NPM">
+```shell title="start.sh"
+#!/bin/sh
+
+# Run migrations and start server
+echo "Running database migrations..."
+npx medusa db:migrate
+
+echo "Seeding database..."
+npm run seed || echo "Seeding failed, continuing..."
+
+echo "Starting Medusa development server..."
+npm run dev
+```
+  </CodeTab>
+</CodeTabs>
+
+Make sure to give the script executable permissions:
+
+<Note>
+
+Setting permissions isn't necessary on Windows, but it's recommended to run this command on Unix-based systems like macOS and Linux.
+
+</Note>
+
+```bash
+chmod +x start.sh
+```
+
+---
+
+## 4. Create `Dockerfile`
+
+The `Dockerfile` defines how the Medusa service is built.
+
+Create a file named `Dockerfile` with the following content:
+
+<CodeTabs group="npm2yarn" defaultValue="yarn">
+  <CodeTab value="yarn" label="Yarn">
+```dockerfile title="Dockerfile"
+# Development Dockerfile for Medusa
+FROM node:20-alpine
+
+# Set working directory
+WORKDIR /server
+
+# Copy package files and yarn config
+COPY package.json yarn.lock .yarnrc.yml ./
+
+# Install all dependencies using yarn
+RUN yarn install
+
+# Copy source code
+COPY . .
+
+# Expose the port Medusa runs on
+EXPOSE 9000
+
+# Start with migrations and then the development server
+CMD ["./start.sh"]
+```
+  </CodeTab>
+  <CodeTab value="npm" label="NPM">
+```dockerfile title="Dockerfile"
+# Development Dockerfile for Medusa
+FROM node:20-alpine
+
+# Set working directory
+WORKDIR /server
+
+# Copy package files and npm config
+COPY package.json package-lock.json ./
+
+# Install all dependencies using npm
+RUN npm install
+
+# Copy source code
+COPY . .
+
+# Expose the port Medusa runs on
+EXPOSE 9000
+
+# Start with migrations and then the development server
+CMD ["./start.sh"]
+```
+  </CodeTab>
+</CodeTabs>
+
+In the `Dockerfile`, you use the `node:20-alpine` image as the base since Medusa requires Node.js v20 or later.
+
+Then, you set the working directory to `/server`, copy the necessary files, install dependencies, expose the `9000` port that Medusa uses, and run the `start.sh` script to start the server.
+
+<Note>
+
+While it's more common to use `/app` as the working directory, it's highly recommended to use `/server` for the Medusa service to avoid conflicts with Medusa Admin customizations. Learn more in [this troubleshooting guide](!resources!/troubleshooting/medusa-admin/no-widget-route#errors-in-docker).
+
+</Note>
+
+---
+
+## 5. Install Dependencies
+
+The Medusa Starter repository has a `yarn.lock` file that was generated by installing dependencies with Yarn v1.22.19.
+
+If you're using a different Yarn version, or you're using NPM, you need to install the dependencies again to ensure compatibility with the Docker setup.
+
+To install the dependencies, run the following command:
+
+```bash npm2yarn
+npm install
+```
+
+This will update `yarn.lock` or generate a `package-lock.json` file, depending on your package manager.
+
+---
+
+## 6. Update Scripts in `package.json`
+
+Next, you need to update the `scripts` section in your `package.json` file to start the development server using Docker.
+
+Add the following scripts in `package.json`:
+
+```json title="package.json"
+{
+  "scripts": {
+    // Other scripts...
+    "docker:up": "docker compose up --build -d",
+    "docker:down": "docker compose down"
+  }
+}
+```
+
+Where:
+
+- `docker:up` starts the development server in a Docker container as a background process.
+- `docker:down` stops and removes the Docker containers.
+
+---
+
+## 7. Update Medusa Configuration
+
+If you try to run the Medusa application now with Docker, you'll encounter an SSL error as the server tries to connect to the PostgreSQL database.
+
+To resolve the error, add the following configurations in `medusa-config.ts`:
+
+```ts title="medusa-config.ts"
+import { loadEnv, defineConfig } from "@medusajs/framework/utils"
+
+loadEnv(process.env.NODE_ENV || "development", process.cwd())
+
+module.exports = defineConfig({
+  projectConfig: {
+    // ...
+    databaseDriverOptions: {
+      ssl: false,
+      sslmode: "disable",
+    },
+  },
+})
+```
+
+You add the [projectConfig.databaseDriverOptions](../../configurations/medusa-config/page.mdx#databasedriveroptions) to disable SSL for the PostgreSQL database connection.
+
+---
+
+## 8. Add `.dockerignore`
+
+To ensure only the necessary files are copied into the Docker image, create a `.dockerignore` file with the following content:
+
+```dockerignore title=".dockerignore"
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.git
+.gitignore
+README.md
+.env.test
+.nyc_output
+coverage
+.DS_Store
+*.log
+dist
+build
+```
+
+---
+
+## 9. Create `.env` File
+
+You can add environment variables either in the `environment` section of the `medusa` service in `docker-compose.yml` or in a separate `.env` file.
+
+If you don't want to use a `.env` file, you can remove the `env_file` section from the `medusa` service in `docker-compose.yml`.
+
+Otherwise, copy the `.env.template` file to `.env` and update the values as needed.
+
+---
+
+## 10. Start the Medusa Application with Docker
+
+All configurations are now ready. You can start the Medusa application using Docker by running the following command:
+
+```bash npm2yarn
+npm run docker:up
+```
+
+Docker will pull the necessary images, start the PostgreSQL and Redis services, build the Medusa service, and run the development server in a Docker container.
+
+You can check the logs to ensure everything is running smoothly with the following command:
+
+```bash
+docker compose logs -f
+```
+
+Once you see the following message, the Medusa server and admin are ready:
+
+```shell
+✔ Server is ready on port: 9000 – 3ms
+info:    Admin URL → http://localhost:9000/app
+```
+
+You can now access the Medusa server at `http://localhost:9000` and the Medusa Admin dashboard at `http://localhost:9000/app`.
+
+<Feedback
+  question="Did the Docker installation finish successfully?"
+  negativeQuestion="What errors or issues did you run into?"
+  showDottedSeparator={false}
+  positiveBtn="Yes"
+  negativeBtn="No"
+/>
+
+---
+
+## Create Admin User
+
+To create an admin user, run the following command:
+
+```bash
+docker compose run --rm medusa npx medusa user -e admin@example.com -p supersecret
+```
+
+Make sure to replace `admin@example.com` and `supersecret` with your desired email and password.
+
+You can now log in to the Medusa Admin dashboard at `http://localhost:9000/app` using the email and password you just created.
+
+---
+
+## Stop the Medusa Application Running in Docker
+
+To stop the Medusa application running in Docker, run the following command:
+
+```bash npm2yarn
+npm run docker:down
+```
+
+This command stops and removes the Docker containers created by the `docker-compose.yml` file.
+
+This doesn't delete any data in your application or its database. You can start the server again using the `docker:up` command.
+
+---
+
+## Check Logs
+
+You can check the logs of the Medusa application running in Docker using the following command:
+
+```bash
+docker compose logs -f medusa
+```
+
+This command shows the logs of the `medusa` service, allowing you to see any errors or messages from the Medusa application.
+
+---
+
+## Learn More about your Medusa Application
+
+You can learn more about your Medusa application and its setup in the [Installation chapter](../page.mdx).

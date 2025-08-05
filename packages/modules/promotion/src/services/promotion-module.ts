@@ -520,13 +520,17 @@ export default class PromotionModuleService
         continue
       }
 
+      const isCurrencyCodeValid =
+        !isDefined(applicationMethod.currency_code) ||
+        applicationContext.currency_code === applicationMethod.currency_code
+
       const isPromotionApplicable = areRulesValidForContext(
         promotionRules,
         applicationContext,
         ApplicationMethodTargetType.ORDER
       )
 
-      if (!isPromotionApplicable) {
+      if (!isPromotionApplicable || !isCurrencyCodeValid) {
         continue
       }
 

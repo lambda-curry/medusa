@@ -58,6 +58,32 @@ const Post = model.define("post", {
 export default Post
 ```
 
+#### Limit Text Length
+
+To limit the allowed length of a `text` property, use the [checks method](../check-constraints/page.mdx).
+
+For example, to limit the `name` property to a maximum of 50 characters:
+
+export const textLengthHighlights = [
+  ["7", "checks", "Add check constraints to the data model."],
+]
+
+```ts highlights={textLengthHighlights}
+import { model } from "@medusajs/framework/utils"
+
+const Post = model.define("post", {
+  name: model.text(),
+  // ...
+})
+.checks([
+  (columns) => `${columns.name.length} <= 50`,
+])
+
+export default Post
+```
+
+This will add a database check constraint that ensures the `name` property of a record does not exceed 50 characters. If a record with a longer `name` is attempted to be inserted, an error will be thrown.
+
 ### number
 
 The `number` method defines a number property.
@@ -194,7 +220,7 @@ export default Post
 
 ### json
 
-The `json` method defines a property whose value is a stringified JSON object.
+The `json` method defines a property whose value is stored as a stringified JSON object in the database.
 
 For example:
 
@@ -210,6 +236,8 @@ const Post = model.define("post", {
 
 export default Post
 ```
+
+Learn more in the [JSON Properties](../json-properties/page.mdx) chapter.
 
 ### array
 

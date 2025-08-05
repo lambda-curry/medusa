@@ -19,9 +19,26 @@ In this chapter, you'll learn about `moduleIntegrationTestRunner` from Medusa's 
 
 ## moduleIntegrationTestRunner Utility
 
-`moduleIntegrationTestRunner` creates integration tests for a module. The integration tests run on a test Medusa application with only the specified module enabled.
+`moduleIntegrationTestRunner` creates integration tests for a module's service. The integration tests run on a test Medusa application with only the specified module enabled.
 
-For example, assuming you have a `blog` module, create a test file at `src/modules/blog/__tests__/service.spec.ts`:
+For example, consider a Blog Module with a `BlogModuleService` that has a `getMessage` method:
+
+```ts title="src/modules/blog/service.ts"
+import { MedusaService } from "@medusajs/framework/utils"
+import Post from "./models/post"
+
+class BlogModuleService extends MedusaService({
+  Post,
+}){
+  async getMessage(): Promise<string> {
+    return "Hello, World!"
+  }
+}
+
+export default BlogModuleService
+```
+
+To create an integration test for the module's service, create the file `src/modules/blog/__tests__/service.spec.ts` with the following content:
 
 ```ts title="src/modules/blog/__tests__/service.spec.ts"
 import { moduleIntegrationTestRunner } from "@medusajs/test-utils"
@@ -34,7 +51,13 @@ moduleIntegrationTestRunner<BlogModuleService>({
   moduleModels: [Post],
   resolve: "./src/modules/blog",
   testSuite: ({ service }) => {
-    // TODO write tests
+    describe("BlogModuleService", () => {
+      it("says hello world", () => {
+        const message = service.getMessage()
+
+        expect(message).toEqual("Hello, World!")
+      })
+    })
   },
 })
 
@@ -43,10 +66,10 @@ jest.setTimeout(60 * 1000)
 
 The `moduleIntegrationTestRunner` function accepts as a parameter an object with the following properties:
 
-- `moduleName`: The name of the module.
+- `moduleName`: The registration name of the module.
 - `moduleModels`: An array of models in the module. Refer to [this section](#write-tests-for-modules-without-data-models) if your module doesn't have data models.
 - `resolve`: The path to the module's directory.
-- `testSuite`: A function that defines the tests to run.
+- `testSuite`: A function that defines [Jest](https://jestjs.io/) tests to run.
 
 The `testSuite` function accepts as a parameter an object having the `service` property, which is an instance of the module's main service.
 
@@ -96,6 +119,8 @@ moduleIntegrationTestRunner<BlogModuleService>({
 })
 ```
 
+`moduleOptions` is an object of key-value pair options that your module's service receives in its constructor.
+
 ---
 
 ## Write Tests for Modules without Data Models
@@ -120,6 +145,58 @@ moduleIntegrationTestRunner<BlogModuleService>({
 
 jest.setTimeout(60 * 1000)
 ```
+
+---
+
+## Inject Dependencies in Module Tests
+
+Some modules have injected dependencies, such as the [Event Module's service](!resources!/infrastructure-modules/event). When writing tests for those modules, you need to inject the dependencies that the module's service requires to avoid errors.
+
+You can inject dependencies as mock dependencies that simulate the behavior of the original service. This way you avoid unexpected behavior or results, such as sending real events or making real API calls.
+
+To inject dependencies, pass the `injectedDependencies` property to the `moduleIntegrationTestRunner` function.
+
+For example:
+
+export const mockDependenciesHighlights = [
+  ["11", "injectedDependencies", "Inject dependencies into the module's service."],
+  ["12", "Modules.EVENT_BUS", "The registration name of the dependency."],
+  ["12", "MockEventBusService", "The mock service to inject."]
+]
+
+```ts title="src/modules/blog/__tests__/service.spec.ts" highlights={mockDependenciesHighlights}
+import { MockEventBusService, moduleIntegrationTestRunner } from "@medusajs/test-utils"
+import { BLOG_MODULE } from ".."
+import BlogModuleService from "../service"
+import Post from "../models/post"
+import { Modules } from "@medusajs/framework/utils"
+
+moduleIntegrationTestRunner<BlogModuleService>({
+  moduleName: BLOG_MODULE,
+  moduleModels: [Post],
+  resolve: "./src/modules/blog",
+  injectedDependencies: {
+    [Modules.EVENT_BUS]: new MockEventBusService(),
+  },
+  testSuite: ({ service }) => {
+    describe("BlogModuleService", () => {
+      it("says hello world", async () => {
+        const message = await service.getMessage()
+
+        expect(message).toEqual("Hello, World!")
+      })
+    })
+  },
+})
+
+jest.setTimeout(60 * 1000)
+```
+
+`injectedDependencies`'s value is an object whose keys are registration names of the dependencies you want to inject, and the values are the mock services.
+
+In this example, you inject a mock Event Module service into the `BlogModuleService`. Medusa exposes a `MockEventBusService` class that you can use to mock the Event Module's service.
+
+For other modules, you can create a mock service that implements the same interface as the original service. Make sure to use the same registration name as the original service when injecting it.
 
 ---
 

@@ -68,7 +68,7 @@ export const AdminGetProductsParams = createFindParams({
       .merge(applyAndAndOrOperators(AdminGetProductsParamsDirectFields))
       .merge(GetProductsParams)
   )
-  .transform(transformProductParams)
+  .transform(transformProductParams as any)
 
 export const AdminGetProductOptionsParamsFields = z.object({
   q: z.string().optional(),

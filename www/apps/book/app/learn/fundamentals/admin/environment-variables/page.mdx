@@ -65,9 +65,15 @@ If you receive a type error on `import.meta.env`, create the file `src/admin/vit
 
 ```ts title="src/admin/vite-env.d.ts"
 /// <reference types="vite/client" />
+
+declare const __BASE__: string
+declare const __BACKEND_URL__: string
+declare const __STOREFRONT_URL__: string
 ```
 
 This file tells TypeScript to recognize the `import.meta.env` object and enhances the types of your custom environment variables.
+
+Note that the `__BASE__`, `__BACKEND_URL__`, and `__STOREFRONT_URL__` variables are global variables available in your admin customizations. Learn more in the [Tips for Admin Customizations](../tips/page.mdx#global-variables-in-admin-customizations) chapter.
 
 ---
 
@@ -121,4 +127,14 @@ export const config = defineWidgetConfig({
 })
 
 export default ProductWidget
+```
+
+To fix possible type errors, create the file `src/admin/vite-env.d.ts` and add the global variables:
+
+```ts title="src/admin/vite-env.d.ts"
+/// <reference types="vite/client" />
+
+declare const __BACKEND_URL__: string
+declare const __BASE__: string
+declare const __STOREFRONT_URL__: string
 ```

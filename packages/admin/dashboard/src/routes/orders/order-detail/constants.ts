@@ -36,7 +36,7 @@ const DEFAULT_RELATIONS = [
   "*shipping_address",
   "*billing_address",
   "*sales_channel",
-  "*promotion",
+  "*promotions",
   "*shipping_methods",
   "*credit_lines",
   "*fulfillments",

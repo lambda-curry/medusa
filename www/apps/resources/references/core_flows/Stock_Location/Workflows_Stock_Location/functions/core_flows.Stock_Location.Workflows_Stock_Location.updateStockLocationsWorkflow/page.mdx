@@ -3,7 +3,6 @@ slug: /references/medusa-workflows/updateStockLocationsWorkflow
 sidebar_label: updateStockLocationsWorkflow
 sidebar_description: Update stock locations.
 tags:
-  - query
   - stock location
   - workflow
 ---
@@ -20,7 +19,7 @@ This workflow updates stock locations matching the specified filters. It's used 
 You can use this workflow within your own customizations or custom workflows, allowing you
 to update stock locations in your custom flows.
 
-<SourceCodeLink link="https://github.com/medusajs/medusa/blob/e0b5bb0b224458ebc8c93111e72f9a10aecf0275/packages/core/core-flows/src/stock-location/workflows/update-stock-locations.ts#L57" />
+<SourceCodeLink link="https://github.com/medusajs/medusa/blob/394226b5c18d11072da826ed6a07d4e602e62f18/packages/core/core-flows/src/stock-location/workflows/update-stock-locations.ts#L57" />
 
 ## Examples
 
@@ -149,7 +148,7 @@ const myWorkflow = createWorkflow(
 
 ## Steps
 
-<WorkflowDiagram workflow={{"name":"updateStockLocationsWorkflow","steps":[{"type":"step","name":"useQueryGraphStep","description":"This step fetches data across modules using the Query.\n\nLearn more in the [Query documentation](https://docs.medusajs.com/learn/fundamentals/module-links/query).","link":"../../../../Common/Steps_Common/functions/core_flows.Common.Steps_Common.useQueryGraphStep/page.mdx","depth":1},{"type":"step","name":"updateStockLocationsStep","description":"This step updates stock locations matching the specified filters.","link":"../../../Steps_Stock_Location/functions/core_flows.Stock_Location.Steps_Stock_Location.updateStockLocationsStep/page.mdx","depth":2}]}} />
+<WorkflowDiagram workflow={{"name":"updateStockLocationsWorkflow","steps":[{"type":"step","name":"updateStockLocationsStep","description":"This step updates stock locations matching the specified filters.","link":"../../../Steps_Stock_Location/functions/core_flows.Stock_Location.Steps_Stock_Location.updateStockLocationsStep/page.mdx","depth":1}]}} />
 
 ## Input
 

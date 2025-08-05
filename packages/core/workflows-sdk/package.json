@@ -1,6 +1,6 @@
 {
   "name": "@medusajs/workflows-sdk",
-  "version": "2.8.7",
+  "version": "2.8.8",
   "description": "Set of workflows tooling for Medusa",
   "main": "dist/index.js",
   "exports": {
@@ -39,13 +39,13 @@
     "pg": "^8.13.0",
     "rimraf": "^5.0.1",
     "typescript": "^5.6.2",
-    "zod": "3.22.4"
+    "zod": "3.25.76"
   },
   "dependencies": {
-    "@medusajs/modules-sdk": "2.8.7",
-    "@medusajs/orchestration": "2.8.7",
-    "@medusajs/types": "2.8.7",
-    "@medusajs/utils": "2.8.7",
+    "@medusajs/modules-sdk": "2.8.8",
+    "@medusajs/orchestration": "2.8.8",
+    "@medusajs/types": "2.8.8",
+    "@medusajs/utils": "2.8.8",
     "ulid": "^2.3.0"
   },
   "peerDependencies": {
@@ -56,7 +56,7 @@
     "awilix": "^8.0.1",
     "express": "^4.21.0",
     "pg": "^8.13.0",
-    "zod": "3.22.4"
+    "zod": "3.25.76"
   },
   "scripts": {
     "build": "rimraf dist && tsc --build",

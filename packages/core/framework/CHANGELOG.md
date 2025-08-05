@@ -1,5 +1,20 @@
 # @medusajs/framework
 
+## 2.8.8
+
+### Patch Changes
+
+- [#13007](https://github.com/medusajs/medusa/pull/13007) [`43fb06ecc2d87ea2a11e12524679c142eb890ec7`](https://github.com/medusajs/medusa/commit/43fb06ecc2d87ea2a11e12524679c142eb890ec7) Thanks [@peterlgh7](https://github.com/peterlgh7)! - fix(framework): fix script migrations order
+
+- Updated dependencies [[`e74044af4de213ba6326a8fb2b5d02e5875b8a4a`](https://github.com/medusajs/medusa/commit/e74044af4de213ba6326a8fb2b5d02e5875b8a4a), [`468b81c2cbdbc24b26e31bf6e347d3633a4fb4f8`](https://github.com/medusajs/medusa/commit/468b81c2cbdbc24b26e31bf6e347d3633a4fb4f8), [`919c53e44e2c7bb16bc513b5c96c93ac47bd6ce5`](https://github.com/medusajs/medusa/commit/919c53e44e2c7bb16bc513b5c96c93ac47bd6ce5), [`1bd455bc7bd32b0fda8c808b203ad341253f095d`](https://github.com/medusajs/medusa/commit/1bd455bc7bd32b0fda8c808b203ad341253f095d), [`7669dbb03e2f65fa76cff1c5b90a0777e475cb47`](https://github.com/medusajs/medusa/commit/7669dbb03e2f65fa76cff1c5b90a0777e475cb47), [`c5d609d09cb29c6cf01d1c6c65305cc566f391c5`](https://github.com/medusajs/medusa/commit/c5d609d09cb29c6cf01d1c6c65305cc566f391c5)]:
+  - @medusajs/orchestration@2.8.8
+  - @medusajs/types@2.8.8
+  - @medusajs/workflows-sdk@2.8.8
+  - @medusajs/utils@2.8.8
+  - @medusajs/modules-sdk@2.8.8
+  - @medusajs/cli@2.8.8
+  - @medusajs/telemetry@2.8.8
+
 ## 2.8.7
 
 ### Patch Changes

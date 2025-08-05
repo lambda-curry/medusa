@@ -1,0 +1,63 @@
+type: object
+description: The properties to update in the address.
+properties:
+  first_name:
+    type: string
+    title: first_name
+    description: The customer's first name.
+  last_name:
+    type: string
+    title: last_name
+    description: The customer's last name.
+  phone:
+    type: string
+    title: phone
+    description: The customer's phone.
+  company:
+    type: string
+    title: company
+    description: The address's company.
+  address_1:
+    type: string
+    title: address_1
+    description: The address's first line.
+  address_2:
+    type: string
+    title: address_2
+    description: The address's second line.
+  city:
+    type: string
+    title: city
+    description: The address's city.
+  country_code:
+    type: string
+    title: country_code
+    description: The address's country code.
+  province:
+    type: string
+    title: province
+    description: The address's ISO 3166-2 province code. Must be lower-case.
+    example: us-ca
+    externalDocs:
+      url: https://en.wikipedia.org/wiki/ISO_3166-2
+      description: Learn more about ISO 3166-2
+  postal_code:
+    type: string
+    title: postal_code
+    description: The address's postal code.
+  address_name:
+    type: string
+    title: address_name
+    description: The address's name.
+  is_default_shipping:
+    type: boolean
+    title: is_default_shipping
+    description: Whether the address is used by default for shipping during checkout.
+  is_default_billing:
+    type: boolean
+    title: is_default_billing
+    description: Whether the address is used by default for billing during checkout.
+  metadata:
+    type: object
+    description: Holds custom key-value pairs.
+x-schemaName: StoreUpdateCustomerAddress

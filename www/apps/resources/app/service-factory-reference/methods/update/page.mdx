@@ -135,3 +135,37 @@ Learn more about accepted filters in [this documentation](../../tips/filtering/p
 ### Returns
 
 The method returns an array of objects of updated records.
+
+---
+
+## Update a JSON Property
+
+```ts
+const post = await postModuleService.updatePosts({
+  id: "123",
+  name: "My Post",
+  metadata: {
+    category: "news",
+    tags: ["update", "json"],
+  },
+})
+```
+
+When you have a JSON property in your data model, you can update it by adding, updating, or removing properties within that JSON object. Medusa will merge the properties you pass in the `update` method with the existing JSON object.
+
+### Remove a Property from the JSON Property
+
+```ts
+const post = await postModuleService.updatePosts({
+  id: "123",
+  metadata: {
+    is_featured: "",
+  },
+})
+```
+
+To remove a property from the JSON object, you can set its value to an empty string.
+
+### Learn More about Updating JSON Properties
+
+Refer to the [JSON Properties](!docs!/learn/fundamentals/data-models/json-properties) documentation to learn more about how JSON properties work in Medusa and how to update them.

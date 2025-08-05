@@ -37,6 +37,9 @@
  *   metadata:
  *     type: object
  *     description: The return item's metadata, can hold custom key-value pairs.
+ *     externalDocs:
+ *       url: https://docs.medusajs.com/api/store#manage-metadata
+ *       description: Learn how to manage metadata
  *   order_id:
  *     type: string
  *     title: order_id

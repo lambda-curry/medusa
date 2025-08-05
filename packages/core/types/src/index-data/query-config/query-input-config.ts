@@ -71,7 +71,7 @@ export type QueryFunctionReturnPagination = {
   take: number
   /**
    * @featureFlag index_engine
-   * @version 2.8.0
+   * @since 2.8.0
    */
   estimate_count: number
 }

@@ -333,11 +333,9 @@ Instead, refer to the [Error Handling](../errors/page.mdx) chapter for alternati
 
 ---
 
-## Step Constraints
+## Returned Value Constraints
 
-### Returned Values
-
-A step must only return serializable values, such as [primitive values](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#primitive_values) or an object.
+Data returned from workflows and steps are serialized, allowing Medusa to store them in the database. So, you must only return serializable values, such as [primitive values](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#primitive_values) or an object, from workflows and steps.
 
 Values of other types, such as Maps, aren't allowed.
 
@@ -379,4 +377,67 @@ const step1 = createStep(
     })
   }
 )
+```
+
+### Buffer Example
+
+In some cases, you may need to return a buffer. For example, when your workflow generates a file and you want to return it as a buffer.
+
+In those cases, you can return an object containing the buffer as a property. Then, in customizations that execute the workflow, you can recreate the buffer from the serialized data.
+
+For example, consider the following workflow that returns a buffer:
+
+```ts
+import { 
+  createWorkflow,
+  createStep,
+  WorkflowResponse,
+  StepResponse,
+} from "@medusajs/framework/workflows-sdk"
+
+const step1 = createStep(
+  "step-1",
+  (_, { container }) => {
+    const buffer = Buffer.from("Hello, World!")
+
+    return new StepResponse({
+      buffer,
+    })
+  }
+)
+
+const myWorkflow = createWorkflow(
+  "hello-world", 
+  function () {
+    const step1Response = step1()
+
+    return new WorkflowResponse({
+      buffer: step1Response.buffer,
+    })
+  }
+)
+```
+
+Then, in an API route that executes this workflow, you can recreate the buffer from the serialized data using `Buffer.from`:
+
+```ts
+import type {
+  MedusaRequest,
+  MedusaResponse,
+} from "@medusajs/framework/http"
+import myWorkflow from "../../workflows/hello-world"
+
+export async function GET(
+  req: MedusaRequest,
+  res: MedusaResponse
+) {
+  const { result } = await myWorkflow(req.scope)
+    .run()
+
+  const buffer = Buffer.from(result.buffer)
+
+  res.setHeader("Content-Type", "application/octet-stream")
+  res.setHeader("Content-Disposition", "attachment; filename=hello.txt")
+  res.send(buffer)
+}
 ```

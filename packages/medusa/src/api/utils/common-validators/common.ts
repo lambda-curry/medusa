@@ -31,7 +31,9 @@ export const BigNumberInput = z.union([
  * @param {ZodObject<any>} schema
  * @return {ZodObject<any>}
  */
-export const applyAndAndOrOperators = (schema: z.ZodObject<any>) => {
+export const applyAndAndOrOperators = <T extends z.ZodObject<any>>(
+  schema: T
+) => {
   return schema.merge(
     z.object({
       $and: z.lazy(() => schema.array()).optional(),

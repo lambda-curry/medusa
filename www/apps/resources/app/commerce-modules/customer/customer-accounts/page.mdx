@@ -24,6 +24,36 @@ When this or another guest customer registers an account with the same email, a 
 
 ## Email Uniqueness
 
-The above behavior means that two `Customer` records may exist with the same email. However, the main difference is the `has_account` property's value.
+The above behavior means that two `Customer` records may exist with the same email address. However, the main difference is the `has_account` property's value.
 
-So, there can only be one guest customer (having `has_account=false`) and one registered customer (having `has_account=true`) with the same email.
+So, there can only be one guest customer (having `has_account=false`) and one registered customer (having `has_account=true`) with the same email address.
+
+---
+
+## Customer Deletion and Email Reuse
+
+When a merchant deletes a customer, the `Customer` record is soft-deleted, meaning it is not permanently removed from the database.
+
+When using the Medusa Application with the [Auth Module](../../auth/page.mdx), possible confusion may arise in the following scenarios:
+
+1. An admin user is using the email address `john@example.com`, and a customer tries to register with the same email address.
+2. An admin user has deleted a customer with the email address `jane@example.com`, and another customer tries to register with the same email address.
+
+In these and similar scenarios, the customer trying to register will receive an error message indicating that the email address is already in use:
+
+```json
+{
+  "type": "unauthorized",
+  "message": "Identity with email already exists"
+}
+```
+
+To resolve this, you can amend the registration flow to:
+
+1. Retrieve the login token of the existing identity with the same email address.
+2. Use the login token when registering the new customer. This will not remove the existing identity but will allow the new customer to register with the same email address.
+
+You can learn more about how to implement this flow in the following guides:
+
+- [Conceptual guide on how to implement this flow with Medusa's authentication routes](../../auth/authentication-route/page.mdx#handling-existing-identities).
+- [How-to guide on how to implement this in a storefront](../../../storefront-development/customers/register/page.mdx).

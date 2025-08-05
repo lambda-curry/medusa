@@ -48,6 +48,10 @@ post:
                 passed to the underlying workflow under the `additional_data`
                 parameter.
   x-codeSamples:
+    - lang: JavaScript
+      label: JS SDK
+      source:
+        $ref: ../code_samples/JavaScript/admin_orders_{id}_complete/post.js
     - lang: Shell
       label: cURL
       source:

@@ -1,25 +1,40 @@
 import * as React from "react"
 import type { IconProps } from "../types"
-const Mastercard = React.forwardRef<SVGSVGElement, Omit<IconProps, "color">>(
-  (props, ref) => {
+const Mastercard = React.forwardRef<SVGSVGElement, IconProps>(
+  ({ color = "currentColor", ...props }, ref) => {
     return (
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        width={15}
-        height={15}
+        width={20}
+        height={20}
         fill="none"
         ref={ref}
         {...props}
       >
-        <path fill="#FF5A00" d="M9.524 3.815h-4.06v7.37h4.06z" />
+        <path fill="#F4F4F5" d="M0 0h20v20H0z" />
+        <path fill="url(#a)" fillOpacity={0.2} d="M0 0h20v20H0z" />
+        <path fill="#FF5A00" d="M11.889 6.56H8.1v6.879h3.789z" />
         <path
           fill="#EB001B"
-          d="M5.735 7.5c0-1.497.696-2.826 1.765-3.685a4.6 4.6 0 0 0-2.861-1.002C2.075 2.813 0 4.909 0 7.5s2.075 4.688 4.639 4.688A4.6 4.6 0 0 0 7.5 11.185 4.7 4.7 0 0 1 5.735 7.5"
+          d="M8.352 10c0-1.397.65-2.638 1.648-3.44a4.28 4.28 0 0 0-2.67-.935C4.935 5.625 3 7.582 3 10s1.936 4.375 4.33 4.375c1.01 0 1.936-.352 2.67-.936A4.38 4.38 0 0 1 8.352 10"
         />
         <path
           fill="#F79E1B"
-          d="M15 7.5c0 2.591-2.075 4.688-4.639 4.688A4.6 4.6 0 0 1 7.5 11.185 4.68 4.68 0 0 0 9.265 7.5 4.72 4.72 0 0 0 7.5 3.815a4.58 4.58 0 0 1 2.86-1.002c2.565 0 4.64 2.11 4.64 4.687"
+          d="M17 10c0 2.418-1.936 4.375-4.33 4.375a4.28 4.28 0 0 1-2.67-.936A4.37 4.37 0 0 0 11.648 10c0-1.397-.65-2.638-1.648-3.44a4.27 4.27 0 0 1 2.67-.935C15.063 5.625 17 7.595 17 10"
         />
+        <defs>
+          <linearGradient
+            id="a"
+            x1={10}
+            x2={10}
+            y1={0}
+            y2={20}
+            gradientUnits="userSpaceOnUse"
+          >
+            <stop stopColor="#fff" />
+            <stop offset={1} stopColor="#fff" stopOpacity={0} />
+          </linearGradient>
+        </defs>
       </svg>
     )
   }

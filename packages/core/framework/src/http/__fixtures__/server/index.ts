@@ -9,14 +9,14 @@ import express from "express"
 import querystring from "querystring"
 import supertest from "supertest"
 
-import { config } from "../mocks"
 import { MedusaContainer } from "@medusajs/types"
 import { configManager } from "../../../config"
 import { container } from "../../../container"
 import { featureFlagsLoader } from "../../../feature-flags"
 import { logger } from "../../../logger"
-import { MedusaRequest } from "../../types"
 import { ApiLoader } from "../../router"
+import { MedusaRequest } from "../../types"
+import { config } from "../mocks"
 
 function asArray(resolvers) {
   return {
@@ -69,6 +69,7 @@ export const createServer = async (rootDir) => {
   container.register({
     logger: asValue({
       error: () => {},
+      info: () => {},
     }),
     manager: asValue({}),
   })

@@ -54,7 +54,8 @@
 			"campaign": "The associated campaign.\n\n@expandable",
 			"application_method": "The associated application method.\n\n@expandable",
 			"rules": "The associated rules.\n\n@expandable",
-			"status": "The status of the promotion"
+			"status": "The status of the promotion",
+			"is_tax_inclusive": "Whether the promotion is tax inclusive."
 		}
 	},
 	"ApplicationMethod": {

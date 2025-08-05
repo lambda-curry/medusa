@@ -3,7 +3,6 @@ slug: /references/medusa-workflows/updateOrderEditAddItemWorkflow
 sidebar_label: updateOrderEditAddItemWorkflow
 sidebar_description: Update a new item in an order edit.
 tags:
-  - remote query
   - order
   - workflow
 ---
@@ -20,7 +19,7 @@ This workflow updates a new item in an order edit. It's used by the
 You can use this workflow within your customizations or your own custom workflows, allowing you to update a new item in an order edit
 in your custom flows.
 
-<SourceCodeLink link="https://github.com/medusajs/medusa/blob/e0b5bb0b224458ebc8c93111e72f9a10aecf0275/packages/core/core-flows/src/order/workflows/order-edit/update-order-edit-add-item.ts#L127" />
+<SourceCodeLink link="https://github.com/medusajs/medusa/blob/394226b5c18d11072da826ed6a07d4e602e62f18/packages/core/core-flows/src/order/workflows/order-edit/update-order-edit-add-item.ts#L127" />
 
 ## Examples
 
@@ -145,7 +144,7 @@ const myWorkflow = createWorkflow(
 
 ## Steps
 
-<WorkflowDiagram workflow={{"name":"updateOrderEditAddItemWorkflow","steps":[{"type":"step","name":"useRemoteQueryStep","description":"This step fetches data across modules using the remote query.\n\nLearn more in the [Remote Query documentation](https://docs.medusajs.com/learn/fundamentals/module-links/query).\n\n:::note\n\nThis step is deprecated. Use [useQueryGraphStep](../../../../Common/Steps_Common/functions/core_flows.Common.Steps_Common.useQueryGraphStep/page.mdx) instead.\n\n:::","link":"../../../../Common/Steps_Common/functions/core_flows.Common.Steps_Common.useRemoteQueryStep/page.mdx","depth":1},{"type":"step","name":"useRemoteQueryStep","description":"This step fetches data across modules using the remote query.\n\nLearn more in the [Remote Query documentation](https://docs.medusajs.com/learn/fundamentals/module-links/query).\n\n:::note\n\nThis step is deprecated. Use [useQueryGraphStep](../../../../Common/Steps_Common/functions/core_flows.Common.Steps_Common.useQueryGraphStep/page.mdx) instead.\n\n:::","link":"../../../../Common/Steps_Common/functions/core_flows.Common.Steps_Common.useRemoteQueryStep/page.mdx","depth":2},{"type":"step","name":"updateOrderEditAddItemValidationStep","description":"This step validates that a new item can be updated in an order edit.\nIf the order is canceled, the order change is not active, \nthe item isn't in the order edit, or the action isn't adding an item,\nthe step will throw an error.\n\n:::note\n\nYou can retrieve an order and order change details using [Query](https://docs.medusajs.com/learn/fundamentals/module-links/query),\nor [useQueryGraphStep](https://docs.medusajs.com/resources/references/medusa-workflows/steps/useQueryGraphStep).\n\n:::","link":"../core_flows.Order.Workflows_Order.updateOrderEditAddItemValidationStep/page.mdx","depth":3},{"type":"step","name":"updateOrderChangeActionsStep","description":"This step updates order change actions.","link":"../../../Steps_Order/functions/core_flows.Order.Steps_Order.updateOrderChangeActionsStep/page.mdx","depth":4},{"type":"step","name":"previewOrderChangeStep","description":"This step retrieves a preview of an order change.","link":"../../../Steps_Order/functions/core_flows.Order.Steps_Order.previewOrderChangeStep/page.mdx","depth":5}]}} />
+<WorkflowDiagram workflow={{"name":"updateOrderEditAddItemWorkflow","steps":[{"type":"step","name":"updateOrderEditAddItemValidationStep","description":"This step validates that a new item can be updated in an order edit.\nIf the order is canceled, the order change is not active, \nthe item isn't in the order edit, or the action isn't adding an item,\nthe step will throw an error.\n\n:::note\n\nYou can retrieve an order and order change details using [Query](https://docs.medusajs.com/learn/fundamentals/module-links/query),\nor [useQueryGraphStep](https://docs.medusajs.com/resources/references/medusa-workflows/steps/useQueryGraphStep).\n\n:::","link":"../core_flows.Order.Workflows_Order.updateOrderEditAddItemValidationStep/page.mdx","depth":1},{"type":"step","name":"updateOrderChangeActionsStep","description":"This step updates order change actions.","link":"../../../Steps_Order/functions/core_flows.Order.Steps_Order.updateOrderChangeActionsStep/page.mdx","depth":2},{"type":"step","name":"previewOrderChangeStep","description":"This step retrieves a preview of an order change.","link":"../../../Steps_Order/functions/core_flows.Order.Steps_Order.previewOrderChangeStep/page.mdx","depth":3}]}} />
 
 ## Input
 

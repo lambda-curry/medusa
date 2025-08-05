@@ -7,7 +7,7 @@ import type { AdminImportProductsType } from "../validators"
 import { importProductsAsChunksWorkflow } from "@medusajs/core-flows"
 
 /**
- * @version 2.8.5
+ * @since 2.8.5
  */
 export const POST = async (
   req: AuthenticatedMedusaRequest<AdminImportProductsType>,

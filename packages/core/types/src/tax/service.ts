@@ -585,7 +585,7 @@ export interface ITaxModuleService extends IModuleService {
   /**
    * This method retrieves a paginated list of tax providers based on optional filters and configuration.
    * 
-   * @version 2.8.0
+   * @since 2.8.0
    *
    * @param {FilterableTaxProviderProps} filters - The filters to apply on the retrieved tax providers.
    * @param {FindConfig<TaxProviderDTO>} config - The configurations determining how the tax provider is retrieved. Its properties, such as `select` or `relations`, accept the

@@ -63,7 +63,7 @@ In this guide, you'll learn how to:
 - Install and set up Medusa.
 - Create a custom express checkout storefront with Next.js.
 
-![Screenshot of the express checkout storefront](https://res.cloudinary.com/dza7lstvk/image/upload/v1739344861/Medusa%20Resources/Screenshot_2025-02-12_at_9.20.09_AM_ufqdi3.png)
+![Express checkout storefront interface showing a single-page checkout flow with product selection](https://res.cloudinary.com/dza7lstvk/image/upload/v1739344861/Medusa%20Resources/Screenshot_2025-02-12_at_9.20.09_AM_ufqdi3.png)
 
 You can follow this guide whether you're new to Medusa or an advanced Medusa developer.
 
@@ -212,7 +212,7 @@ Aside from the SDK, you also install the `@medusajs/types` package, which provid
 
 Next, to use the SDK, you'll export a configured instance and re-use it across your application. So, create the file `lib/sdk.ts` with the following content:
 
-![Directory structure after creating SDK file](https://res.cloudinary.com/dza7lstvk/image/upload/v1735815487/Medusa%20Resources/express-checkout-1_vrudhk.jpg)
+![Project directory structure showing the newly created 'lib' folder containing the 'sdk.ts' file, which exports a configured Medusa SDK instance for connecting to the backend API](https://res.cloudinary.com/dza7lstvk/image/upload/v1735815487/Medusa%20Resources/express-checkout-1_vrudhk.jpg)
 
 export const sdkHighlights = [
   ["6", "NEXT_PUBLIC_MEDUSA_BACKEND_URL", "Set the backend URL from an environment variable."],
@@ -240,7 +240,7 @@ This file exports a configured instance of the Medusa SDK that you can use to se
 - `NEXT_PUBLIC_MEDUSA_BACKEND_URL`: The URL of the Medusa application server. By default, it's set to `http://localhost:9000`.
 - `NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY`: The publishable API key of the Medusa application. You can find this key in the Medusa Admin dashboard under Settings -> Publishable API Keys.
 
-![Find the publishable API key by going to Settings -> Publishable API Key, then clicking the publishable API key to copy its token.](https://res.cloudinary.com/dza7lstvk/image/upload/v1735810830/Medusa%20Resources/Screenshot_2025-01-02_at_11.36.20_AM_gw7i7h.png)
+![Navigation path in Medusa Admin dashboard: Settings showing "Publishable API Key" option, with the publishable API key displayed and a copy button to retrieve the token for storefront configuration](https://res.cloudinary.com/dza7lstvk/image/upload/v1735810830/Medusa%20Resources/Screenshot_2025-01-02_at_11.36.20_AM_gw7i7h.png)
 
 ---
 
@@ -257,7 +257,7 @@ To easily access and manage these resources, you'll wrap your storefront with tw
 
 To create the region provider, create the file `providers/region.tsx` with the following content:
 
-![Directory structure after creating region provider file](https://res.cloudinary.com/dza7lstvk/image/upload/v1735815539/Medusa%20Resources/express-checkout-2_htf5ke.jpg)
+![Project directory tree showing the newly created 'providers' folder containing the 'region.tsx' file, which implements React context for managing regional settings and currency selection across the storefront](https://res.cloudinary.com/dza7lstvk/image/upload/v1735815539/Medusa%20Resources/express-checkout-2_htf5ke.jpg)
 
 export const regionProviderHighlights1 = [
   ["9", "region", "The region selected by the customer."],

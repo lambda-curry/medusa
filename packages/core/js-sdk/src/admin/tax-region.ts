@@ -67,7 +67,7 @@ export class TaxRegion {
    * [Update Tax Region](https://docs.medusajs.com/api/admin#tax-regions_posttaxregionsid)
    * API route.
    * 
-   * @version 2.8.0
+   * @since 2.8.0
    *
    * @param id - The ID of the tax region to update.
    * @param body - The details of the tax region to update.

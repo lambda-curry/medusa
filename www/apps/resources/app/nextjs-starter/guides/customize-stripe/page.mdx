@@ -1,17 +1,19 @@
 ---
 tags:
   - storefront
-  - payment
+  - name: payment
+    label: Customize Stripe in Next.js Starter
 products:
   - payment
 ---
 
-import { Prerequisites } from "docs-ui"
+import { Prerequisites, InlineIcon } from "docs-ui"
+import { EllipsisHorizontal } from "@medusajs/icons"
 
 export const ogImage = "https://res.cloudinary.com/dza7lstvk/image/upload/v1734007558/Medusa%20Resources/integrations-stripe_qfnwtf.jpg"
 
 export const metadata = {
-  title: `Customize the Stripe Integration in the Next.js Starter`,
+  title: `Use Stripe's Payment Element in the Next.js Starter Storefront`,
   openGraph: {
     images: [
       {
@@ -36,21 +38,26 @@ export const metadata = {
 
 # {metadata.title}
 
-Stripe is a popular payment provider amongst Medusa users. While the Next.js Starter comes with basic Stripe card payments, you can customize it to accept different payment methods through the Stripe Payment Element. The Payment Element is a web UI component that supports over 40 payment methods (like PayPal, local banks, etc) while handling input validation and error management.
+In this tutorial, you'll learn how to customize the Next.js Starter Storefront to use [Stripe's Payment Element](https://docs.stripe.com/payments/payment-element).
 
-In this guide, you'll learn how to customize the starter's Stripe integration to accept multiple payment methods, such as PayPal, through Stripe.
+By default, the Next.js Starter Storefront comes with a basic Stripe card payment integration. However, you can replace it with Stripe's Payment Element instead.
 
-<Note title="Important">
+By using the Payment Element, you can offer a unified payment experience that supports various payment methods, including credit cards, PayPal, iDeal, and more, all within a single component.
 
-The code snippets are regularly updated to ensure they work with the latest changes in the Next.js Starter Storefront's repository. If you find certain code snippets don't match your starter, make sure you've pulled all changes from the repository. If you have the latest changes, please consider [creating an issue](https://github.com/medusajs/medusa/issues) to update the documentation.
+## Summary
 
-</Note>
+By following this tutorial, you'll learn how to:
 
-## Step 1: Setup Medusa Project
+- Set up a Medusa application with the Stripe Module Provider.
+- Customize the Next.js Starter Storefront to use Stripe's Payment Element.
 
-In this step, you'll setup a Medusa application and configure the Stripe Module Provider.
+---
 
-### Install Medusa Application
+## Step 1: Set Up Medusa Project
+
+In this step, you'll set up a Medusa application and configure the Stripe Module Provider. You can skip this step if you already have a Medusa application running with the Stripe Module Provider configured.
+
+### a. Install Medusa Application
 
 <Prerequisites items={[
   {
@@ -83,9 +90,9 @@ The Medusa application is composed of a headless Node.js server and an admin das
 
 </Note>
 
-Once the installation finishes successfully, the Medusa Admin dashboard will open with a form to create a new user. Enter the user's credential and submit the form.
+Once the installation finishes successfully, the Medusa Admin dashboard will open with a form to create a new user. Enter the user's credentials and submit the form.
 
-Afterwards, you can login with the new user and explore the dashboard. The Next.js Starter Storefront is also running at `http://localhost:8000`.
+Afterwards, you can log in with the new user and explore the dashboard. The Next.js Starter Storefront is also running at `http://localhost:8000`.
 
 <Note title="Ran to Errors?">
 
@@ -93,7 +100,9 @@ Check out the [troubleshooting guides](../../../troubleshooting/create-medusa-ap
 
 </Note>
 
-### Configure Stripe Module Provider
+### b. Configure Stripe Module Provider
+
+Next, you'll configure the [Stripe Module Provider](../../../commerce-modules/payment/payment-provider/stripe/page.mdx) in your Medusa application. The Stripe Module Provider allows you to accept payments through Stripe in your Medusa application.
 
 <Prerequisites items={[
   {
@@ -108,7 +117,7 @@ Check out the [troubleshooting guides](../../../troubleshooting/create-medusa-ap
 
 The Stripe Module Provider is installed by default in your application. To use it, add it to the array of providers passed to the Payment Module in `medusa-config.ts`:
 
-```ts title="medusa-config.ts"
+```ts title="medusa-config.ts" badgeLabel="Medusa Application" badgeColor="green"
 module.exports = defineConfig({
   // ...
   modules: [
@@ -121,7 +130,6 @@ module.exports = defineConfig({
             id: "stripe",
             options: {
               apiKey: process.env.STRIPE_API_KEY,
-              capture: true,
             },
           },
         ],
@@ -131,43 +139,61 @@ module.exports = defineConfig({
 })
 ```
 
-For more details about the available options and Stripe Webhook Endpoint URLs, refer to the [Stripe Module Provider docs](../../../commerce-modules/payment/payment-provider/stripe/page.mdx).
+For more details about other available options and the webhook URLs that Medusa provides, refer to the [Stripe Module Provider](../../../commerce-modules/payment/payment-provider/stripe/page.mdx) documentation.
 
-### Environment Variables
+### c. Set Environment Variables
 
-Make sure to add the necessary environment variables for the above options in `.env` in your Medusa application:
+Next, make sure to add the necessary environment variables for the above options in `.env` in your Medusa application:
 
-```bash
+```bash badgeLabel="Medusa Application" badgeColor="green"
 STRIPE_API_KEY=<YOUR_STRIPE_API_KEY>
 ```
 
-You also need to add the Stripe publishable API key in the Next.js Starter's environment variables:
+Where `<YOUR_STRIPE_API_KEY>` is your Stripe [Secret API Key](https://support.stripe.com/questions/locate-api-keys-in-the-dashboard).
 
-```bash
+You also need to add the Stripe [Publishable API Key](https://support.stripe.com/questions/locate-api-keys-in-the-dashboard) in the Next.js Starter Storefront's environment variables:
+
+```bash badgeLabel="Storefront" badgeColor="blue"
 NEXT_PUBLIC_STRIPE_KEY=<YOUR_STRIPE_PUBLISHABLE_API_KEY>
 ```
 
-### Enable Stripe in a Region
+Where `<YOUR_STRIPE_PUBLISHABLE_API_KEY>` is your Stripe [Publishable API Key](https://support.stripe.com/questions/locate-api-keys-in-the-dashboard).
 
-Lastly, you need to add Stripe as a payment provider to one or more regions in your Medusa Admin. To do so:
+### d. Enable Stripe in a Region
 
-1. Log in to you Medusa Admin dashboard at `http://localhost:9000/app` and go to Settings -> Regions.
-2. Create or select a region.
-3. Click the three dots on the upper right corner, then click “Edit”.
-4. For the Payment Providers field, select “Stripe (Stripe)”
-5. Click the Save button.
+Finally, you need to add Stripe as a payment provider to one or more regions in your Medusa Admin. This will allow customers to use Stripe as a payment method during checkout.
+
+To do that:
+
+1. Log in to your Medusa Admin dashboard at `http://localhost:9000/app`.
+2. Go to Settings -> Regions.
+3. Select a region you want to enable Stripe for (or create a new one).
+4. Click the <InlineIcon Icon={EllipsisHorizontal} alt="three-dots" /> icon on the upper right corner.
+5. Choose "Edit" from the dropdown menu.
+6. In the Payment Providers field, select “Stripe (STRIPE)”
+7. Click the Save button.
+
+Do this for all regions you want to enable Stripe for.
 
 ---
 
-## Step 2: Update the Payment Element
+## Step 2: Update Payment Step in Checkout
 
-<Note title="Tip">
+You'll start customizing the Next.js Starter Storefront by updating the payment step in the checkout process. By default, the payment step is implemented to show all available payment methods in the region the customer is in, and allows the customer to select one of them.
 
-To use Stripe Payment components in a checkout form, you needs to wrap it in a [Stripe Elements](https://stripe.com/en-nl/payments/elements) context provider. Since the Next.js Starter already comes with a simple Stripe Card Element integration, the necessary context is already provided. You don’t have to edit this part for the customizations made in this guide, but in case you wish to make any changes to the provider, the logic is handled in the `src/modules/checkout/components/payment-wrapper/index.tsx` and `src/modules/checkout/components/payment-wrapper/stripe-wrapper.tsx` files.
+In this step, you'll replace the current payment method selection with Stripe's Payment Element. You'll no longer need to handle different payment methods separately, as the Payment Element will automatically adapt to the available methods configured in your Stripe account.
 
-</Note>
+### a. Update the Stripe SDKs
 
-Within the `<Payment>` (`src/modules/checkout/components/payment/index.tsx`) component, you present the different payment options to the user.  In this file, you'll change the payment integration approach by replacing the custom payment method selection with Stripe's Payment Element component.
+To ensure you have the latest Stripe packages, update the `@stripe/react-stripe-js` and `@stripe/stripe-js` packages in your Next.js Starter Storefront:
+
+```bash npm2yarn badgeLabel="Storefront" badgeColor="blue"
+npm install @stripe/react-stripe-js@latest @stripe/stripe-js@latest
+```
+
+### b. Update the Payment Component
+
+The `Payment` component in `src/modules/checkout/components/payment/index.tsx` shows the payment step in checkout. It handles the payment method selection and submission. You'll update this component first to use the Payment Element.
 
 <Note>
 
@@ -175,113 +201,150 @@ The full final code is available at the end of the section.
 
 </Note>
 
-First, import the `PaymentElement` component, two Stripe hooks and the type for change events within `PaymentElement`:
+First, add the following imports at the top of the file:
 
 ```tsx title="src/modules/checkout/components/payment/index.tsx"
 // ...other imports
+import { useContext } from "react"
 import { PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js"
 import { StripePaymentElementChangeEvent } from "@stripe/stripe-js"
+import { StripeContext } from "../payment-wrapper/stripe-wrapper"
 ```
 
-Next, alter the state management within the component to: 
+You import components from the Stripe SDKs, and the `StripeContext` created in the `StripeWrapper` component. This context will allow you to check whether Stripe is ready to be used.
 
-1. Remove the `cardBrand` state.
-2. Rename `cardComplete` to `stripeComplete`.
-3. Keep the loading and error states.
-4. Update the type for `selectedPaymentMethod` to `string` and remove the default value.
+Next, in the `Payment` component, replace the existing state variables with the following:
 
 ```tsx title="src/modules/checkout/components/payment/index.tsx"
 const [isLoading, setIsLoading] = useState(false)
 const [error, setError] = useState<string | null>(null)
 const [stripeComplete, setStripeComplete] = useState(false)
-const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>()
-```
+const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>("")
 
-As a next step you can remove the `isStripe` check on line 42. The Medusa payment provider will always be Stripe in this setup, managing different payment methods within the Payment Element. Also remove the `useOptions` object on line 51, as it’s no longer needed.
-
-Next, initiate the two Stripe hooks you imported earlier, but only if the Stripe context is ready:
-
-```tsx title="src/modules/checkout/components/payment/index.tsx"
+const stripeReady = useContext(StripeContext)
 const stripe = stripeReady ? useStripe() : null
 const elements = stripeReady ? useElements() : null
 ```
 
-To track changes in the `PaymentElemement`, add within the component a handler that handles different change events:
+You define the following variables:
+
+- `isLoading`: A boolean that indicates whether the payment is being processed.
+- `error`: A string that holds any error message related to the payment.
+- `stripeComplete`: A boolean that indicates whether operations with the Stripe Payment Element are complete. When this is enabled, the customer can proceed to the "Review" checkout step.
+- `selectedPaymentMethod`: A string that holds the currently selected payment method in the Payment Element. For example, `card` or `eps`.
+- `stripeReady`: A boolean that indicates whether Stripe is ready to be used, fetched from the `StripeContext`.
+    - This context is defined in `src/modules/checkout/components/payment-wrapper/stripe-wrapper.tsx` and it wraps the checkout page in Stripe's `Elements` component, which initializes the Stripe SDKs.
+- `stripe`: The Stripe instance, which is used to interact with the Stripe API. It's only initialized if `stripeReady` from the Stripe context is true.
+- `elements`: The Stripe Elements instance, which is used to manage the Payment Element. It's also only initialized if `stripeReady` is true.
+
+Next, add the following function to the `Payment` component to handle changes in the Payment Element:
 
 ```tsx title="src/modules/checkout/components/payment/index.tsx"
 const handlePaymentElementChange = async (
-    event: StripePaymentElementChangeEvent
-  ) => {
-	  // Catches the selected payment method and sets it to state
-    if (event.value.type) {
-      setSelectedPaymentMethod(event.value.type)
-    }
-    
-    // Sets stripeComplete on form completion
-    setStripeComplete(event.complete)
+  event: StripePaymentElementChangeEvent
+) => {
+  // Catches the selected payment method and sets it to state
+  if (event.value.type) {
+    setSelectedPaymentMethod(event.value.type)
+  }
+  
+  // Sets stripeComplete on form completion
+  setStripeComplete(event.complete)
 
-		// Clears any errors on successful completion
-    if (event.complete) {
-      setError(null)
-    }
+  // Clears any errors on successful completion
+  if (event.complete) {
+    setError(null)
+  }
 }
 ```
 
-Then, edit the `handleSubmit` function to handle user submissions of the payment step. This will not trigger the payment yet, but submit the payment details and render the final Review step in the checkout:
+This function will be called on every change in Stripe's Payment Element, such as when the customer selects a payment method.
+
+In the function, you update the `selectedPaymentMethod` state with the type of payment method selected by the customer, set `stripeComplete` to true when the payment element is complete, and clear any error messages when the payment element is complete.
+
+Then, to customize the payment step's submission, replace the `handleSubmit` function with the following:
 
 ```tsx title="src/modules/checkout/components/payment/index.tsx"
-  const handleSubmit = async () => {
-    setIsLoading(true)
-    setError(null)
+const handleSubmit = async () => {
+  setIsLoading(true)
+  setError(null)
 
-    try {
-	    // Check if the necessary context is ready
-      if (!stripe || !elements) {
-        setError("Payment processing not ready. Please try again.")
-        return
-      }
-
-			// Submit the payment method details
-      await elements.submit().catch((err) => {
-        console.error(err)
-        setError(err.message || "An error occurred with the payment")
-        return
-      })
-
-			// Navigate to the final checkout step
-      router.push(pathname + "?" + createQueryString("step", "review"), {
-        scroll: false,
-      })
-    } catch (err: any) {
-      setError(err.message)
-    } finally {
-      setIsLoading(false)
+  try {
+    // Check if the necessary context is ready
+    if (!stripe || !elements) {
+      setError("Payment processing not ready. Please try again.")
+      return
     }
+
+    // Submit the payment method details
+    await elements.submit().catch((err) => {
+      console.error(err)
+      setError(err.message || "An error occurred with the payment")
+      return
+    })
+
+    // Navigate to the final checkout step
+    router.push(pathname + "?" + createQueryString("step", "review"), {
+      scroll: false,
+    })
+  } catch (err: any) {
+    setError(err.message)
+  } finally {
+    setIsLoading(false)
   }
+}
 ```
 
-To make sure a payment session is initiated on the current Medusa cart once a user reaches the payment step, add within the component an `initStripe` function and call it from a `useEffect` hook:
+In this function, you use the `elements.submit()` method to submit the payment method details entered by the customer in the Payment Element. This doesn't actually confirm the payment yet; it just prepares the payment method for confirmation.
+
+Once the payment method is submitted successfully, you navigate the customer to the Review step of the checkout process.
+
+Next, to make sure a payment session is initialized when the customer reaches the payment step, add the following to the `Payment` component:
 
 ```tsx title="src/modules/checkout/components/payment/index.tsx"
-  const initStripe = async () => {
-    try {
-      await initiatePaymentSession(cart, {
-        provider_id: "pp_stripe_stripe",
-      })
-    } catch (err) {
-      console.error("Failed to initialize Stripe session:", err)
-      setError("Failed to initialize payment. Please try again.")
-    }
+const initStripe = async () => {
+  try {
+    await initiatePaymentSession(cart, {
+      // TODO: change the provider ID if using a different ID in medusa-config.ts
+      provider_id: "pp_stripe_stripe",
+    })
+  } catch (err) {
+    console.error("Failed to initialize Stripe session:", err)
+    setError("Failed to initialize payment. Please try again.")
   }
+}
 
-  useEffect(() => {
-    if (!activeSession && isOpen) {
-      initStripe()
-    }
-  }, [cart, isOpen, activeSession])
+useEffect(() => {
+  if (!activeSession && isOpen) {
+    initStripe()
+  }
+}, [cart, isOpen, activeSession])
 ```
 
-Now that you have all the necessary setup in place, you'll add the Stripe `PaymentElement` to the Payment component. Replace the code inside the `!paidByGiftcard && availablePaymentMethods?.length` condition with the following:
+You add an `initStripe` function that initiates a payment session in the Medusa server. Notice that you set the provider ID to `pp_stripe_stripe`, which is the ID of the Stripe payment provider in your Medusa application if the ID in `medusa-config.ts` is `stripe`.
+
+If you used a different ID, change the `stripe` in the middle accordingly. For example, if you set the ID to `payment`, you would set the `provider_id` to `pp_payment_stripe`.
+
+You also add a `useEffect` hook that calls `initStripe` when the payment step is opened and there is no active payment session.
+
+You'll now update the component's return statement to render the Payment Element.
+
+First, find the following lines in the return statement:
+
+```tsx title="src/modules/checkout/components/payment/index.tsx"
+{!paidByGiftcard && availablePaymentMethods?.length && (
+  <>
+    <RadioGroup
+      value={selectedPaymentMethod}
+      onChange={(value: string) => setPaymentMethod(value)}
+    >
+      {/* ... */}
+    </RadioGroup>
+  </>
+)}
+```
+
+And replace them with the following:
 
 ```tsx title="src/modules/checkout/components/payment/index.tsx"
 {!paidByGiftcard &&
@@ -299,7 +362,12 @@ Now that you have all the necessary setup in place, you'll add the Stripe `Payme
 }
 ```
 
-And refactor the button to reflect the new changes:
+You replace the radio group with the payment methods available in Medusa with the `PaymentElement` component from the Stripe SDK. You pass it the following props:
+
+- `onChange`: A callback function that is called when the payment element's state changes. You pass the `handlePaymentElementChange` function you defined earlier.
+- `options`: An object that contains options for the payment element, such as the `layout`. Refer to [Stripe's documentation](https://docs.stripe.com/payments/payment-element#options) for other options available.
+
+Next, find the button rendered afterward and replace it with the following:
 
 ```tsx title="src/modules/checkout/components/payment/index.tsx"
 <Button
@@ -319,348 +387,396 @@ And refactor the button to reflect the new changes:
 </Button>
 ```
 
-Then, add a check for `selectedPaymentMethod` to the condition for the collapsed state (`cart && paymentReady && activeSession`):
+You update the button's `disabled` condition and text.
 
+After that, to ensure the customer can only proceed to the review step if a payment method is selected, find the following lines in the return statement:
+
+```tsx title="src/modules/checkout/components/payment/index.tsx"
+{cart && paymentReady && activeSession ? (
+  // rest of code...
+)}
 ```
+
+And replace them with the following:
+
+```tsx title="src/modules/checkout/components/payment/index.tsx"
 {cart && paymentReady && activeSession && selectedPaymentMethod ? (
   // rest of code...
 )}
 ```
 
-Finally, remove the card brand check on line 229 (`isStripeFunc(selectedPaymentMethod) && cardBrand`) as you no longer support that. Just render the following text to indicate that the user will be redirected to an external payment environment:
+You update the condition to also check if a payment method is selected within the Payment Element.
 
-```tsx
-<Text>Another step will appear</Text>
+Finally, find the following lines in the return statement:
+
+```tsx title="src/modules/checkout/components/payment/index.tsx"
+<Text>
+  {isStripeFunc(selectedPaymentMethod) && cardBrand
+    ? cardBrand
+    : "Another step will appear"}
+</Text>
 ```
 
+And replace them with the following:
+
+```tsx
+<Text>Another step may appear</Text>
+```
+
+You show the same text for all payment methods since they're handled by Stripe's Payment Element.
+
+You've now finished customizing the Payment step to show the Stripe Payment Element. This component will show the payment methods configured in your Stripe account.
+
+<Note>
+
+Feel free to remove unused imports, variables, and functions in the file.
+
+</Note>
+
 <Details summaryContent="Full updated code for src/modules/checkout/components/payment/index.tsx">
-  ```tsx title="src/modules/checkout/components/payment/index.tsx"
-  "use client"
-  
-  import { paymentInfoMap } from "@lib/constants"
-  import { initiatePaymentSession } from "@lib/data/cart"
-  import { CheckCircleSolid, CreditCard } from "@medusajs/icons"
-  import { Button, Container, Heading, Text, clx } from "@medusajs/ui"
-  import ErrorMessage from "@modules/checkout/components/error-message"
-  import { StripeContext } from "@modules/checkout/components/payment-wrapper/stripe-wrapper"
-  import Divider from "@modules/common/components/divider"
-  import { PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js"
-  import { StripePaymentElementChangeEvent } from "@stripe/stripe-js"
-  import { usePathname, useRouter, useSearchParams } from "next/navigation"
-  import { useCallback, useContext, useEffect, useState } from "react"
-  
-  const Payment = ({
-    cart,
-    availablePaymentMethods,
-  }: {
-    cart: any
-    availablePaymentMethods: any[]
-  }) => {
-    const [isLoading, setIsLoading] = useState(false)
-    const [error, setError] = useState<string | null>(null)
-    const [stripeComplete, setStripeComplete] = useState(false)
-    const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>()
-  
-    const searchParams = useSearchParams()
-    const router = useRouter()
-    const pathname = usePathname()
-  
-    const isOpen = searchParams.get("step") === "payment"
-  
-    const stripeReady = useContext(StripeContext)
-  
-    const activeSession = cart.payment_collection?.payment_sessions?.find(
-      (paymentSession: any) => paymentSession.status === "pending"
-    )
-    const paidByGiftcard =
-      cart?.gift_cards && cart?.gift_cards?.length > 0 && cart?.total === 0
-  
-    const paymentReady =
-      (activeSession && cart?.shipping_methods.length !== 0) || paidByGiftcard
-  
-    const createQueryString = useCallback(
-      (name: string, value: string) => {
-        const params = new URLSearchParams(searchParams)
-        params.set(name, value)
-  
-        return params.toString()
-      },
-      [searchParams]
-    )
-  
-    const handleEdit = () => {
-      router.push(pathname + "?" + createQueryString("step", "payment"), {
-        scroll: false,
+
+```tsx title="src/modules/checkout/components/payment/index.tsx"
+"use client"
+
+import { isStripe as isStripeFunc, paymentInfoMap } from "@lib/constants"
+import { initiatePaymentSession } from "@lib/data/cart"
+import { CheckCircleSolid, CreditCard } from "@medusajs/icons"
+import { Button, Container, Heading, Text, clx } from "@medusajs/ui"
+import ErrorMessage from "@modules/checkout/components/error-message"
+import Divider from "@modules/common/components/divider"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { useCallback, useContext, useEffect, useState } from "react"
+import { PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js"
+import { StripePaymentElementChangeEvent } from "@stripe/stripe-js"
+import { StripeContext } from "../payment-wrapper/stripe-wrapper"
+
+const Payment = ({
+  cart,
+  availablePaymentMethods,
+}: {
+  cart: any
+  availablePaymentMethods: any[]
+}) => {
+  const activeSession = cart.payment_collection?.payment_sessions?.find(
+    (paymentSession: any) => paymentSession.status === "pending"
+  )
+  const stripeReady = useContext(StripeContext)
+
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [stripeComplete, setStripeComplete] = useState(false)
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>("")
+
+  const stripe = stripeReady ? useStripe() : null
+  const elements = stripeReady ? useElements() : null
+
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const pathname = usePathname()
+
+  const isOpen = searchParams.get("step") === "payment"
+
+  const handlePaymentElementChange = async (
+    event: StripePaymentElementChangeEvent
+  ) => {
+    // Catches the selected payment method and sets it to state
+    if (event.value.type) {
+      setSelectedPaymentMethod(event.value.type)
+    }
+    
+    // Sets stripeComplete on form completion
+    setStripeComplete(event.complete)
+
+    // Clears any errors on successful completion
+    if (event.complete) {
+      setError(null)
+    }
+  }
+
+  const setPaymentMethod = async (method: string) => {
+    setError(null)
+    setSelectedPaymentMethod(method)
+    if (isStripeFunc(method)) {
+      await initiatePaymentSession(cart, {
+        provider_id: method,
       })
     }
-  
-    const stripe = stripeReady ? useStripe() : null
-    const elements = stripeReady ? useElements() : null
-  
-    const handlePaymentElementChange = async (
-      event: StripePaymentElementChangeEvent
-    ) => {
-      if (event.value.type) {
-        setSelectedPaymentMethod(event.value.type)
-      }
-      setStripeComplete(event.complete)
-  
-      if (event.complete) {
-        setError(null)
-      }
-    }
-  
-    const handleSubmit = async () => {
-      setIsLoading(true)
-      setError(null)
-  
-      try {
-        if (!stripe || !elements) {
-          setError("Payment processing not ready. Please try again.")
-          return
-        }
-  
-        await elements.submit().catch((err) => {
-          console.error(err)
-          setError(err.message || "An error occurred with the payment")
-          return
-        })
-  
-        router.push(pathname + "?" + createQueryString("step", "review"), {
-          scroll: false,
-        })
-      } catch (err: any) {
-        setError(err.message)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-  
-    const initStripe = async () => {
-      try {
-        await initiatePaymentSession(cart, {
-          provider_id: "pp_stripe_stripe",
-        })
-      } catch (err) {
-        console.error("Failed to initialize Stripe session:", err)
-        setError("Failed to initialize payment. Please try again.")
-      }
-    }
-  
-    useEffect(() => {
-      if (!activeSession && isOpen) {
-        initStripe()
-      }
-    }, [cart, isOpen, activeSession])
-  
-    useEffect(() => {
-      setError(null)
-    }, [isOpen])
-  
-    return (
-      <div className="bg-white">
-        <div className="flex flex-row items-center justify-between mb-6">
-          <Heading
-            level="h2"
-            className={clx(
-              "flex flex-row text-3xl-regular gap-x-2 items-baseline",
-              {
-                "opacity-50 pointer-events-none select-none":
-                  !isOpen && !paymentReady,
-              }
-            )}
-          >
-            Payment
-            {!isOpen && paymentReady && <CheckCircleSolid />}
-          </Heading>
-          {!isOpen && paymentReady && (
-            <Text>
-              <button
-                onClick={handleEdit}
-                className="text-ui-fg-interactive hover:text-ui-fg-interactive-hover"
-                data-testid="edit-payment-button"
-              >
-                Edit
-              </button>
-            </Text>
-          )}
-        </div>
-        <div>
-          <div className={isOpen ? "block" : "hidden"}>
-            {!paidByGiftcard &&
-              availablePaymentMethods?.length &&
-              stripeReady && (
-                <div className="mt-5 transition-all duration-150 ease-in-out">
-                  <PaymentElement
-                    onChange={handlePaymentElementChange}
-                    options={{
-                      layout: "accordion",
-                    }}
-                  />
-                </div>
-              )}
-            {paidByGiftcard && (
-              <div className="flex flex-col w-1/3">
-                <Text className="txt-medium-plus text-ui-fg-base mb-1">
-                  Payment method
-                </Text>
-                <Text
-                  className="txt-medium text-ui-fg-subtle"
-                  data-testid="payment-method-summary"
-                >
-                  Gift card
-                </Text>
-              </div>
-            )}
-  
-            <ErrorMessage
-              error={error}
-              data-testid="payment-method-error-message"
-            />
-  
-            <Button
-              size="large"
-              className="mt-6"
-              onClick={handleSubmit}
-              isLoading={isLoading}
-              disabled={
-                !stripeComplete ||
-                !stripe ||
-                !elements ||
-                (!selectedPaymentMethod && !paidByGiftcard)
-              }
-              data-testid="submit-payment-button"
-            >
-              Continue to review
-            </Button>
-          </div>
-  
-          <div className={isOpen ? "hidden" : "block"}>
-            {cart && paymentReady && activeSession && selectedPaymentMethod ? (
-              <div className="flex items-start gap-x-1 w-full">
-                <div className="flex flex-col w-1/3">
-                  <Text className="txt-medium-plus text-ui-fg-base mb-1">
-                    Payment method
-                  </Text>
-                  <Text
-                    className="txt-medium text-ui-fg-subtle"
-                    data-testid="payment-method-summary"
-                  >
-                    {paymentInfoMap[selectedPaymentMethod]?.title ||
-                      selectedPaymentMethod}
-                  </Text>
-                </div>
-                <div className="flex flex-col w-1/3">
-                  <Text className="txt-medium-plus text-ui-fg-base mb-1">
-                    Payment details
-                  </Text>
-                  <div
-                    className="flex gap-2 txt-medium text-ui-fg-subtle items-center"
-                    data-testid="payment-details-summary"
-                  >
-                    <Container className="flex items-center h-7 w-fit p-2 bg-ui-button-neutral-hover">
-                      {paymentInfoMap[selectedPaymentMethod]?.icon || (
-                        <CreditCard />
-                      )}
-                    </Container>
-                    <Text>Another step will appear</Text>
-                  </div>
-                </div>
-              </div>
-            ) : paidByGiftcard ? (
-              <div className="flex flex-col w-1/3">
-                <Text className="txt-medium-plus text-ui-fg-base mb-1">
-                  Payment method
-                </Text>
-                <Text
-                  className="txt-medium text-ui-fg-subtle"
-                  data-testid="payment-method-summary"
-                >
-                  Gift card
-                </Text>
-              </div>
-            ) : null}
-          </div>
-        </div>
-        <Divider className="mt-8" />
-      </div>
-    )
   }
-  
-  export default Payment
-  
-  ```
+
+  const paidByGiftcard =
+    cart?.gift_cards && cart?.gift_cards?.length > 0 && cart?.total === 0
+
+  const paymentReady =
+    (activeSession && cart?.shipping_methods.length !== 0) || paidByGiftcard
+
+  const createQueryString = useCallback(
+    (name: string, value: string) => {
+      const params = new URLSearchParams(searchParams)
+      params.set(name, value)
+
+      return params.toString()
+    },
+    [searchParams]
+  )
+
+  const handleEdit = () => {
+    router.push(pathname + "?" + createQueryString("step", "payment"), {
+      scroll: false,
+    })
+  }
+
+  const handleSubmit = async () => {
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      // Check if the necessary context is ready
+      if (!stripe || !elements) {
+        setError("Payment processing not ready. Please try again.")
+        return
+      }
+
+      // Submit the payment method details
+      await elements.submit().catch((err) => {
+        console.error(err)
+        setError(err.message || "An error occurred with the payment")
+        return
+      })
+
+      // Navigate to the final checkout step
+      router.push(pathname + "?" + createQueryString("step", "review"), {
+        scroll: false,
+      })
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const initStripe = async () => {
+    try {
+      await initiatePaymentSession(cart, {
+        provider_id: "pp_stripe_stripe",
+      })
+    } catch (err) {
+      console.error("Failed to initialize Stripe session:", err)
+      setError("Failed to initialize payment. Please try again.")
+    }
+  }
+
+  useEffect(() => {
+    if (!activeSession && isOpen) {
+      initStripe()
+    }
+  }, [cart, isOpen, activeSession])
+
+  useEffect(() => {
+    setError(null)
+  }, [isOpen])
+
+  return (
+    <div className="bg-white">
+      <div className="flex flex-row items-center justify-between mb-6">
+        <Heading
+          level="h2"
+          className={clx(
+            "flex flex-row text-3xl-regular gap-x-2 items-baseline",
+            {
+              "opacity-50 pointer-events-none select-none":
+                !isOpen && !paymentReady,
+            }
+          )}
+        >
+          Payment
+          {!isOpen && paymentReady && <CheckCircleSolid />}
+        </Heading>
+        {!isOpen && paymentReady && (
+          <Text>
+            <button
+              onClick={handleEdit}
+              className="text-ui-fg-interactive hover:text-ui-fg-interactive-hover"
+              data-testid="edit-payment-button"
+            >
+              Edit
+            </button>
+          </Text>
+        )}
+      </div>
+      <div>
+        <div className={isOpen ? "block" : "hidden"}>
+          {!paidByGiftcard &&
+            availablePaymentMethods?.length &&
+            stripeReady && (
+              <div className="mt-5 transition-all duration-150 ease-in-out">
+                <PaymentElement
+                  onChange={handlePaymentElementChange}
+                  options={{
+                    layout: "accordion",
+                  }}
+                />
+              </div>
+            )
+          }
+
+          {paidByGiftcard && (
+            <div className="flex flex-col w-1/3">
+              <Text className="txt-medium-plus text-ui-fg-base mb-1">
+                Payment method
+              </Text>
+              <Text
+                className="txt-medium text-ui-fg-subtle"
+                data-testid="payment-method-summary"
+              >
+                Gift card
+              </Text>
+            </div>
+          )}
+
+          <ErrorMessage
+            error={error}
+            data-testid="payment-method-error-message"
+          />
+
+          <Button
+            size="large"
+            className="mt-6"
+            onClick={handleSubmit}
+            isLoading={isLoading}
+            disabled={
+              !stripeComplete ||
+              !stripe ||
+              !elements ||
+              (!selectedPaymentMethod && !paidByGiftcard)
+            }
+            data-testid="submit-payment-button"
+          >
+            Continue to review
+          </Button>
+        </div>
+
+        <div className={isOpen ? "hidden" : "block"}>
+          {cart && paymentReady && activeSession && selectedPaymentMethod ? (
+            <div className="flex items-start gap-x-1 w-full">
+              <div className="flex flex-col w-1/3">
+                <Text className="txt-medium-plus text-ui-fg-base mb-1">
+                  Payment method
+                </Text>
+                <Text
+                  className="txt-medium text-ui-fg-subtle"
+                  data-testid="payment-method-summary"
+                >
+                  {paymentInfoMap[activeSession?.provider_id]?.title ||
+                    activeSession?.provider_id}
+                </Text>
+              </div>
+              <div className="flex flex-col w-1/3">
+                <Text className="txt-medium-plus text-ui-fg-base mb-1">
+                  Payment details
+                </Text>
+                <div
+                  className="flex gap-2 txt-medium text-ui-fg-subtle items-center"
+                  data-testid="payment-details-summary"
+                >
+                  <Container className="flex items-center h-7 w-fit p-2 bg-ui-button-neutral-hover">
+                    {paymentInfoMap[selectedPaymentMethod]?.icon || (
+                      <CreditCard />
+                    )}
+                  </Container>
+                  <Text>Another step may appear</Text>
+                </div>
+              </div>
+            </div>
+          ) : paidByGiftcard ? (
+            <div className="flex flex-col w-1/3">
+              <Text className="txt-medium-plus text-ui-fg-base mb-1">
+                Payment method
+              </Text>
+              <Text
+                className="txt-medium text-ui-fg-subtle"
+                data-testid="payment-method-summary"
+              >
+                Gift card
+              </Text>
+            </div>
+          ) : null}
+        </div>
+      </div>
+      <Divider className="mt-8" />
+    </div>
+  )
+}
+
+export default Payment
+```
+
 </Details>
 
-### Test it out
+### c. Add Icons and Titles for Payment Methods
 
-To test out the changes you've made so far:
+After a customer enters their payment details and proceeds to the Review step, the payment method is displayed in the collapsed Payment step.
 
-1. Start both your Medusa and Next.js dev servers by running `yarn dev` in both projects.
-2. Navigate to `http://localhost:8000` in your browser.
-3. Click a product and add it to cart.
-4. Navigate to `http://localhost:8000/dk/checkout?step=address` to start the checkout process.
-5. Fill out the Address and Delivery steps.
-6. Once you reach the Payment step, your Stripe Payment Element should show up and list the different payment methods you’ve enabled in your Stripe account. It looks something like this:
+To ensure the correct icon and title are shown for your payment methods configured through Stripe, you can add them in the `paymentInfoMap` object defined in `src/lib/constants.tsx`.
 
-![The stripe payment element allows you to pay with different payment methods like PayPal](https://res.cloudinary.com/dza7lstvk/image/upload/v1734005395/Medusa%20Resources/Screenshot_2024-12-10_at_18.04.52_wemqwg.jpg)
-
----
-
-## Step 3: Update Payment Method Titles and Icons
-
-To show a user-friendly payment method title and icon when the method is selected, update the `paymentInfoMap` object in `src/lib/constants.tsx`:
+For example:
 
 ```tsx title="src/lib/constants.tsx"
-/* Map of payment provider_id to their title and icon. Add in any payment providers you want to use. */
 export const paymentInfoMap: Record<
   string,
   { title: string; icon: React.JSX.Element }
 > = {
+  // ...
   card: {
     title: "Credit card",
     icon: <CreditCard />,
-  },
-  ideal: {
-    title: "iDeal",
-    icon: <Ideal />,
-  },
-  bancontact: {
-    title: "Bancontact",
-    icon: <Bancontact />,
   },
   paypal: {
     title: "PayPal",
     icon: <PayPal />,
   },
-  pp_system_default: {
-    title: "Manual Payment",
-    icon: <CreditCard />,
-  },
-  // Add more payment providers here
 }
 ```
 
-The `paymentInfoMap` object's keys must match [the type enum in the Stripe PaymentMethod object](https://docs.stripe.com/api/payment_methods/object#payment_method_object-type). The value of each is an object having the following properties:
+For every payment method you want to customize its display, add an entry in the `paymentInfoMap` object. The key should match the [type enum in Stripe's Payment Element](https://docs.stripe.com/api/payment_methods/object#payment_method_object-type), and the value is an object with the following properties:
 
-- `title`: The title to show when the payment method is selected.
-- `icon`: A JSX element that is rendered for the icon.
+- `title`: The title to display for the payment method.
+- `icon`: A JSX element representing the icon for the payment method. You can use icons from [Medusa UI](!ui!/icons) or custom icons.
 
-Make sure to add an entry for every payment method you’re using.
+### Test it out
 
-For example, when PayPal is selected as the payment method in Stripe, the collapsed state will look like this:
+Before you test out the payment checkout step, make sure you have the necessary [payment methods configured in Stripe](https://docs.stripe.com/payments/payment-methods/overview).
 
-![The title and icon you configured are shown when PayPal is selected](https://res.cloudinary.com/dza7lstvk/image/upload/v1734005644/Medusa%20Resources/Screenshot_2024-12-10_at_18.22.33_vgkkdn.jpg)
+Then, follow these steps to test the payment checkout step in your Next.js Starter Storefront:
+
+1. Start the Medusa application with the following command:
+
+```bash npm2yarn badgeLabel="Medusa Application" badgeColor="green"
+npm run dev
+```
+
+2. Start the Next.js Starter Storefront with the following command:
+
+```bash npm2yarn badgeLabel="Storefront" badgeColor="blue"
+npm run dev
+```
+
+3. Open the storefront at `http://localhost:8000` in your browser.
+4. Go to Menu -> Store, choose a product, and add it to the cart.
+5. Proceed to checkout by clicking the cart icon in the top right corner, then click "Go to checkout".
+6. Complete the Address and Delivery steps that are before the Payment step.
+7. Once you reach the Payment step, your Stripe Payment Element should appear and list the different payment methods you’ve enabled in your Stripe account.
+
+At this point, you can proceed to the Review step, but you can't confirm the payment with Stripe and place an order in Medusa. You'll customize the payment button in the next step to handle the payment confirmation with Stripe.
+
+![The Stripe Payment Element allows you to pay with different payment methods like PayPal](https://res.cloudinary.com/dza7lstvk/image/upload/v1734005395/Medusa%20Resources/Screenshot_2024-12-10_at_18.04.52_wemqwg.jpg)
 
 ---
 
-## Step 4: Update the Payment Button
+## Step 3: Update the Payment Button
 
-The `<PaymentButton>` component in `src/modules/checkout/components/payment-button/index.tsx` finalizes the checkout and initiates the payment for the user at the Review step.
+Next, you'll update the payment button in the Review step of the checkout process. This button is used to confirm the payment with Stripe, then place the order in Medusa.
 
-![The place order button is show at the bottom of the Review section](https://res.cloudinary.com/dza7lstvk/image/upload/v1734005784/Medusa%20Resources/Screenshot_2024-12-10_at_19.25.30_qufpyo.jpg)
-
-In this section, you'll simplify the payment button implementation by focusing solely on Stripe integration and removing other payment options. The new implementation will work exclusively with Stripe's updated payment flow. You'll replace the card-specific confirmation method with Stripe's unified payment confirmation system, add support for redirect-based payment methods, and implement automatic order completion upon successful authorization if no redirect is needed. 
+In this step, you'll customize the `PaymentButton` component in `src/modules/checkout/components/payment-button/index.tsx` to support confirming the payment with Stripe's Payment Element.
 
 <Note>
 
@@ -668,11 +784,174 @@ The full final code is available at the end of the section.
 
 </Note>
 
-You'll first clean up the file and remove payment buttons that are no longer needed. You can completely remove `PayPalPaymentButton`, `GiftCardPaymentButton` and `ManualTestPaymentButton`. It’s also safe to remove the `isManual` and `isPaypal` cases from the switch statement.
-
-The `PaymentButton` component should now look like this:
+Start by adding the following imports at the top of the file:
 
 ```tsx title="src/modules/checkout/components/payment-button/index.tsx"
+// ...other imports
+import { useEffect } from "react"
+import { useParams, usePathname, useRouter } from "next/navigation"
+```
+
+Then, in the `StripePaymentButton` component, add the following variables:
+
+```tsx title="src/modules/checkout/components/payment-button/index.tsx"
+const { countryCode } = useParams()
+const router = useRouter()
+const pathname = usePathname()
+const paymentSession = cart.payment_collection?.payment_sessions?.find(
+  // TODO change the provider_id if using a different ID in medusa-config.ts
+  (session) => session.provider_id === "pp_stripe_stripe"
+)
+```
+
+You define the following variables:
+
+- `countryCode`: The country code of the customer's region, fetched from the URL. You'll use this later to create Stripe's redirect URL.
+- `router`: The Next.js router instance. You'll use this to redirect back to the payment step if necessary.
+- `pathname`: The current pathname. You'll use this when redirecting back to the payment step if necessary.
+- `paymentSession`: The Medusa payment session for the Stripe payment provider. This is used to get the `clientSecret` needed to confirm the payment.
+    - Notice that the provider ID is set to `pp_stripe_stripe`, which is the ID of the Stripe payment provider in your Medusa application if the ID in `medusa-config.ts` is `stripe`. If you used a different ID, change the `stripe` in the middle accordingly.
+
+After that, change the `handlePayment` function to the following:
+
+```tsx title="src/modules/checkout/components/payment-button/index.tsx"
+const handlePayment = async () => {
+  if (!stripe || !elements || !cart) {
+    return
+  }
+  setSubmitting(true)
+
+  const { error: submitError } = await elements.submit()
+  if (submitError) {
+    setErrorMessage(submitError.message || null)
+    setSubmitting(false)
+    return
+  }
+
+  const clientSecret = paymentSession?.data?.client_secret as string
+
+  await stripe
+  .confirmPayment({
+    elements,
+    clientSecret,
+    confirmParams: {
+      return_url: `${
+        window.location.origin
+      }/api/capture-payment/${cart.id}?country_code=${countryCode}`,
+      payment_method_data: {
+        billing_details: {
+          name:
+            cart.billing_address?.first_name +
+            " " +
+            cart.billing_address?.last_name,
+          address: {
+            city: cart.billing_address?.city ?? undefined,
+            country: cart.billing_address?.country_code ?? undefined,
+            line1: cart.billing_address?.address_1 ?? undefined,
+            line2: cart.billing_address?.address_2 ?? undefined,
+            postal_code: cart.billing_address?.postal_code ?? undefined,
+            state: cart.billing_address?.province ?? undefined,
+          },
+          email: cart.email,
+          phone: cart.billing_address?.phone ?? undefined,
+        },
+      },
+    },
+    redirect: "if_required",
+  })
+  .then(({ error, paymentIntent }) => {
+    if (error) {
+      const pi = error.payment_intent
+
+      if (
+        (pi && pi.status === "requires_capture") ||
+        (pi && pi.status === "succeeded")
+      ) {
+        onPaymentCompleted()
+        return
+      }
+
+      setErrorMessage(error.message || null)
+      setSubmitting(false)
+      return
+    }
+
+    if (
+      paymentIntent.status === "requires_capture" ||
+      paymentIntent.status === "succeeded"
+    ) {
+      onPaymentCompleted()
+    }
+  })
+}
+```
+
+In the function, you:
+
+- Ensure that the `stripe`, `elements`, and `cart` are available before proceeding.
+- Set the `submitting` state to true to indicate that the payment is being processed.
+- Use `elements.submit()` to submit the payment method details that the customer enters in the Payment Element. This ensures all necessary payment details are entered.
+- Use `stripe.confirmPayment()` to confirm the payment with Stripe. You pass it the following details:
+    - `elements`: The Stripe Elements instance that contains the Payment Element.
+    - `clientSecret`: The client secret from the payment session, which is used to confirm the payment.
+    - `confirmParams`: An object that contains the parameters for confirming the payment. 
+        - `return_url`: The URL to redirect the customer to after the payment is confirmed. This redirect URL is useful when using providers like PayPal, where the customer is redirected to complete the payment externally. You'll create the route in your Next.js Starter Storefront in the next step.
+        - `payment_method_data`: An object that contains the billing details of the customer.
+    - `redirect`: The redirect behavior for the payment confirmation. By setting `redirect: "if_required"`, you'll only redirect to the `return_url` if the payment is completed externally.
+- Handle the response from `confirmPayment()`.
+    - If the payment is successful or requires capture, you call the `onPaymentCompleted` function to complete the payment and place the order.
+    - If an error occurred, you set the `errorMessage` state variable to show the error to the customer.
+
+Finally, add the following `useEffect` hooks to the `StripePaymentButton` component:
+
+```tsx title="src/modules/checkout/components/payment-button/index.tsx"
+useEffect(() => {
+  if (cart.payment_collection?.status === "authorized") {
+    onPaymentCompleted()
+  }
+}, [cart.payment_collection?.status])
+
+useEffect(() => {
+  elements?.getElement("payment")?.on("change", (e) => {
+    if (!e.complete) {
+      // redirect to payment step if not complete
+      router.push(pathname + "?step=payment", {
+        scroll: false,
+      })
+    }
+  })
+}, [elements])
+```
+
+You add two effects:
+
+- An effect that runs when the status of the cart's payment collection changes. It triggers the `onPaymentCompleted` function to finalize the order placement when the payment collection status is `authorized`.
+- An effect that listens for changes in the Payment Element. If the payment element is not complete, it redirects the customer back to the payment step. This is useful if the customer refreshes the page or navigates away, leading to incomplete payment details.
+
+You've finalized changes to the `PaymentButton` component. Feel free to remove unused imports, variables, and functions in the file.
+
+You still need to add the redirect URL route before you can test the payment button. You'll do that in the next step.
+
+<Details summaryContent="Full updated code for src/modules/checkout/components/payment-button/index.tsx">
+
+```tsx title="src/modules/checkout/components/payment-button/index.tsx"
+"use client"
+
+import { isManual, isStripe } from "@lib/constants"
+import { placeOrder } from "@lib/data/cart"
+import { HttpTypes } from "@medusajs/types"
+import { Button } from "@medusajs/ui"
+import { useElements, useStripe } from "@stripe/react-stripe-js"
+import React, { useState, useEffect } from "react"
+import ErrorMessage from "../error-message"
+import { useParams, usePathname, useRouter } from "next/navigation"
+
+
+type PaymentButtonProps = {
+  cart: HttpTypes.StoreCart
+  "data-testid": string
+}
+
 const PaymentButton: React.FC<PaymentButtonProps> = ({
   cart,
   "data-testid": dataTestId,
@@ -695,291 +974,208 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
           data-testid={dataTestId}
         />
       )
+    case isManual(paymentSession?.provider_id):
+      return (
+        <ManualTestPaymentButton notReady={notReady} data-testid={dataTestId} />
+      )
     default:
       return <Button disabled>Select a payment method</Button>
   }
 }
-```
 
-Since you're only using Stripe, you could decide to completely kill the switch statement and always return the Stripe button. However, if you might add more payment providers in the future, it could come in handy to have this logic in place.
+const StripePaymentButton = ({
+  cart,
+  notReady,
+  "data-testid": dataTestId,
+}: {
+  cart: HttpTypes.StoreCart
+  notReady: boolean
+  "data-testid"?: string
+}) => {
+  const [submitting, setSubmitting] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
-Next, import at the top of the file `useParams` and add `useEffect` to the React imports:
+  const { countryCode } = useParams()
+  const router = useRouter()
+  const pathname = usePathname()
+  const paymentSession = cart.payment_collection?.payment_sessions?.find(
+    (session) => session.provider_id === "pp_stripe_stripe"
+  )
 
-```tsx title="src/modules/checkout/components/payment-button/index.tsx"
-// ...other imports
-import { useParams } from "next/navigation"
-import React, { useEffect, useState } from "react"
-```
+  const onPaymentCompleted = async () => {
+    await placeOrder()
+      .catch((err) => {
+        setErrorMessage(err.message)
+      })
+      .finally(() => {
+        setSubmitting(false)
+      })
+  }
 
-In `StripePaymentButton`, grab the `countryCode` from the route params as you're going to need it later:
+  const stripe = useStripe()
+  const elements = useElements()
 
-```tsx title="src/modules/checkout/components/payment-button/index.tsx"
-const { countryCode } = useParams()
-```
+  const disabled = !stripe || !elements ? true : false
 
-Then, remove the `card` and `session` variables. and add the following line below `countryCode` to find the Stripe payment session:
-
-```tsx title="src/modules/checkout/components/payment-button/index.tsx"
-const paymentSession = cart.payment_collection?.payment_sessions?.find(
-  (session) => session.provider_id === "pp_stripe_stripe"
-)
-```
-
-After that, alter the `handlePayment` function to work with the Payment Element by removing the `!card` condition as the variable no longer exists:
-
-```tsx title="src/modules/checkout/components/payment-button/index.tsx"
-const handlePayment = async () => {
+  const handlePayment = async () => {
     if (!stripe || !elements || !cart) {
       return
     }
-
-    setSubmitting(true)
     
-    // ...rest of code
-}
-```
+    setSubmitting(true)
 
-Next, grab the Stripe `clientSecret` from Stripe's payment session in Medusa:
 
-```tsx title="src/modules/checkout/components/payment-button/index.tsx"
-const clientSecret = paymentSession?.data?.client_secret as string
-```
-
-To confirm the payment, you'll use `stripe.confirmPayment` instead of `stripe.confirmCardPayment` which expects different options:
-
-```tsx title="src/modules/checkout/components/payment-button/index.tsx"
-await stripe
-  .confirmPayment({
-    elements,
-    clientSecret,
-    confirmParams: {
-      return_url: `${window.location.origin}/api/capture-payment/${cart.id}?country_code=${countryCode}`,
-      payment_method_data: {
-        billing_details: {
-          name:
-            cart.billing_address?.first_name +
-            " " +
-            cart.billing_address?.last_name,
-          address: {
-            city: cart.billing_address?.city ?? undefined,
-            country: cart.billing_address?.country_code ?? undefined,
-            line1: cart.billing_address?.address_1 ?? undefined,
-            line2: cart.billing_address?.address_2 ?? undefined,
-            postal_code: cart.billing_address?.postal_code ?? undefined,
-            state: cart.billing_address?.province ?? undefined,
-          },
-          email: cart.email,
-          phone: cart.billing_address?.phone ?? undefined,
-        },
-      },
-    },
-    redirect: "if_required",
-  })
-  .then(({ error }) => {
-    if (error) {
-      const pi = error.payment_intent
-
-      if (
-        (pi && pi.status === "requires_capture") ||
-        (pi && pi.status === "succeeded")
-      ) {
-        onPaymentCompleted()
-      }
-
-      setErrorMessage(error.message || null)
+    const { error: submitError } = await elements.submit()
+    if (submitError) {
+      setErrorMessage(submitError.message || null)
+      setSubmitting(false)
       return
     }
 
-    return
-  })
-```
+    const clientSecret = paymentSession?.data?.client_secret as string
 
-You pass in `elements` the `clientSecret` you defined earlier, and a `confirmParams` object containing customer data and a `return_url`. This is the URL the user gets redirected to after completing an external payment. You'll create this route later. 
+    await stripe
+    .confirmPayment({
+      elements,
+      clientSecret,
+      confirmParams: {
+        return_url: `${window.location.origin}/api/capture-payment/${cart.id}?country_code=${countryCode}`,
+        payment_method_data: {
+          billing_details: {
+            name:
+              cart.billing_address?.first_name +
+              " " +
+              cart.billing_address?.last_name,
+            address: {
+              city: cart.billing_address?.city ?? undefined,
+              country: cart.billing_address?.country_code ?? undefined,
+              line1: cart.billing_address?.address_1 ?? undefined,
+              line2: cart.billing_address?.address_2 ?? undefined,
+              postal_code: cart.billing_address?.postal_code ?? undefined,
+              state: cart.billing_address?.province ?? undefined,
+            },
+            email: cart.email,
+            phone: cart.billing_address?.phone ?? undefined,
+          },
+        },
+      },
+      redirect: "if_required",
+    })
+    .then(({ error, paymentIntent }) => {
+      if (error) {
+        const pi = error.payment_intent
 
-By setting `redirect: "if_required"`, you'll only redirect to this route if the payment is completed externally. If not, add the following `useEffect` hook to call the `onPaymentCompleted` function that completes the order:
+        if (
+          (pi && pi.status === "requires_capture") ||
+          (pi && pi.status === "succeeded")
+        ) {
+          onPaymentCompleted()
+          return
+        }
 
-```tsx title="src/modules/checkout/components/payment-button/index.tsx"
-useEffect(() => {
-  if (cart.payment_collection?.status === "authorized") {
-    onPaymentCompleted()
-  }
-}, [cart.payment_collection?.status])
-```
-
-The returned `<Button>` component remains unchanged.
-
-<Details summaryContent="Full updated code for src/modules/checkout/components/payment-button/index.tsx">
-  ```tsx title="src/modules/checkout/components/payment-button/index.tsx"
-  "use client"
-  
-  import { isStripe } from "@lib/constants"
-  import { placeOrder } from "@lib/data/cart"
-  import { HttpTypes } from "@medusajs/types"
-  import { Button } from "@medusajs/ui"
-  import { useElements, useStripe } from "@stripe/react-stripe-js"
-  import { useParams } from "next/navigation"
-  import React, { useEffect, useState } from "react"
-  import ErrorMessage from "../error-message"
-  
-  type PaymentButtonProps = {
-    cart: HttpTypes.StoreCart
-    "data-testid": string
-  }
-  
-  const PaymentButton: React.FC<PaymentButtonProps> = ({
-    cart,
-    "data-testid": dataTestId,
-  }) => {
-    const notReady =
-      !cart ||
-      !cart.shipping_address ||
-      !cart.billing_address ||
-      !cart.email ||
-      (cart.shipping_methods?.length ?? 0) < 1
-  
-    const paymentSession = cart.payment_collection?.payment_sessions?.[0]
-  
-    switch (true) {
-      case isStripe(paymentSession?.provider_id):
-        return (
-          <StripePaymentButton
-            notReady={notReady}
-            cart={cart}
-            data-testid={dataTestId}
-          />
-        )
-      default:
-        return <Button disabled>Select a payment method</Button>
-    }
-  }
-  
-  const StripePaymentButton = ({
-    cart,
-    notReady,
-    "data-testid": dataTestId,
-  }: {
-    cart: HttpTypes.StoreCart
-    notReady: boolean
-    "data-testid"?: string
-  }) => {
-    const [submitting, setSubmitting] = useState(false)
-    const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  
-    const { countryCode } = useParams()
-  
-    const paymentSession = cart.payment_collection?.payment_sessions?.find(
-      (session) => session.provider_id === "pp_stripe_stripe"
-    )
-  
-    const onPaymentCompleted = async () => {
-      await placeOrder()
-        .catch((err) => {
-          setErrorMessage(err.message)
-        })
-        .finally(() => {
-          setSubmitting(false)
-        })
-    }
-  
-    const stripe = useStripe()
-    const elements = useElements()
-  
-    const disabled = !stripe || !elements ? true : false
-  
-    const handlePayment = async () => {
-      if (!stripe || !elements || !cart) {
+        setErrorMessage(error.message || null)
+        setSubmitting(false)
         return
       }
-  
-      setSubmitting(true)
-  
-      const clientSecret = paymentSession?.data?.client_secret as string
-  
-      await stripe
-        .confirmPayment({
-          elements,
-          clientSecret,
-          confirmParams: {
-            return_url: `${window.location.origin}/api/capture-payment/${cart.id}?country_code=${countryCode}`,
-            payment_method_data: {
-              billing_details: {
-                name:
-                  cart.billing_address?.first_name +
-                  " " +
-                  cart.billing_address?.last_name,
-                address: {
-                  city: cart.billing_address?.city ?? undefined,
-                  country: cart.billing_address?.country_code ?? undefined,
-                  line1: cart.billing_address?.address_1 ?? undefined,
-                  line2: cart.billing_address?.address_2 ?? undefined,
-                  postal_code: cart.billing_address?.postal_code ?? undefined,
-                  state: cart.billing_address?.province ?? undefined,
-                },
-                email: cart.email,
-                phone: cart.billing_address?.phone ?? undefined,
-              },
-            },
-          },
-          redirect: "if_required",
-        })
-        .then(({ error }) => {
-          if (error) {
-            const pi = error.payment_intent
-  
-            if (
-              (pi && pi.status === "requires_capture") ||
-              (pi && pi.status === "succeeded")
-            ) {
-              onPaymentCompleted()
-            }
-  
-            setErrorMessage(error.message || null)
-            return
-          }
-  
-          return
-        })
-    }
-  
-    useEffect(() => {
-      if (cart.payment_collection?.status === "authorized") {
+
+      if (
+        paymentIntent.status === "requires_capture" ||
+        paymentIntent.status === "succeeded"
+      ) {
         onPaymentCompleted()
       }
-    }, [cart.payment_collection?.status])
-  
-    return (
-      <>
-        <Button
-          disabled={disabled || notReady}
-          onClick={handlePayment}
-          size="large"
-          isLoading={submitting}
-          data-testid={dataTestId}
-        >
-          Place order
-        </Button>
-        <ErrorMessage
-          error={errorMessage}
-          data-testid="stripe-payment-error-message"
-        />
-      </>
-    )
+    })
   }
-  
-  export default PaymentButton
-  
-  ```
+
+  useEffect(() => {
+    if (cart.payment_collection?.status === "authorized") {
+      onPaymentCompleted()
+    }
+  }, [cart.payment_collection?.status])
+
+  useEffect(() => {
+    elements?.getElement("payment")?.on("change", (e) => {
+      if (!e.complete) {
+        // redirect to payment step if not complete
+        router.push(pathname + "?step=payment", {
+          scroll: false,
+        })
+      }
+    })
+  }, [elements])
+
+  return (
+    <>
+      <Button
+        disabled={disabled || notReady}
+        onClick={handlePayment}
+        size="large"
+        isLoading={submitting}
+        data-testid={dataTestId}
+      >
+        Place order
+      </Button>
+      <ErrorMessage
+        error={errorMessage}
+        data-testid="stripe-payment-error-message"
+      />
+    </>
+  )
+}
+
+const ManualTestPaymentButton = ({ notReady }: { notReady: boolean }) => {
+  const [submitting, setSubmitting] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+
+  const onPaymentCompleted = async () => {
+    await placeOrder()
+      .catch((err) => {
+        setErrorMessage(err.message)
+      })
+      .finally(() => {
+        setSubmitting(false)
+      })
+  }
+
+  const handlePayment = () => {
+    setSubmitting(true)
+
+    onPaymentCompleted()
+  }
+
+  return (
+    <>
+      <Button
+        disabled={notReady}
+        isLoading={submitting}
+        onClick={handlePayment}
+        size="large"
+        data-testid="submit-order-button"
+      >
+        Place order
+      </Button>
+      <ErrorMessage
+        error={errorMessage}
+        data-testid="manual-payment-error-message"
+      />
+    </>
+  )
+}
+
+export default PaymentButton
+```
+
 </Details>
 
 ---
 
-## Step 5: Handle External Payment Callbacks
+## Step 4: Handle External Payment Callbacks
 
-Many payment methods redirect users away from your store to complete payment (for example, to their banking app) before returning the customer back to your store. You need to handle these redirects and check if the payment was successful. If so, you create a Medusa order and redirect the customer to the order confirmation page.
+Some payment providers, such as PayPal, require the customers to perform actions on their portal before authorizing or confirming the payment. In those scenarios, you need an endpoint that the provider redirects the customer to complete their purchase.
 
-To handle this, you'll set up a Next.js API route. This is the route you passed as the `return_url` in `stripe.confirmPayment` in the previous step.
+In this step, you'll create an API route in your Next.js Starter Storefront that handles this use case. This route is the `return_url` route you passed to the `stripe.confirmPayment` earlier.
 
-Create a `route.ts` file in `src/app/api/capture-payment/[cartId]` with the following content:
+Create the file `src/app/api/capture-payment/[cartId]/route.ts` with the following content:
 
 ```tsx title="src/app/api/capture-payment/[cartId]/route.ts"
 import { placeOrder, retrieveCart } from "@lib/data/cart"
@@ -1025,19 +1221,50 @@ export async function GET(req: NextRequest, { params }: { params: Params }) {
     `${origin}/${countryCode}/order/${order.id}/confirmed`
   )
 }
-
 ```
 
-This route validates a payment intent from Stripe by checking the URL parameters (`payment_intent`, `client_secret`, and `redirect_status`) against the cart's payment session data. If the cart doesn't exist, or if payment validation fails (mismatched secrets, invalid status, etc...), the route redirects the customer back to the cart where you can display an error to the customer.
+In this route, you validate that the payment intent and client secret match the cart's payment session data. If so, you place the order and redirect the customer to the order confirmation page.
 
-If the validation succeeds, you places the order using the `placeOrder` function and redirects the user to an order confirmation page.
+If the payment failed or other validation checks fail, you redirect the customer back to the cart page with an error message.
 
-### Test it Out
+Stripe will redirect the customer back to this route when using payment methods like PayPal.
 
-Switch back to the checkout page on your storefront and try to place an order with an external payment method (For example, PayPal). Stripe will redirect you to a payment page where you can either authorize or reject the payment.
+---
+
+### Test Payment Confirmation and Order placement
+
+You can now test out the entire checkout flow with payment confirmation and order placement.
+
+Start the Medusa application and the Next.js Starter Storefront as you did in the previous steps, and proceed to checkout.
+
+In the payment step, select a payment method, such as card or PayPal. Fill out the necessary details in the Payment Element, then click the "Continue to review" button.
+
+<Note title="Tip">
+
+Find test cards in [Stripe's documentation](https://docs.stripe.com/testing#use-test-cards).
+
+</Note>
+
+After that, click the "Place order" button. If you selected a payment method that requires external confirmation, such as PayPal, you will be redirected to the PayPal payment page.
 
 ![Example of handling payment through PayPal](https://res.cloudinary.com/dza7lstvk/image/upload/v1734006541/Medusa%20Resources/Screenshot_2024-12-10_at_19.27.13_q0w6u1.jpg)
 
-When you click “Authorize Test Payment”, you’ll be redirected to your newly created API route. If the validation passes, you should now see the order confirmation page.
+Once the payment is confirmed and the order is placed, the customer will be redirected to the order confirmation page, where they can see the order details.
 
-![Order confirmation page showing the order's details.](https://res.cloudinary.com/dza7lstvk/image/upload/v1734006598/Medusa%20Resources/Screenshot_2024-12-10_at_19.24.00_qs1t6q.jpg)
+### Test 3D Secure Payments
+
+Stripe's Payment Element also supports 3D Secure payments. You can use one of [Stripe's test 3D Secure cards](https://docs.stripe.com/testing?testing-method=card-numbers#regulatory-cards) to test this feature.
+
+When a customer uses a 3D Secure card, a pop-up will open prompting them to complete the authentication process. If successful, the order will be placed, and the customer will be redirected to the order confirmation page.
+
+![Stripe 3D Secure pop-up](https://res.cloudinary.com/dza7lstvk/image/upload/v1752577384/Medusa%20Resources/CleanShot_2025-07-15_at_11.12.44_2x_ibjxvx.png)
+
+### Server Webhook Verification
+
+Webhook verification is useful to ensure that payment events are handled despite connection issues. The Stripe Module Provider in Medusa provides webhook verification out of the box, so you don't need to implement it yourself.
+
+Learn more about the webhook API routes and how to configure them in the [Stripe Module Provider](../../../commerce-modules/payment/payment-provider/stripe/page.mdx) guide.
+
+### Testing Declined Payments
+
+You can use [Stripe's declined test cards](https://docs.stripe.com/testing#declined-payments) to test declined payments. When a payment is declined, the customer will be redirected back to the payment step to fix their payment details as necessary.

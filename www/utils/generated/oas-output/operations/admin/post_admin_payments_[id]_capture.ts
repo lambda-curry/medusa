@@ -31,13 +31,7 @@
  *   content:
  *     application/json:
  *       schema:
- *         type: object
- *         description: The payment's details.
- *         properties:
- *           amount:
- *             type: number
- *             title: amount
- *             description: The amount to capture.
+ *         $ref: "#/components/schemas/AdminCreatePaymentCapture"
  * x-codeSamples:
  *   - lang: JavaScript
  *     label: JS SDK

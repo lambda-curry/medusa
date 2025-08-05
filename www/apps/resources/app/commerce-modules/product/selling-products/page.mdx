@@ -5,6 +5,8 @@ tags:
     - fulfillment
 products:
   - fulfillment
+  - product
+  - inventory
 ---
 
 import { Table } from "docs-ui"
@@ -15,29 +17,35 @@ export const metadata = {
 
 # {metadata.title}
 
-In this guide, you'll learn how to set up and configure your products based on their shipping and inventory requirements, the product type, how you want to sell them, or your commerce ecosystem.
+In this guide, you'll learn how to set up and configure your products based on their shipping and inventory requirements, their type, how you want to sell them, or your commerce ecosystem.
 
 <Note>
 
-The concepts in this guide are applicable starting from Medusa v2.5.1.
+The concepts in this guide are applicable starting from [Medusa v2.5.1](https://github.com/medusajs/medusa/releases/tag/v2.5.1).
 
 </Note>
 
 ## Scenario
 
-Businesses can have different selling requirements:
+Businesses can have different selling requirements. They may sell:
 
-1. They may sell physical or digital items.
-2. They may sell items that don't require shipping or inventory management, such as selling digital products, services, or booking appointments.
-3. They may sell items whose inventory is managed by an external system, such as an ERP.
+1. Physical or digital items.
+2. Items that don't require shipping or inventory management, such as selling digital products, services, or booking appointments.
+3. Items whose inventory is managed by an external system, such as an ERP.
 
-Medusa supports these different selling requirements by allowing you to configure shipping and inventory requirements for products and their variants. This guide explains how these configurations work, then provides examples of setting up different use cases.
+Medusa supports these different selling requirements by allowing you to configure shipping and inventory requirements for products and their variants.
+
+This guide explains how these configurations work, then provides examples of setting up different use cases.
 
 ---
 
 ## Configuring Shipping Requirements
 
-The Medusa application defines a link between the `Product` data model and a [ShippingProfile](../../fulfillment/concepts/page.mdx#shipping-profile) in the [Fulfillment Module](../../fulfillment/page.mdx), allowing you to associate a product with a shipping profile.
+### Product Shipping Requirement
+
+The Medusa application defines a link between the `Product` data model and the [ShippingProfile](../../fulfillment/concepts/page.mdx#shipping-profile) data model in the [Fulfillment Module](../../fulfillment/page.mdx), allowing you to associate a product with a shipping profile.
+
+![Diagram showcasing the link between a product and its shipping profile](https://res.cloudinary.com/dza7lstvk/image/upload/v1752827367/Medusa%20Resources/product-shipping-requirement_cpfpkz.jpg)
 
 When a product is associated with a shipping profile, its variants require shipping and fulfillment when purchased. This is useful for physical products or digital products that require custom fulfillment.
 
@@ -45,18 +53,35 @@ If a product doesn't have an associated shipping profile, its variants don't req
 
 ### Overriding Shipping Requirements for Variants
 
-A product variant whose inventory is managed by Medusa (its `manage_inventory` property is enabled) has an [inventory item](../../inventory/concepts/page.mdx#inventoryitem). The inventory item has a `requires_shipping` property that can be used to override its shipping requirement. This is useful if the product has an associated shipping profile but you want to disable shipping for a specific variant, or vice versa.
+A product variant whose inventory is managed by Medusa (its `manage_inventory` property is enabled) has an [inventory item](../../inventory/concepts/page.mdx#inventoryitem).
+
+The inventory item has a `requires_shipping` property that can be used to override the variant's shipping requirement. This is useful if the product has an associated shipping profile but you want to disable shipping for a specific variant, or vice versa.
+
+![Diagram showcasing the link between a product variant and its inventory item, and the inventory item's shipping requirement](https://res.cloudinary.com/dza7lstvk/image/upload/v1752828341/Medusa%20Resources/product-variant-shipping-requirement_ux5y44.jpg)
 
 <Note title="Tip">
 
-Learn more about product variant's inventory in [this guide](../variant-inventory/page.mdx).
+Refer to the [Product Variant Inventory](../variant-inventory/page.mdx) guide to learn more.
 
 </Note>
 
-When a product variant is purchased, the Medusa application decides whether the purchased item requires shipping in the following order:
+When a product variant is purchased, the Medusa application decides whether the purchased item requires shipping based on the following conditions (in the following order):
 
-1. The product variant has an inventory item. In this case, the Medusa application uses the inventory item's `requires_shipping` property to determine if the item requires shipping.
+1. If the product variant has an inventory item, the Medusa application uses the inventory item's `requires_shipping` property to determine if the item requires shipping.
 2. If the product variant doesn't have an inventory item, the Medusa application checks whether the product has an associated shipping profile to determine if the item requires shipping.
+
+![Diagram showcasing the conditions that determine whether a product variant requires shipping](https://res.cloudinary.com/dza7lstvk/image/upload/v1752828969/Medusa%20Resources/shipping-requirement-check_fdh6lp.jpg)
+
+### Shipping Requirements vs Shipping Options
+
+The shipping options that you retrieve during checkout depend on the cart's shipping address. So, whether the items in the cart require shipping doesn't affect what shipping options are available at checkout.
+
+This is a common misconception, where you expect to not receive any shipping options at checkout if the cart doesn't have any items that require shipping. However, the Medusa application always returns shipping options based on the cart's shipping address.
+
+If you want to show the shipping options only if the cart has items that require shipping, you can either:
+
+- Create a custom [API route](!docs!/learn/fundamentals/api-routes) that checks whether the cart has items that require shipping.
+- Perform this check in your storefront's frontend code, such as in the checkout page, and show or hide the shipping options accordingly.
 
 ---
 

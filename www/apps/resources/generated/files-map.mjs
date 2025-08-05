@@ -128,6 +128,10 @@ export const filesMap = [
     "pathname": "/commerce-modules/auth/workflows"
   },
   {
+    "filePath": "/www/apps/resources/app/commerce-modules/cart/cart-totals/page.mdx",
+    "pathname": "/commerce-modules/cart/cart-totals"
+  },
+  {
     "filePath": "/www/apps/resources/app/commerce-modules/cart/concepts/page.mdx",
     "pathname": "/commerce-modules/cart/concepts"
   },
@@ -302,6 +306,10 @@ export const filesMap = [
   {
     "filePath": "/www/apps/resources/app/commerce-modules/order/order-change/page.mdx",
     "pathname": "/commerce-modules/order/order-change"
+  },
+  {
+    "filePath": "/www/apps/resources/app/commerce-modules/order/order-totals/page.mdx",
+    "pathname": "/commerce-modules/order/order-totals"
   },
   {
     "filePath": "/www/apps/resources/app/commerce-modules/order/order-versioning/page.mdx",
@@ -644,6 +652,10 @@ export const filesMap = [
     "pathname": "/commerce-modules/user/admin-widget-zones"
   },
   {
+    "filePath": "/www/apps/resources/app/commerce-modules/user/invite-user-subscriber/page.mdx",
+    "pathname": "/commerce-modules/user/invite-user-subscriber"
+  },
+  {
     "filePath": "/www/apps/resources/app/commerce-modules/user/js-sdk/page.mdx",
     "pathname": "/commerce-modules/user/js-sdk"
   },
@@ -752,12 +764,20 @@ export const filesMap = [
     "pathname": "/how-to-tutorials/tutorials/gift-message"
   },
   {
+    "filePath": "/www/apps/resources/app/how-to-tutorials/tutorials/invoice-generator/page.mdx",
+    "pathname": "/how-to-tutorials/tutorials/invoice-generator"
+  },
+  {
     "filePath": "/www/apps/resources/app/how-to-tutorials/tutorials/loyalty-points/page.mdx",
     "pathname": "/how-to-tutorials/tutorials/loyalty-points"
   },
   {
     "filePath": "/www/apps/resources/app/how-to-tutorials/tutorials/phone-auth/page.mdx",
     "pathname": "/how-to-tutorials/tutorials/phone-auth"
+  },
+  {
+    "filePath": "/www/apps/resources/app/how-to-tutorials/tutorials/preorder/page.mdx",
+    "pathname": "/how-to-tutorials/tutorials/preorder"
   },
   {
     "filePath": "/www/apps/resources/app/how-to-tutorials/tutorials/product-reviews/page.mdx",
@@ -1058,6 +1078,10 @@ export const filesMap = [
   {
     "filePath": "/www/apps/resources/app/recipes/page.mdx",
     "pathname": "/recipes"
+  },
+  {
+    "filePath": "/www/apps/resources/app/recipes/personalized-products/example/page.mdx",
+    "pathname": "/recipes/personalized-products/example"
   },
   {
     "filePath": "/www/apps/resources/app/recipes/personalized-products/page.mdx",
@@ -1382,6 +1406,10 @@ export const filesMap = [
   {
     "filePath": "/www/apps/resources/app/troubleshooting/page.mdx",
     "pathname": "/troubleshooting"
+  },
+  {
+    "filePath": "/www/apps/resources/app/troubleshooting/payment/page.mdx",
+    "pathname": "/troubleshooting/payment"
   },
   {
     "filePath": "/www/apps/resources/app/troubleshooting/query/expression-type-error/page.mdx",
@@ -12416,6 +12444,10 @@ export const filesMap = [
     "pathname": "/references/js_sdk/admin/Notification/properties/js_sdk.admin.Notification.client"
   },
   {
+    "filePath": "/www/apps/resources/references/js_sdk/admin/Order/methods/js_sdk.admin.Order.archive/page.mdx",
+    "pathname": "/references/js_sdk/admin/Order/methods/js_sdk.admin.Order.archive"
+  },
+  {
     "filePath": "/www/apps/resources/references/js_sdk/admin/Order/methods/js_sdk.admin.Order.cancel/page.mdx",
     "pathname": "/references/js_sdk/admin/Order/methods/js_sdk.admin.Order.cancel"
   },
@@ -12426,6 +12458,10 @@ export const filesMap = [
   {
     "filePath": "/www/apps/resources/references/js_sdk/admin/Order/methods/js_sdk.admin.Order.cancelTransfer/page.mdx",
     "pathname": "/references/js_sdk/admin/Order/methods/js_sdk.admin.Order.cancelTransfer"
+  },
+  {
+    "filePath": "/www/apps/resources/references/js_sdk/admin/Order/methods/js_sdk.admin.Order.complete/page.mdx",
+    "pathname": "/references/js_sdk/admin/Order/methods/js_sdk.admin.Order.complete"
   },
   {
     "filePath": "/www/apps/resources/references/js_sdk/admin/Order/methods/js_sdk.admin.Order.createCreditLine/page.mdx",

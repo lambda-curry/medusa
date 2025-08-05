@@ -17,6 +17,13 @@ export const sidebars = [
             type: "link",
             path: "/learn/installation",
             title: "Installation",
+            children: [
+              {
+                type: "link",
+                path: "/learn/installation/docker",
+                title: "Install with Docker",
+              },
+            ],
           },
           {
             type: "link",
@@ -27,6 +34,11 @@ export const sidebars = [
             type: "link",
             title: "AI Assistants and LLMs",
             path: "/learn/introduction/build-with-llms-ai",
+          },
+          {
+            type: "link",
+            title: "From v1 to v2",
+            path: "/learn/introduction/from-v1-to-v2",
           },
         ],
       },
@@ -264,6 +276,11 @@ export const sidebars = [
               },
               {
                 type: "link",
+                path: "/learn/fundamentals/data-models/json-properties",
+                title: "JSON Properties",
+              },
+              {
+                type: "link",
                 path: "/learn/fundamentals/data-models/relationships",
                 title: "Relationships",
               },
@@ -424,12 +441,17 @@ export const sidebars = [
               {
                 type: "link",
                 path: "/learn/fundamentals/workflows/execute-another-workflow",
-                title: "Execute Another Workflow",
+                title: "Execute Nested Workflows",
               },
               {
                 type: "link",
                 path: "/learn/fundamentals/workflows/multiple-step-usage",
                 title: "Multiple Step Usage",
+              },
+              {
+                type: "ref",
+                path: "/learn/debugging-and-testing/debug-workflows",
+                title: "Debug Workflows",
               },
             ],
           },
@@ -485,6 +507,11 @@ export const sidebars = [
                 title: "Seed Data",
               },
             ],
+          },
+          {
+            type: "link",
+            path: "/learn/fundamentals/generated-types",
+            title: "Auto-Generated Types",
           },
         ],
       },
@@ -586,13 +613,11 @@ export const sidebars = [
             type: "link",
             path: "/learn/debugging-and-testing/testing-tools/modules-tests",
             title: "Modules Tests",
-            children: [
-              {
-                type: "link",
-                path: "/learn/debugging-and-testing/testing-tools/modules-tests/module-example",
-                title: "Example",
-              },
-            ],
+          },
+          {
+            type: "link",
+            path: "/learn/debugging-and-testing/debug-workflows",
+            title: "Debug Workflows",
           },
           {
             type: "link",

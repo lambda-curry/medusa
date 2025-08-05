@@ -135,6 +135,9 @@
  *   metadata:
  *     type: object
  *     description: The item's metadata.
+ *     externalDocs:
+ *       url: https://docs.medusajs.com/api/store#manage-metadata
+ *       description: Learn how to manage metadata
  *   created_at:
  *     type: string
  *     format: date-time

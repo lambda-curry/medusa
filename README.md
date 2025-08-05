@@ -48,7 +48,7 @@ Learn more about [Medusa’s architecture](https://docs.medusajs.com/learn/advan
 
 Follow the [Release Notes](https://github.com/medusajs/medusa/releases) to keep your Medusa project up-to-date.
 
-Check out all [available Medusa integrations](https://docs.medusajs.com/resources/integrations).
+Check out all [available Medusa integrations](https://medusajs.com/integrations/).
 
 ## Community & Contributions
 

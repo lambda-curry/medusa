@@ -1,0 +1,2630 @@
+---
+sidebar_label: "Generate Invoices"
+tags:
+    - order
+    - server
+    - nextjs
+    - tutorial
+products:
+  - order
+---
+
+import { Github, PlaySolid } from "@medusajs/icons"
+import { Prerequisites, WorkflowDiagram, CardList } from "docs-ui"
+
+export const metadata = {
+  title: `Generate Invoices for Orders in Medusa`,
+}
+
+# {metadata.title}
+
+In this tutorial, you will learn how to generate invoices for orders in your Medusa application.
+
+When you install a Medusa application, you get a fully-fledged commerce platform with a Framework for customization. The Medusa application's commerce features are built around [Commerce Modules](../../../commerce-modules/page.mdx), which are available out-of-the-box. These features include order management capabilities.
+
+You can extend the Medusa application to automatically generate invoices for orders, manage invoice configurations through the admin dashboard, and provide customers with easy access to their invoices through the storefront.
+
+## Summary
+
+By following this tutorial, you will learn how to:
+
+- Install and set up Medusa.
+- Store default invoice configurations and manage them from the Medusa Admin dashboard.
+- Generate PDF invoices for orders, and allow admin users and customers to download them.
+- Send PDF invoices as attachments in order confirmation emails.
+- Mark previously generated invoices as stale when orders are updated.
+
+You can follow this tutorial whether you're new to Medusa or an advanced Medusa developer.
+
+![Diagram illustrating the flow from the customer placing the order, them receiving the invoice, and the admin downloading the invoice](https://res.cloudinary.com/dza7lstvk/image/upload/v1753793501/Medusa%20Resources/invoices-summary_ieja9e.jpg)
+
+<CardList items={[
+  {
+    href: "https://github.com/medusajs/examples/tree/main/invoice-generator",
+    title: "Full Code",
+    text: "Find the full code for this tutorial.",
+    icon: Github,
+  },
+  {
+    href: "https://res.cloudinary.com/dza7lstvk/raw/upload/v1753801608/OpenApi/Invoice-Generator_wtft9v.yaml",
+    title: "OpenAPI Specs for Postman",
+    text: "Import this OpenAPI Specs file into tools like Postman.",
+    icon: PlaySolid,
+  },
+]} />
+
+---
+
+## Step 1: Install a Medusa Application
+
+<Prerequisites items={[
+  {
+    text: "Node.js v20+",
+    link: "https://nodejs.org/en/download"
+  },
+  {
+    text: "Git CLI tool",
+    link: "https://git-scm.com/downloads"
+  },
+  {
+    text: "PostgreSQL",
+    link: "https://www.postgresql.org/download/"
+  }
+]} />
+
+Start by installing the Medusa application on your machine with the following command:
+
+```bash
+npx create-medusa-app@latest
+```
+
+You'll first be asked for the project's name. Then, when asked whether you want to install the [Next.js Starter Storefront](../../../nextjs-starter/page.mdx), choose Yes.
+
+Afterward, the installation process will start, which will install the Medusa application in a directory with your project's name, and the Next.js Starter Storefront in a separate directory with the `{project-name}-storefront` name.
+
+<Note title="Why is the storefront installed separately?">
+
+The Medusa application is composed of a headless Node.js server and an admin dashboard. The storefront is installed or custom-built separately and connects to the Medusa application through its REST endpoints, called [API routes](!docs!/learn/fundamentals/api-routes). Learn more in [Medusa's Architecture documentation](!docs!/learn/introduction/architecture).
+
+</Note>
+
+Once the installation finishes successfully, the Medusa Admin dashboard will open with a form to create a new user. Enter the user's credentials and submit the form. Afterward, you can log in with the new user and explore the dashboard.
+
+<Note title="Ran into Errors?">
+
+Check out the [troubleshooting guides](../../../troubleshooting/create-medusa-app-errors/page.mdx) for help.
+
+</Note>
+
+---
+
+## Step 2: Create Invoice Generator Module
+
+In Medusa, you can build custom features in a [module](!docs!/learn/fundamentals/modules). A module is a reusable package with the data models and functionalities related to a single feature or domain. Medusa integrates the module into your application without implications or side effects on your setup.
+
+In this step, you'll build an Invoice Generator Module that defines the data models and logic to manage invoices. Later, you'll build commerce flows related to invoices around the module.
+
+<Note>
+
+Refer to the [Modules documentation](!docs!/learn/fundamentals/modules) to learn more.
+
+</Note>
+
+### a. Create Module Directory
+
+Create the directory `src/modules/invoice-generator` that will hold the Invoice Generator Module's code.
+
+### b. Create Data Models
+
+A data model represents a table in the database. You create data models using Medusa's Data Model Language (DML). It simplifies defining a table's columns, relations, and indexes with straightforward methods and configurations.
+
+<Note>
+
+Refer to the [Data Models documentation](!docs!/learn/fundamentals/modules#1-create-data-model) to learn more.
+
+</Note>
+
+For the Invoice Generator Module, you'll create a data model to store default invoice configurations and another to store generated invoices.
+
+#### InvoiceConfig Data Model
+
+To create the first data model, create the file `src/modules/invoice-generator/models/invoice-config.ts` with the following content:
+
+export const invoiceConfigHighlights = [
+  ["4", "id", "The primary key of the table."],
+  ["5", "company_name", "The name of the company issuing the invoice."],
+  ["6", "company_address", "The address of the company."],
+  ["7", "company_phone", "The phone number of the company."],
+  ["8", "company_email", "The email address of the company."],
+  ["9", "company_logo", "The URL of the company logo image."],
+  ["10", "notes", "Additional notes to include in the invoice."]
+]
+
+```ts title="src/modules/invoice-generator/models/invoice-config.ts" highlights={invoiceConfigHighlights}
+import { model } from "@medusajs/framework/utils"
+
+export const InvoiceConfig = model.define("invoice_config", {
+  id: model.id().primaryKey(),
+  company_name: model.text(),
+  company_address: model.text(),
+  company_phone: model.text(),
+  company_email: model.text(),
+  company_logo: model.text().nullable(),
+  notes: model.text().nullable(),
+})
+```
+
+The `InvoiceConfig` data model has the following properties:
+
+- `id`: The primary key of the table.
+- `company_name`: The name of the company issuing the invoice.
+- `company_address`: The address of the company.
+- `company_phone`: The phone number of the company.
+- `company_email`: The email address of the company.
+- `company_logo`: The URL of the company logo image.
+- `notes`: Additional notes to include in the invoice.
+
+You can also add other fields as needed, such as tax information or payment terms.
+
+<Note>
+
+Learn more about defining data model properties in the [Property Types documentation](!docs!/learn/fundamentals/data-models/properties).
+
+</Note>
+
+#### Invoice Data Model
+
+Next, you'll create the `Invoice` data model that represents a generated invoice.
+
+Create the file `src/modules/invoice-generator/models/invoice.ts` with the following content:
+
+export const invoiceHighlights = [
+  ["9", "id", "The primary key of the table."],
+  ["10", "display_id", "An auto-incrementing identifier for the invoice."],
+  ["11", "order_id", "The ID of the order that the invoice belongs to."],
+  ["12", "status", "The current status of the invoice."],
+  ["13", "pdfContent", "The content of the invoice in object format."]
+]
+
+```ts title="src/modules/invoice-generator/models/invoice.ts" highlights={invoiceHighlights}
+import { model } from "@medusajs/framework/utils"
+
+export enum InvoiceStatus {
+  LATEST = "latest",
+  STALE = "stale",
+}
+
+export const Invoice = model.define("invoice", {
+  id: model.id().primaryKey(),
+  display_id: model.autoincrement(),
+  order_id: model.text(),
+  status: model.enum(InvoiceStatus).default(InvoiceStatus.LATEST),
+  pdfContent: model.json(),
+})
+```
+
+The `Invoice` data model has the following properties:
+
+- `id`: The primary key of the table.
+- `display_id`: An auto-incrementing identifier for the invoice, which will be used to display the invoice number.
+- `order_id`: The ID of the order that the invoice belongs to.
+- `status`: The current status of the invoice.
+    - `latest` indicates the invoice is the most recent version for the order.
+    - `stale` indicates a previous invoice for the order that became stale after order updates.
+- `pdfContent`: The content of the invoice in object format that works with `pdfmake`. You'll use this later to generate the invoice PDF.
+
+### c. Create Module's Service
+
+You can manage your module's data models in a service.
+
+A service is a TypeScript class that the module exports. In the service's methods, you can connect to the database, allowing you to manage your data models, or connect to a third-party service, which is useful if you're integrating with external services.
+
+<Note>
+
+Refer to the [Module Service documentation](!docs!/learn/fundamentals/modules#2-create-service) to learn more.
+
+</Note>
+
+To create the Invoice Generator Module's service, create the file `src/modules/invoice-generator/service.ts` with the following content:
+
+```ts title="src/modules/invoice-generator/service.ts"
+import { MedusaService } from "@medusajs/framework/utils"
+import { InvoiceConfig } from "./models/invoice-config"
+import { Invoice } from "./models/invoice"
+
+class InvoiceGeneratorService extends MedusaService({
+  InvoiceConfig,
+  Invoice,
+}) { }
+
+export default InvoiceGeneratorService
+```
+
+The `InvoiceGeneratorService` extends `MedusaService`, which generates a class with data-management methods for your module's data models. This saves you time on implementing Create, Read, Update, and Delete (CRUD) methods.
+
+So, the `InvoiceGeneratorService` class now has methods like `createInvoices` and `retrieveInvoice`.
+
+<Note>
+
+Find all methods generated by the `MedusaService` in [the Service Factory reference](../../../service-factory-reference/page.mdx).
+
+</Note>
+
+### d. Export Module Definition
+
+The final piece to a module is its definition, which you export in an `index.ts` file at its root directory. This definition tells Medusa the name of the module and its service.
+
+So, create the file `src/modules/invoice-generator/index.ts` with the following content:
+
+```ts title="src/modules/invoice-generator/index.ts"
+import InvoiceModuleService from "./service"
+import { Module } from "@medusajs/framework/utils"
+
+export const INVOICE_MODULE = "invoiceGenerator"
+
+export default Module(INVOICE_MODULE, {
+  service: InvoiceModuleService,
+})
+```
+
+You use the `Module` function to create the module's definition. It accepts two parameters:
+
+1. The module's unique name.
+2. An object whose `service` property is the module's service class.
+
+### e. Register the Module
+
+Once you finish building the module, add it to Medusa's configurations to start using it.
+
+In `medusa-config.ts`, add a `modules` property and pass an array with your custom module:
+
+```ts title="medusa-config.ts"
+module.exports = defineConfig({
+  // ...
+  modules: [
+    {
+      resolve: "./src/modules/invoice-generator",
+    },
+  ],
+})
+```
+
+Each object in the `modules` array has a `resolve` property, whose value is either a path to the module's directory, or an `npm` package’s name.
+
+### f. Generate and Run Migrations
+
+Since data models represent tables in the database, you define how they're created in the database with migrations. A migration is a TypeScript class that defines database changes made by a module.
+
+<Note>
+
+Refer to the [Migrations documentation](!docs!/learn/fundamentals/modules#5-generate-migrations) to learn more.
+
+</Note>
+
+Medusa's CLI tool can generate the migrations for you. To generate a migration for the Invoice Generator Module, run the following command in your Medusa application's directory:
+
+```bash
+npx medusa db:generate invoice-generator
+```
+
+The `db:generate` command of the Medusa CLI accepts the name of the module to generate the migration for. You'll now have a `migrations` directory under `src/modules/invoice-generator` that holds the generated migration.
+
+Then, to reflect these migrations on the database, run the following command:
+
+```bash
+npx medusa db:migrate
+```
+
+The tables for the `InvoiceConfig` and `Invoice` data models are now created in the database.
+
+---
+
+## Step 3: Create Default Invoice Configurations
+
+In this step, you'll create default invoice configurations that admins can later manage through the Medusa Admin dashboard.
+
+Since you need to create the default configurations when the Medusa application starts, you'll use a [loader](!docs!/learn/fundamentals/modules/loaders). A loader is a script in your module that Medusa runs on application startup.
+
+### a. Create Loader
+
+To create the loader, create the file `src/modules/invoice-generator/loaders/create-default-config.ts` with the following content:
+
+export const createDefaultConfigHighlights = [
+  ["8", "container", "The module's container, which holds the Framework and module's services."],
+  ["10", "service", "The service that manages the `InvoiceConfig` data model."],
+  ["14", "listAndCount", "A method to list all invoice configurations and their count."],
+  ["20", "create", "A method to create a new invoice configuration."]
+]
+
+```ts title="src/modules/invoice-generator/loaders/create-default-config.ts" highlights={createDefaultConfigHighlights}
+import {
+  LoaderOptions,
+  IMedusaInternalService,
+} from "@medusajs/framework/types"
+import { InvoiceConfig } from "../models/invoice-config"
+
+export default async function createDefaultConfigLoader({
+  container,
+}: LoaderOptions) {
+  const service: IMedusaInternalService<
+    typeof InvoiceConfig
+  > = container.resolve("invoiceConfigService")
+
+  const [_, count] = await service.listAndCount()
+
+  if (count > 0) {
+    return
+  }
+
+  await service.create({
+    company_name: "Acme",
+    company_address: "123 Acme St, Springfield, USA",
+    company_phone: "+1 234 567 8900",
+    company_email: "admin@example.com",
+  })
+}
+```
+
+The loader function accepts an object having the [module's container](!docs!/learn/fundamentals/modules/container) as a parameter. You can use this container to resolve Framework tools and the module's resources.
+
+In the loader, you resolve a service that Medusa generates for the `InvoiceConfig` data model. You use that service to create default configurations if none exist.
+
+### b. Register the Loader
+
+Next, to register the loader in the module's definition, update the `Module` function usage in `src/modules/invoice-generator/index.ts`:
+
+export const loaderRegisterHighlights = [
+  ["8", "loaders", "Loaders to run on application startup."]
+]
+
+```ts title="src/modules/invoice-generator/index.ts" highlights={loaderRegisterHighlights}
+// other imports...
+import createDefaultConfigLoader from "./loaders/create-default-config"
+
+// ...
+
+export default Module(INVOICE_MODULE, {
+  // ...
+  loaders: [createDefaultConfigLoader],
+})
+```
+
+You pass a `loaders` property to the `Module` function, whose value is an array of loader functions.
+
+<Note>
+
+Refer to the [Loaders](!docs!/learn/fundamentals/modules/loaders) documentation to learn more about loaders.
+
+</Note>
+
+### c. Run the Loader
+
+To run the loader, start the Medusa application:
+
+```bash npm2yarn
+npm run dev
+```
+
+The Medusa application will run your loader to create the default invoice configurations in the database. You'll verify that it worked in the next step after adding the admin settings page.
+
+---
+
+## Step 4: Allow Admins to Manage Invoice Configurations
+
+In this step, you'll customize the Medusa application to allow admin users to manage the default invoice configurations through the Medusa Admin dashboard.
+
+To build this feature, you need to create:
+
+1. A [workflow](!docs!/learn/fundamentals/workflows) with the business logic to manage invoice configurations.
+2. An [API route](!docs!/learn/fundamentals/api-routes) that exposes the invoice configuration management functionality to clients.
+3. A [settings page](!docs!/learn/fundamentals/admin/ui-routes#create-settings-page) in the Medusa Admin dashboard that allows admin users to manage the invoice configurations.
+
+### a. Invoice Configuration Management Workflow
+
+A workflow is a series of queries and actions, called steps, that complete a task. A workflow is similar to a function, but it allows you to track its executions' progress, define roll-back logic, and configure other advanced features.
+
+<Note>
+
+Refer to the [Workflows documentation](!docs!/learn/fundamentals/workflows) to learn more.
+
+</Note>
+
+The workflow that manages invoice configurations will have a single step that updates the invoice configuration.
+
+#### Update Invoice Configuration Step
+
+To create a step, create the file `src/workflows/steps/update-invoice-config.ts` with the following content:
+
+export const updateInvoiceConfigHighlights = [
+  ["19", "prevData", "Retrieve the invoice configurations before the update."],
+  ["23", "updatedData", "Update the invoice configurations with the new data."],
+  ["28", "updatedData", "Return the updated invoice configurations."],
+  ["28", "prevData", "Pass the updated invoice configurations to the compensation function."],
+  ["30", "", "Define the rollback mechanism in a compensation function."],
+  ["37", "updateInvoiceConfigs", "Revert the invoice configurations update if an error occurs."]
+]
+
+```ts title="src/workflows/steps/update-invoice-config.ts" highlights={updateInvoiceConfigHighlights}
+import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
+import { INVOICE_MODULE } from "../../modules/invoice-generator"
+
+type StepInput = {
+  id?: string
+  company_name?: string
+  company_address?: string
+  company_phone?: string
+  company_email?: string
+  company_logo?: string
+  notes?: string
+}
+
+export const updateInvoiceConfigStep = createStep(
+  "update-invoice-config",
+  async ({ id, ...updateData }: StepInput, { container }) => {
+    const invoiceGeneratorService = container.resolve(INVOICE_MODULE)
+
+    const prevData = id ? 
+      await invoiceGeneratorService.retrieveInvoiceConfig(id) : 
+      (await invoiceGeneratorService.listInvoiceConfigs())[0]
+
+    const updatedData = await invoiceGeneratorService.updateInvoiceConfigs({
+      id: prevData.id,
+      ...updateData,
+    })
+
+    return new StepResponse(updatedData, prevData)
+  },
+  async (prevInvoiceConfig, { container }) => {
+    if (!prevInvoiceConfig) {
+      return
+    }
+
+    const invoiceGeneratorService = container.resolve(INVOICE_MODULE)
+
+    await invoiceGeneratorService.updateInvoiceConfigs({
+      id: prevInvoiceConfig.id,
+      company_name: prevInvoiceConfig.company_name,
+      company_address: prevInvoiceConfig.company_address,
+      company_phone: prevInvoiceConfig.company_phone,
+      company_email: prevInvoiceConfig.company_email,
+      company_logo: prevInvoiceConfig.company_logo,
+    })
+  }
+)
+```
+
+You create a step with the `createStep` function. It accepts three parameters:
+
+1. The step's unique name.
+2. An async function that receives two parameters:
+    - The step's input, which is an object having the data to update in the invoice configuration.
+    - An object that has properties including the [Medusa container](!docs!/learn/fundamentals/medusa-container), which is a registry of Framework and commerce tools that you can access in the step.
+3. An async compensation function that undoes the actions performed by the step function. This function is only executed if an error occurs during the workflow's execution.
+
+In the step function, you resolve the Invoice Generator Module's service from the Medusa container. Then, you either retrieve the invoice configuration by its ID, or list all invoice configurations and use the first one.
+
+Next, you update the invoice configuration with the data passed to the step function.
+
+Finally, a step function must return a `StepResponse` instance. The `StepResponse` constructor accepts two parameters:
+
+1. The step's output, which is the updated invoice configuration.
+2. Data to pass to the step's compensation function.
+
+In the compensation function, you undo the invoice configuration updates if an error occurs during the workflow's execution.
+
+#### Update Invoice Configuration Workflow
+
+Next, you'll create a workflow that uses the `updateInvoiceConfigStep` step to update the invoice configuration.
+
+Create the file `src/workflows/update-invoice-config.ts` with the following content:
+
+```ts title="src/workflows/update-invoice-config.ts"
+import { createWorkflow, WorkflowResponse } from "@medusajs/framework/workflows-sdk"
+import { updateInvoiceConfigStep } from "./steps/update-invoice-config"
+
+type WorkflowInput = {
+  id?: string
+  company_name?: string
+  company_address?: string
+  company_phone?: string
+  company_email?: string
+  company_logo?: string
+  notes?: string
+}
+
+export const updateInvoiceConfigWorkflow = createWorkflow(
+  "update-invoice-config",
+  (input: WorkflowInput) => {
+    const invoiceConfig = updateInvoiceConfigStep(input)
+
+    return new WorkflowResponse({
+      invoice_config: invoiceConfig,
+    })
+  }
+)
+```
+
+You create a workflow using the `createWorkflow` function. It accepts the workflow's unique name as a first parameter.
+
+It accepts a second parameter: a constructor function that holds the workflow's implementation. The function accepts an input object with the invoice configuration data to update.
+
+In the workflow, you update the invoice configuration using the `updateInvoiceConfigStep` step.
+
+A workflow must return an instance of `WorkflowResponse` that accepts the data to return to the workflow's executor.
+
+### b. Invoice Configuration API Routes
+
+Next, you'll create two API routes:
+
+1. An API route to retrieve the default invoice configurations. This is useful to display the current configurations on the settings page.
+2. An API route to update the default invoice configurations. This is useful to allow admin users to update the configurations from the settings page.
+
+#### Retrieve Invoice Configurations API Route
+
+An API route is created in a `route.ts` file under a sub-directory of the `src/api` directory. The path of the API route is the file's path relative to `src/api`.
+
+<Note>
+
+Refer to the [API routes](!docs!/learn/fundamentals/api-routes) to learn more about them.
+
+</Note>
+
+Create the file `src/api/admin/invoice-config/route.ts` with the following content:
+
+export const retrieveInvoiceConfigHighlights = [
+  ["3", "GET", "Expose a `GET` API route at `/admin/invoice-config`."],
+  ["7", "query", "Resolve Query from the Medusa container."],
+  ["9", "invoiceConfig", "Retrieve the default invoice configuration."],
+  ["14", "json", "Return the invoice configuration in the response."]
+]
+
+```ts title="src/api/admin/invoice-config/route.ts" highlights={retrieveInvoiceConfigHighlights}
+import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+
+export async function GET(
+  req: MedusaRequest,
+  res: MedusaResponse
+) {
+  const query = req.scope.resolve("query")
+
+  const { data: [invoiceConfig] } = await query.graph({
+    entity: "invoice_config",
+    fields: ["*"],
+  })
+
+  res.json({
+    invoice_config: invoiceConfig,
+  })
+}
+```
+
+Since you export a `GET` route handler function, you expose a `GET` API route at `/admin/invoice-config`.
+
+In the route handler, you resolve [Query](!docs!/learn/fundamentals/module-links/query) from the Medusa container. It allows you to retrieve data across modules.
+
+You retrieve the default invoice configuration and return it in the response.
+
+#### Update Invoice Configurations API Route
+
+Next, you'll add the API route to update the invoice configurations.
+
+In the same file, add the following imports at the top of the file:
+
+```ts title="src/api/admin/invoice-config/route.ts"
+import { z } from "zod"
+import { 
+  updateInvoiceConfigWorkflow,
+} from "../../../workflows/update-invoice-config"
+```
+
+Then, add the following at the end of the file:
+
+export const postInvoiceConfigHighlights = [
+  ["1", "PostInvoiceConfigSchema", "Define a Zod schema to validate the request body."],
+  ["12", "POST", "Expose a `POST` API route at `/admin/invoice-config`."],
+  ["16", "updateInvoiceConfigWorkflow", "Run the workflow to update the invoice configuration."],
+  ["22", "json", "Return the updated invoice configuration in the response."]
+]
+
+```ts title="src/api/admin/invoice-config/route.ts" highlights={postInvoiceConfigHighlights}
+export const PostInvoiceConfigSchema = z.object({
+  company_name: z.string().optional(),
+  company_address: z.string().optional(),
+  company_phone: z.string().optional(),
+  company_email: z.string().optional(),
+  company_logo: z.string().optional(),
+  notes: z.string().optional(),
+})
+
+type PostInvoiceConfig = z.infer<typeof PostInvoiceConfigSchema>
+
+export async function POST(
+  req: MedusaRequest<PostInvoiceConfig>,
+  res: MedusaResponse
+) {
+  const { result: { invoice_config } } = await updateInvoiceConfigWorkflow(
+    req.scope
+  ).run({
+    input: req.validatedBody,
+  })
+
+  res.json({
+    invoice_config,
+  })
+}
+```
+
+You define a validation schema with [Zod](https://zod.dev/) to validate incoming request bodies. The schema defines the fields that can be updated in the invoice configuration.
+
+Next, since you export a `POST` route handler function, you expose a `POST` API route at `/admin/invoice-config`.
+
+In the route handler, you execute the `updateInvoiceConfigWorkflow` by invoking it, passing it the Medusa container, then executing its `run` method.
+
+You return the updated invoice configuration in the response.
+
+#### Add Validation Middleware
+
+To validate the body parameters of requests sent to the API route, you need to apply a [middleware](!docs!/learn/fundamentals/api-routes/middlewares).
+
+To apply a middleware to a route, create the file `src/api/middlewares.ts` with the following content:
+
+```ts title="src/api/middlewares.ts"
+import { defineMiddlewares, validateAndTransformBody } from "@medusajs/framework/http"
+import { PostInvoiceConfigSchema } from "./admin/invoice-config/route"
+
+export default defineMiddlewares({
+  routes: [
+    {
+      matcher: "/admin/invoice-config",
+      methods: ["POST"],
+      middlewares: [
+        validateAndTransformBody(PostInvoiceConfigSchema),
+      ],
+    },
+  ],
+})
+```
+
+You apply Medusa's `validateAndTransformBody` middleware to `POST` requests sent to the `/admin/invoice-config` API route.
+
+The middleware function accepts a Zod schema, which you created in the API route's file.
+
+<Note title="Tip">
+
+Refer to the [Middlewares](!docs!/learn/fundamentals/api-routes/middlewares) documentation to learn more.
+
+</Note>
+
+### c. Create Settings Page
+
+Next, you'll create a settings page in the Medusa Admin dashboard that allows admin users to manage the invoice configurations.
+
+#### Initialize JS SDK
+
+To send requests to the Medusa server, you'll use the [JS SDK](../../../js-sdk/page.mdx). It's already installed in your Medusa project, but you need to initialize it before using it in your customizations.
+
+Create the file `src/admin/lib/sdk.ts` with the following content:
+
+```ts title="src/admin/lib/sdk.ts"
+import Medusa from "@medusajs/js-sdk"
+
+export const sdk = new Medusa({
+  baseUrl: import.meta.env.VITE_BACKEND_URL || "/",
+  debug: import.meta.env.DEV,
+  auth: {
+    type: "session",
+  },
+})
+```
+
+Learn more about the initialization options in the [JS SDK](../../../js-sdk/page.mdx) reference.
+
+#### Create Settings Page Component
+
+Settings pages are [UI routes](!docs!/learn/fundamentals/admin/ui-routes#create-settings-page) created under the `/src/admin/routes/settings` directory. Medusa will then add the settings page under the Settings section of the Medusa Admin dashboard.
+
+<Note>
+
+Refer to the [UI Routes](!docs!/learn/fundamentals/admin/ui-routes) documentation to learn more.
+
+</Note>
+
+Create the file `src/admin/routes/settings/invoice-config/page.tsx` with the following content:
+
+export const invoiceConfigPageHighlights = [
+  ["13", "InvoiceConfig", "Type definition of an invoice configuration record."],
+  ["23", "schema", "Zod schema for validating the invoice configuration form."],
+  ["32", "InvoiceConfigPage", "React component that renders the invoice configuration settings page."],
+  ["36", "defineRouteConfig", "Define the route configuration."]
+]
+
+```tsx title="src/admin/routes/settings/invoice-config/page.tsx" highlights={invoiceConfigPageHighlights}
+import { defineRouteConfig } from "@medusajs/admin-sdk"
+import { Container, Heading, Button, Input, Label, Textarea, toast } from "@medusajs/ui"
+import { useMutation, useQuery } from "@tanstack/react-query"
+import { sdk } from "../../../lib/sdk"
+import { useForm } from "react-hook-form"
+import * as zod from "zod"
+import { 
+  FormProvider,
+  Controller,
+} from "react-hook-form"
+import { useCallback, useEffect } from "react"
+
+type InvoiceConfig = {
+  id: string;
+  company_name: string;
+  company_address: string;
+  company_phone: string;
+  company_email: string;
+  company_logo?: string;
+  notes?: string;
+}
+
+const schema = zod.object({
+  company_name: zod.string().optional(),
+  company_address: zod.string().optional(),
+  company_phone: zod.string().optional(),
+  company_email: zod.string().email().optional(),
+  company_logo: zod.string().url().optional(),
+  notes: zod.string().optional(),
+})
+
+const InvoiceConfigPage = () => {
+  // TODO add implementation
+}
+
+export const config = defineRouteConfig({
+  label: "Default Invoice Config",
+})
+
+export default InvoiceConfigPage
+```
+
+A settings page file must export:
+
+1. A React component that renders the page. This is the file's default export.
+2. A configuration object created with the `defineRouteConfig` function. It accepts an object with properties that define the page's configuration, such as its sidebar label.
+
+So far, the React component doesn't have any implementation. You also define a Zod schema that you'll use to validate the form data.
+
+Change the implementation of the `InvoiceConfigPage` component to the following:
+
+export const InvoiceConfigPageHighlights = [
+  ["2", "useQuery", "Fetch the current invoice configuration."],
+  ["8", "useMutation", "Define a mutation to update the invoice configuration."],
+  ["20", "getFormDefaultValues", "Function to get the current invoice configuration data for the form."],
+  ["31", "form", "Create a form instance using `react-hook-form`."],
+  ["35", "handleSubmit", "Handle form submission."],
+  ["37", "uploadLogo", "Upload a logo using Medusa's Upload API route."],
+  ["50", "useEffect", "Reset the form's default values when the data changes."]
+]
+
+```tsx title="src/admin/routes/settings/invoice-config/page.tsx" highlights={InvoiceConfigPageHighlights}
+const InvoiceConfigPage = () => {
+  const { data, isLoading, refetch } = useQuery<{
+    invoice_config: InvoiceConfig
+  }>({
+    queryFn: () => sdk.client.fetch("/admin/invoice-config"),
+    queryKey: ["invoice-config"],
+  })
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: (payload: zod.infer<typeof schema>) => 
+      sdk.client.fetch("/admin/invoice-config", {
+        method: "POST",
+        body: payload,
+      }),
+    onSuccess: () => {
+      refetch()
+      toast.success("Invoice config updated successfully")
+    },
+  })
+
+  const getFormDefaultValues = useCallback(() => {
+    return {
+      company_name: data?.invoice_config.company_name || "",
+      company_address: data?.invoice_config.company_address || "",
+      company_phone: data?.invoice_config.company_phone || "",
+      company_email: data?.invoice_config.company_email || "",
+      company_logo: data?.invoice_config.company_logo || "",
+      notes: data?.invoice_config.notes || "",
+    }
+  }, [data])
+
+  const form = useForm<zod.infer<typeof schema>>({
+    defaultValues: getFormDefaultValues(),
+  })
+
+  const handleSubmit = form.handleSubmit((formData) => mutateAsync(formData))
+
+  const uploadLogo = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) {
+      return
+    }
+
+    const { files } = await sdk.admin.upload.create({
+      files: [file],
+    })
+
+    form.setValue("company_logo", files[0].url)
+  }
+
+  useEffect(() => {
+    form.reset(getFormDefaultValues())
+  }, [getFormDefaultValues])
+
+
+  // TODO render form
+}
+```
+
+In the component, you:
+
+1. Fetch the current invoice configuration using the `useQuery` hook from Tanstack Query and the JS SDK.
+2. Define a mutation using the `useMutation` hook to update the invoice configuration when the form is submitted.
+3. Define a function that returns the current invoice configuration data, which is useful to create the form.
+4. Define a `form` instance with `useForm` from `react-hook-form`. You pass it the Zod validation schema as a type argument, and the default values using the `getFormDefaultValues` function.
+5. Define a `handleSubmit` function that updates the invoice configuration using the mutation.
+6. Define an `uploadLogo` function that uploads a logo using Medusa's [Upload API route](!api!/admin#uploads_postuploads).
+7. Reset the form's default values when the `data` changes, ensuring the form reflects the latest invoice configuration.
+
+Finally, replace the `TODO` comment with the following `return` statement:
+
+```tsx title="src/admin/routes/settings/invoice-config/page.tsx"
+return (
+  <Container className="divide-y p-0">
+    <div className="flex items-center justify-between px-6 py-4">
+      <Heading level="h1">Invoice Config</Heading>
+    </div>
+    <FormProvider {...form}>
+      <form 
+        onSubmit={handleSubmit}
+        className="flex h-full flex-col overflow-hidden p-2 gap-2"
+      >
+        <Controller
+          control={form.control}
+          name="company_name"
+          render={({ field }) => {
+            return (
+              <div className="flex flex-col space-y-2">
+                <div className="flex items-center gap-x-1">
+                  <Label size="small" weight="plus">
+                    Company Name
+                  </Label>
+                </div>
+                <Input {...field} onChange={field.onChange} value={field.value} />
+              </div>
+            )
+          }}
+        />
+        <Controller
+          control={form.control}
+          name="company_address"
+          render={({ field }) => {
+            return (
+              <div className="flex flex-col space-y-2">
+                <div className="flex items-center gap-x-1">
+                  <Label size="small" weight="plus">
+                    Company Address
+                  </Label>
+                </div>
+                <Textarea {...field} />
+              </div>
+            )
+          }}
+        />
+        <Controller
+          control={form.control}
+          name="company_phone"
+          render={({ field }) => {
+            return (
+              <div className="flex flex-col space-y-2">
+                <div className="flex items-center gap-x-1">
+                  <Label size="small" weight="plus">
+                    Company Phone
+                  </Label>
+                </div>
+                <Input {...field} />
+              </div>
+            )
+          }}
+        />
+        <Controller
+          control={form.control}
+          name="company_email"
+          render={({ field }) => {
+            return (
+              <div className="flex flex-col space-y-2">
+                <div className="flex items-center gap-x-1">
+                  <Label size="small" weight="plus">
+                    Company Email
+                  </Label>
+                </div>
+                <Input {...field} />
+              </div>
+            )
+          }}
+        />
+        <Controller
+          control={form.control}
+          name="notes"
+          render={({ field }) => {
+            return (
+              <div className="flex flex-col space-y-2">
+                <div className="flex items-center gap-x-1">
+                  <Label size="small" weight="plus">
+                    Notes
+                  </Label>
+                </div>
+                <Textarea {...field} />
+              </div>
+            )
+          }}
+        />
+        <Controller
+          control={form.control}
+          name="company_logo"
+          render={({ field }) => {
+            return (
+              <div className="flex flex-col space-y-2">
+                <div className="flex items-center gap-x-1">
+                  <Label size="small" weight="plus">
+                    Company Logo
+                  </Label>
+                </div>
+                <Input type="file" onChange={uploadLogo} className="py-1" />
+                {field.value && (
+                  <img
+                    src={field.value}
+                    alt="Company Logo"
+                    className="mt-2 h-24 w-24"
+                  />
+                )}
+              </div>
+            )
+          }}
+        />
+        <Button type="submit" disabled={isLoading || isPending}>
+          Save
+        </Button>
+      </form>
+    </FormProvider>
+  </Container>
+) 
+```
+
+You render the form and its fields. When the form is submitted, you execute the `handleSubmit` function to update the invoice configuration.
+
+<Note>
+
+Refer to the [Admin Components](../../../admin-components/components/forms/page.mdx) documentation to learn more about creating forms in the Medusa Admin dashboard.
+
+</Note>
+
+### Test Update Invoice Configurations
+
+You'll now test out the invoice configuration management feature.
+
+First, start the Medusa application with the following command:
+
+```bash npm2yarn
+npm run dev
+```
+
+Then:
+
+1. Open the Medusa Admin dashboard in your browser at `http://localhost:9000/admin` and log in.
+2. Go to Settings -> Default Invoice Config.
+
+You can edit any of the configurations and upload a company logo. When you click the Save button, it will update the configurations and display a success message.
+
+![Invoice Configurations Settings Page](https://res.cloudinary.com/dza7lstvk/image/upload/v1753788482/Medusa%20Resources/CleanShot_2025-07-29_at_13.54.11_2x_zs2h9w.png)
+
+---
+
+## Step 5: Implement Invoice Generation
+
+In this step, you'll implement the logic to generate an invoice PDF. Later, you'll execute this logic in a workflow, then expose the functionality in an API route.
+
+You'll implement the invoice generation logic within the Invoice Generator Module's service.
+
+First, install the dependencies needed for PDF generation:
+
+```bash npm2yarn
+npm install pdfmake
+npm install --save-dev @types/pdfmake
+```
+
+Where:
+
+- `pdfmake` is a library for generating PDF documents in JavaScript.
+- `@types/pdfmake` provides TypeScript type definitions for `pdfmake`, allowing you to use it with TypeScript without type errors.
+
+After that, add the following imports at the top of `src/modules/invoice-generator/service.ts`:
+
+```ts title="src/modules/invoice-generator/service.ts"
+import { Invoice, InvoiceStatus } from "./models/invoice"
+import PdfPrinter from "pdfmake"
+import { 
+  InferTypeOf, 
+  OrderDTO, 
+  OrderLineItemDTO,
+} from "@medusajs/framework/types"
+import axios from "axios"
+```
+
+<Note>
+
+`axios` is available in your Medusa project by default, so you don't need to install it.
+
+</Note>
+
+Next, add the following before the service declaration:
+
+```ts title="src/modules/invoice-generator/service.ts"
+const fonts = {
+  Helvetica: {
+    normal: "Helvetica",
+    bold: "Helvetica-Bold",
+    italics: "Helvetica-Oblique",
+    bolditalics: "Helvetica-BoldOblique",
+  },
+}
+
+const printer = new PdfPrinter(fonts)
+
+type GeneratePdfParams = {
+  order: OrderDTO
+  items: OrderLineItemDTO[]
+}
+```
+
+You define the fonts to use in the PDF document. You can choose other fonts, as described in the [pdfmake documentation](https://pdfmake.github.io/docs/0.1/fonts/standard-14-fonts/#use-in-pdfmake-on-server-side).
+
+Next, you initialize the PDF printer that will be used to generate the invoice PDF. You also define a type with the parameters necessary to generate an invoice.
+
+In the service, you'll first add helper functions that are useful for generating the invoice.
+
+Add the following methods to the `InvoiceGeneratorService` class:
+
+export const generatePdfHighlights = [
+  ["5", "formatAmount", "Format an amount into a string with its currency."],
+  ["12", "imageUrlToBase64", "Convert an image URL to a base64 string."]
+]
+
+```ts title="src/modules/invoice-generator/service.ts" highlights={generatePdfHighlights}
+class InvoiceGeneratorService extends MedusaService({
+  InvoiceConfig,
+  Invoice,
+}) {
+  private async formatAmount(amount: number, currency: string): Promise<string> {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: currency,
+    }).format(amount)
+  }
+
+  private async imageUrlToBase64(url: string): Promise<string> {
+    const response = await axios.get(url, { responseType: "arraybuffer" })
+    const base64 = Buffer.from(response.data).toString("base64")
+    const mimeType = response.headers["content-type"] || "image/png"
+    return `data:${mimeType};base64,${base64}`
+  }
+}
+```
+
+You add two methods:
+
+- `formatAmount`: Formats an amount into a string with its currency, which is useful for displaying amounts in the PDF.
+- `imageUrlToBase64`: Converts an image URL to a base64 string. This is necessary because `pdfmake` can't render images from URLs.
+
+Next, you'll add the method that returns the PDF content as expected by `pdfmake`.
+
+Add the following method to the `InvoiceGeneratorService` class:
+
+export const createInvoiceContentHighlights = [
+  ["11", "invoiceConfigs", "Retrieve the invoice configurations from the database."],
+  ["15", "itemsTable", "Create a table for order items."],
+  ["36", "invoiceId", "Format the invoice ID."],
+  ["37", "invoiceDate", "Format the invoice date."],
+  ["40", "return", "Return the PDF content structure."],
+  ["52", "image", "Convert the company logo to a base64 string."],
+  ["345", "styles", "Define styles for the PDF document."]
+]
+
+```ts title="src/modules/invoice-generator/service.ts" collapsibleLines="65-425" expandButtonLabel="Show Full Code" highlights={createInvoiceContentHighlights}
+class InvoiceGeneratorService extends MedusaService({
+  InvoiceConfig,
+  Invoice,
+}) {
+  // ...
+  private async createInvoiceContent(
+    params: GeneratePdfParams, 
+    invoice: InferTypeOf<typeof Invoice>
+  ): Promise<Record<string, any>> {
+    // Get invoice configuration
+    const invoiceConfigs = await this.listInvoiceConfigs()
+    const config = invoiceConfigs[0] || {}
+
+    // Create table for order items
+    const itemsTable = [
+      [
+        { text: "Item", style: "tableHeader" },
+        { text: "Quantity", style: "tableHeader" },
+        { text: "Unit Price", style: "tableHeader" },
+        { text: "Total", style: "tableHeader" },
+      ],
+      ...(await Promise.all(params.items.map(async (item) => [
+        { text: item.title || "Unknown Item", style: "tableRow" },
+        { text: item.quantity.toString(), style: "tableRow" },
+        { text: await this.formatAmount(
+          item.unit_price, 
+          params.order.currency_code
+        ), style: "tableRow" },
+        { text: await this.formatAmount(
+          Number(item.total), 
+          params.order.currency_code
+        ), style: "tableRow" },
+      ]))),
+    ]
+
+    const invoiceId = `INV-${invoice.display_id.toString().padStart(6, "0")}`
+    const invoiceDate = new Date(invoice.created_at).toLocaleDateString()
+
+    // return the PDF content structure
+    return {
+      pageSize: "A4",
+      pageMargins: [40, 60, 40, 60],
+      header: {
+        margin: [40, 20, 40, 0],
+        columns: [
+          /** Company Logo */
+          {
+            width: "*",
+            stack: [
+              ...(config.company_logo ? [
+                {
+                  image: await this.imageUrlToBase64(config.company_logo),
+                  width: 80,
+                  height: 40,
+                  fit: [80, 40],
+                  margin: [0, 0, 0, 10],
+                },
+              ] : []),
+              {
+                text: config.company_name || "Your Company Name",
+                style: "companyName",
+                margin: [0, 0, 0, 0],
+              },
+            ],
+          },
+          /** Invoice Title */
+          {
+            width: "auto",
+            stack: [
+              {
+                text: "INVOICE",
+                style: "invoiceTitle",
+                alignment: "right",
+                margin: [0, 0, 0, 0],
+              },
+            ],
+          },
+        ],
+      },
+      content: [
+        {
+          margin: [0, 20, 0, 0],
+          columns: [
+            /** Company Details */
+            {
+              width: "*",
+              stack: [
+                {
+                  text: "COMPANY DETAILS",
+                  style: "sectionHeader",
+                  margin: [0, 0, 0, 8],
+                },
+                config.company_address && {
+                  text: config.company_address,
+                  style: "companyAddress",
+                  margin: [0, 0, 0, 4],
+                },
+                config.company_phone && {
+                  text: config.company_phone,
+                  style: "companyContact",
+                  margin: [0, 0, 0, 4],
+                },
+                config.company_email && {
+                  text: config.company_email,
+                  style: "companyContact",
+                  margin: [0, 0, 0, 0],
+                },
+              ],
+            },
+            /** Invoice Details */
+            {
+              width: "auto",
+              table: {
+                widths: [80, 120],
+                body: [
+                  [
+                    { text: "Invoice ID:", style: "label" },
+                    { text: invoiceId, style: "value" },
+                  ],
+                  [
+                    { text: "Invoice Date:", style: "label" },
+                    { text: invoiceDate, style: "value" },
+                  ],
+                  [
+                    { text: "Order ID:", style: "label" },
+                    { 
+                      text: params.order.display_id.toString().padStart(6, "0"), 
+                      style: "value",
+                    },
+                  ],
+                  [
+                    { text: "Order Date:", style: "label" },
+                    { 
+                      text: new Date(params.order.created_at).toLocaleDateString(), 
+                      style: "value",
+                    },
+                  ],
+                ],
+              },
+              layout: "noBorders",
+              margin: [0, 0, 0, 20],
+            },
+          ],
+        },
+        {
+          text: "\n",
+        },
+        /** Billing and Shipping Addresses */
+        {
+          columns: [
+            {
+              width: "*",
+              stack: [
+                {
+                  text: "BILL TO",
+                  style: "sectionHeader",
+                  margin: [0, 0, 0, 8],
+                },
+                {
+                  text: params.order.billing_address ? 
+                    `${params.order.billing_address.first_name || ""} ${params.order.billing_address.last_name || ""}
+                    ${params.order.billing_address.address_1 || ""}${params.order.billing_address.address_2 ? `\n${params.order.billing_address.address_2}` : ""}
+                    ${params.order.billing_address.city || ""}, ${params.order.billing_address.province || ""} ${params.order.billing_address.postal_code || ""}
+                    ${params.order.billing_address.country_code || ""}${params.order.billing_address.phone ? `\n${params.order.billing_address.phone}` : ""}` : 
+                    "No billing address provided",
+                  style: "addressText",
+                },
+              ],
+            },
+            {
+              width: "*",
+              stack: [
+                {
+                  text: "SHIP TO",
+                  style: "sectionHeader",
+                  margin: [0, 0, 0, 8],
+                },
+                {
+                  text: params.order.shipping_address ? 
+                    `${params.order.shipping_address.first_name || ""} ${params.order.shipping_address.last_name || ""}
+                    ${params.order.shipping_address.address_1 || ""} ${params.order.shipping_address.address_2 ? `\n${params.order.shipping_address.address_2}` : ""}
+                    ${params.order.shipping_address.city || ""}, ${params.order.shipping_address.province || ""} ${params.order.shipping_address.postal_code || ""}
+                    ${params.order.shipping_address.country_code || ""}${params.order.shipping_address.phone ? `\n${params.order.shipping_address.phone}` : ""}` : 
+                    "No shipping address provided",
+                  style: "addressText",
+                },
+              ],
+            },
+          ],
+        },
+        {
+          text: "\n\n",
+        },
+        /** Items Table */
+        {
+          table: {
+            headerRows: 1,
+            widths: ["*", "auto", "auto", "auto"],
+            body: itemsTable,
+          },
+          layout: {
+            fillColor: function (rowIndex: number) {
+              return (rowIndex === 0) ? "#f8f9fa" : null
+            },
+            hLineWidth: function (i: number, node: any) {
+              return (i === 0 || i === node.table.body.length) ? 0.8 : 0.3
+            },
+            vLineWidth: function (i: number, node: any) {
+              return 0.3
+            },
+            hLineColor: function (i: number, node: any) {
+              return (i === 0 || i === node.table.body.length) ? "#cbd5e0" : "#e2e8f0"
+            },
+            vLineColor: function () {
+              return "#e2e8f0"
+            },
+            paddingLeft: function () {
+              return 8
+            },
+            paddingRight: function () {
+              return 8
+            },
+            paddingTop: function () {
+              return 6
+            },
+            paddingBottom: function () {
+              return 6
+            },
+          },
+        },
+        {
+          text: "\n",
+        },
+        /** Totals Section */
+        {
+          columns: [
+            { width: "*", text: "" },
+            {
+              width: "auto",
+              table: {
+                widths: ["auto", "auto"],
+                body: [
+                  [
+                    { text: "Subtotal:", style: "totalLabel" },
+                    { 
+                      text: await this.formatAmount(
+                        Number(params.order.subtotal), 
+                        params.order.currency_code), 
+                      style: "totalValue",
+                    },
+                  ],
+                  [
+                    { text: "Tax:", style: "totalLabel" },
+                    { 
+                      text: await this.formatAmount(
+                        Number(params.order.tax_total), 
+                        params.order.currency_code), 
+                      style: "totalValue",
+                    },
+                  ],
+                  [
+                    { text: "Shipping:", style: "totalLabel" },
+                    { 
+                      text: await this.formatAmount(
+                        Number(params.order.shipping_methods?.[0]?.total || 0), 
+                        params.order.currency_code), 
+                      style: "totalValue",
+                    },
+                  ],
+                  [
+                    { text: "Discount:", style: "totalLabel" },
+                    { 
+                      text: await this.formatAmount(
+                        Number(params.order.discount_total), 
+                        params.order.currency_code), 
+                      style: "totalValue",
+                    },
+                  ],
+                  [
+                    { text: "Total:", style: "totalLabel" },
+                    { 
+                      text: await this.formatAmount(
+                        Number(params.order.total), 
+                        params.order.currency_code), 
+                      style: "totalValue",
+                    },
+                  ],
+                ],
+              },
+              layout: {
+                fillColor: function (rowIndex: number) {
+                  return (rowIndex === 3) ? "#f8f9fa" : null
+                },
+                hLineWidth: function (i: number, node: any) {
+                  return (i === 0 || i === node.table.body.length) ? 0.8 : 0.3
+                },
+                vLineWidth: function () {
+                  return 0.3
+                },
+                hLineColor: function (i: number, node: any) {
+                  return (i === 0 || i === node.table.body.length) ? "#cbd5e0" : "#e2e8f0"
+                },
+                vLineColor: function () {
+                  return "#e2e8f0"
+                },
+                paddingLeft: function () {
+                  return 8
+                },
+                paddingRight: function () {
+                  return 8
+                },
+                paddingTop: function () {
+                  return 6
+                },
+                paddingBottom: function () {
+                  return 6
+                },
+              },
+            },
+          ],
+        },
+        {
+          text: "\n\n",
+        },
+        /** Notes Section */
+        ...(config.notes ? [
+          {
+            text: "Notes",
+            style: "sectionHeader",
+            margin: [0, 20, 0, 10],
+          },
+          {
+            text: config.notes,
+            style: "notesText",
+            margin: [0, 0, 0, 20],
+          },
+        ] : []),
+        {
+          text: "Thank you for your business!",
+          style: "thankYouText",
+          alignment: "center",
+          margin: [0, 30, 0, 0],
+        },
+      ],
+      styles: {
+        companyName: {
+          fontSize: 22,
+          bold: true,
+          color: "#1a365d",
+          margin: [0, 0, 0, 5],
+        },
+        companyAddress: {
+          fontSize: 11,
+          color: "#4a5568",
+          lineHeight: 1.3,
+        },
+        companyContact: {
+          fontSize: 10,
+          color: "#4a5568",
+        },
+        invoiceTitle: {
+          fontSize: 24,
+          bold: true,
+          color: "#2c3e50",
+        },
+        label: {
+          fontSize: 10,
+          color: "#6c757d",
+          margin: [0, 0, 8, 0],
+        },
+        value: {
+          fontSize: 10,
+          bold: true,
+          color: "#2c3e50",
+        },
+        sectionHeader: {
+          fontSize: 12,
+          bold: true,
+          color: "#2c3e50",
+          backgroundColor: "#f8f9fa",
+          padding: [8, 12],
+        },
+        addressText: {
+          fontSize: 10,
+          color: "#495057",
+          lineHeight: 1.3,
+        },
+        tableHeader: {
+          fontSize: 10,
+          bold: true,
+          color: "#ffffff",
+          fillColor: "#495057",
+        },
+        tableRow: {
+          fontSize: 9,
+          color: "#495057",
+        },
+        totalLabel: {
+          fontSize: 10,
+          bold: true,
+          color: "#495057",
+        },
+        totalValue: {
+          fontSize: 10,
+          bold: true,
+          color: "#2c3e50",
+        },
+        notesText: {
+          fontSize: 10,
+          color: "#6c757d",
+          italics: true,
+          lineHeight: 1.4,
+        },
+        thankYouText: {
+          fontSize: 12,
+          color: "#28a745",
+          italics: true,
+        },
+      },
+      defaultStyle: {
+        font: "Helvetica",
+      },
+    }
+  }
+}
+```
+
+This method returns a [pdfmake document definition](https://pdfmake.github.io/docs/0.1/document-definition-object/) object that describes the structure and content of the invoice PDF.
+
+You show in the PDF:
+
+- Company details, including the logo, name, address, phone, and email.
+- Invoice details, such as the invoice ID, date, order ID, and order date.
+- Billing and shipping addresses.
+- A table with the order items, including item name, quantity, unit price, and total.
+- A totals section that summarizes the subtotal, tax, shipping, discount, and total amounts.
+- An optional notes section for additional information.
+
+You can customize the styles, layout, and content as needed to match your branding and requirements. Refer to the [pdfmake documentation](https://pdfmake.github.io/docs/0.1/document-definition-object/) to learn about available content types.
+
+Finally, you'll add the method that generates the PDF and returns it as a buffer.
+
+Add the following method to the `InvoiceGeneratorService` class:
+
+export const generatePdfMethodHighlights = [
+  ["9", "retrieveInvoice", "Retrieve the invoice's details."],
+  ["12", "pdfContent", "Use existing PDF content or create new content"],
+  ["16", "updateInvoices", "Update the invoice with the generated PDF content."],
+  ["22", "return", "Return the generated PDF as a Buffer."]
+]
+
+```ts title="src/modules/invoice-generator/service.ts" highlights={generatePdfMethodHighlights}
+class InvoiceGeneratorService extends MedusaService({
+  InvoiceConfig,
+  Invoice,
+}) {
+  // ...
+  async generatePdf(params: GeneratePdfParams & {
+    invoice_id: string
+  }): Promise<Buffer> {
+    const invoice = await this.retrieveInvoice(params.invoice_id)
+
+    // Generate new content
+    const pdfContent = Object.keys(invoice.pdfContent).length ? 
+      invoice.pdfContent : 
+      await this.createInvoiceContent(params, invoice)
+
+    await this.updateInvoices({
+      id: invoice.id,
+      pdfContent,
+    })
+
+    // get PDF as a Buffer
+    return new Promise((resolve, reject) => {
+      const chunks: Buffer[] = []
+  
+      const pdfDoc = printer.createPdfKitDocument(pdfContent as any)
+      
+      pdfDoc.on("data", (chunk) => chunks.push(chunk))
+      pdfDoc.on("end", () => {
+        const result = Buffer.concat(chunks)
+        resolve(result)
+      })
+      pdfDoc.on("error", (err) => reject(err))
+  
+      pdfDoc.end() // Finalize PDF stream
+    })
+  }
+}
+```
+
+In this method, you receive the ID of the invoice to generate its PDF, along with the order details. 
+
+You either retrieve its existing content, or generate new content. Finally, you return the PDF invoice as a Buffer.
+
+You'll test out this functionality in the next step.
+
+---
+
+## Step 6: Generate Invoice PDF Workflow and API Routes
+
+In this step, you'll create a workflow that generates an invoice PDF using the `InvoiceGeneratorService` you implemented in the previous step. Then, you'll create API routes for admin users and customers to download the generated invoice PDF.
+
+### a. Generate Invoice PDF Workflow
+
+The workflow that generates the invoice PDF will have the following steps:
+
+<WorkflowDiagram
+  workflow={{
+    name: "generateInvoicePdfWorkflow",
+    steps: [
+      {
+        type: "step",
+        name: "useQueryGraphStep",
+        description: "Retrieve order details",
+        link: "/references/helper-steps/useQueryGraphStep",
+        depth: 1
+      },
+      {
+        type: "step",
+        name: "useQueryGraphStep",
+        description: "Retrieve countries for billing and shipping addresses",
+        link: "/references/helper-steps/useQueryGraphStep",
+        depth: 2
+      },
+      {
+        type: "step",
+        name: "getOrderInvoiceStep",
+        description: "Retrieve the invoice to generate its PDF.",
+        depth: 3,
+      },
+      {
+        type: "step",
+        name: "generateInvoicePdfStep",
+        description: "Generate invoice PDF",
+        depth: 4
+      }
+    ]
+  }}
+  hideLegend
+/>
+
+You only need to implement the third and fourth steps, as the other two steps are helper steps that Medusa provides.
+
+#### getOrderInvoiceStep
+
+The `getOrderInvoiceStep` will either retrieve an existing invoice for an order, or create a new one.
+
+Create the file `src/workflows/steps/get-order-invoice.ts` with the following content:
+
+export const getOrderInvoiceStepHighlights = [
+  ["13", "invoice", "Retrieve the invoice for the order."],
+  ["17", "createdInvoice", "Flag to indicate whether a new invoice was created."],
+  ["21", "invoice", "Create a new invoice if it none exist."],
+  ["41", "deleteInvoices", "Delete the invoice if an error occurs."]
+]
+
+```ts title="src/workflows/steps/get-order-invoice.ts" highlights={getOrderInvoiceStepHighlights}
+import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
+import { INVOICE_MODULE } from "../../modules/invoice-generator"
+import { InvoiceStatus } from "../../modules/invoice-generator/models/invoice"
+
+type StepInput = {
+  order_id: string
+}
+
+export const getOrderInvoiceStep = createStep(
+  "get-order-invoice",
+  async ({ order_id }: StepInput, { container }) => {
+    const invoiceGeneratorService = container.resolve(INVOICE_MODULE)
+    let [invoice] = await invoiceGeneratorService.listInvoices({
+      order_id,
+      status: InvoiceStatus.LATEST,
+    })
+    let createdInvoice = false
+
+    if (!invoice) {
+      // Store new invoice in database
+      invoice = await invoiceGeneratorService.createInvoices({
+        order_id,
+        status: InvoiceStatus.LATEST,
+        pdfContent: {},
+      })
+      createdInvoice = true
+    }
+
+    return new StepResponse(invoice, {
+      created_invoice: createdInvoice,
+      invoice_id: invoice.id,
+    })
+  },
+  async (data, { container }) => {
+    const { created_invoice, invoice_id } = data || {}
+    if (!created_invoice || !invoice_id) {
+      return
+    }
+    const invoiceGeneratorService = container.resolve(INVOICE_MODULE)
+
+    invoiceGeneratorService.deleteInvoices(invoice_id)
+  }
+)
+```
+
+In the step, you try to retrieve an existing invoice with the `latest` status for the given order ID. If none exist, you create a new invoice.
+
+The step returns the invoice. In the compensation function, you delete the invoice if an error occurs during the workflow execution.
+
+#### generateInvoicePdfStep
+
+The `generateInvoicePdfStep` will generate and return the invoice PDF as a buffer.
+
+Create the file `src/workflows/steps/generate-invoice-pdf.ts` with the following content:
+
+export const generateInvoicePdfStepHighlights = [
+  ["16", "retrieveInvoice", "Retrieve the invoice's details."],
+  ["20", "generatePdf", "Generate the PDF content."],
+  ["37", "updateInvoices", "Revert the invoice to its previous content if an error occurs."]
+]
+
+```ts title="src/workflows/steps/generate-invoice-pdf.ts" highlights={generateInvoicePdfStepHighlights}
+import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
+import { INVOICE_MODULE } from "../../modules/invoice-generator"
+import { OrderDTO, OrderLineItemDTO } from "@medusajs/framework/types"
+
+export type GenerateInvoicePdfStepInput = {
+  order: OrderDTO
+  items: OrderLineItemDTO[]
+  invoice_id: string
+}
+
+export const generateInvoicePdfStep = createStep(
+  "generate-invoice-pdf",
+  async (input: GenerateInvoicePdfStepInput, { container }) => {
+    const invoiceGeneratorService = container.resolve(INVOICE_MODULE)
+
+    const previousInv = await invoiceGeneratorService.retrieveInvoice(
+      input.invoice_id
+    )
+
+    const pdfBuffer = await invoiceGeneratorService.generatePdf({
+      order: input.order,
+      items: input.items,
+      invoice_id: input.invoice_id,
+    })
+
+    return new StepResponse({
+      pdf_buffer: pdfBuffer,
+    }, previousInv)
+  },
+  async (previousInv, { container }) => {
+    if (!previousInv) {
+      return
+    }
+
+    const invoiceGeneratorService = container.resolve(INVOICE_MODULE)
+
+    await invoiceGeneratorService.updateInvoices({
+      id: previousInv.id,
+      pdfContent: previousInv.pdfContent,
+    })
+  }
+)
+```
+
+In the step, you first retrieve the invoice's data before generating the PDF. Then, you generate the PDF and return it as a buffer.
+
+In the compensation function, you update the invoice with the previous PDF content if an error occurs during the workflow execution.
+
+#### Generate Invoice Workflow
+
+To create the workflow that generates invoices, create the file `src/workflows/generate-invoice-pdf.ts` with the following content:
+
+export const generateInvoicePdfWorkflowHighlights = [
+  ["13", "useQueryGraphStep", "Retrieve the order details."],
+  ["38", "transform", "Prepare the country codes filter."],
+  ["50", "useQueryGraphStep", "Retrieve the countries details."],
+  ["58", "transform", "Transform the order to replace country codes with display names."],
+  ["79", "getOrderInvoiceStep", "Retrieve or create the invoice."],
+  ["83", "generateInvoicePdfStep", "Generate the invoice PDF."]
+]
+
+```ts title="src/workflows/generate-invoice-pdf.ts" highlights={generateInvoicePdfWorkflowHighlights}
+import { createWorkflow, transform, WorkflowResponse } from "@medusajs/framework/workflows-sdk"
+import { generateInvoicePdfStep, GenerateInvoicePdfStepInput } from "./steps/generate-invoice-pdf"
+import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+import { getOrderInvoiceStep } from "./steps/get-order-invoice"
+
+type WorkflowInput = {
+  order_id: string
+}
+
+export const generateInvoicePdfWorkflow = createWorkflow(
+  "generate-invoice-pdf",
+  (input: WorkflowInput) => {
+    const { data: orders } = useQueryGraphStep({
+      entity: "order",
+      fields: [
+        "id",
+        "display_id",
+        "created_at",
+        "currency_code",
+        "total",
+        "items.*",
+        "items.variant.*",
+        "items.variant.product.*",
+        "shipping_address.*",
+        "billing_address.*",
+        "shipping_methods.*",
+        "tax_total",
+        "subtotal",
+        "discount_total",
+      ],
+      filters: {
+        id: input.order_id,
+      },
+      options: {
+        throwIfKeyNotFound: true,
+      },
+    })
+    const countryFilters = transform({
+      orders,
+    }, (data) => {
+      const country_codes: string[] = []
+      if (data.orders[0].billing_address?.country_code) {
+        country_codes.push(data.orders[0].billing_address.country_code)
+      }
+      if (data.orders[0].shipping_address?.country_code) {
+        country_codes.push(data.orders[0].shipping_address.country_code)
+      }
+      return country_codes
+    })
+    const { data: countries } = useQueryGraphStep({
+      entity: "country",
+      fields: ["display_name", "iso_2"],
+      filters: {
+        iso_2: countryFilters,
+      },
+    }).config({ name: "retrieve-countries" })
+
+    const transformedOrder = transform({
+      orders,
+      countries,
+    }, (data) => {
+      const order = data.orders[0]
+      
+      if (order.billing_address?.country_code) {
+        order.billing_address.country_code = data.countries.find(
+          (country) => country.iso_2 === order.billing_address!.country_code
+        )?.display_name || order.billing_address!.country_code
+      }
+      
+      if (order.shipping_address?.country_code) {
+        order.shipping_address.country_code = data.countries.find(
+          (country) => country.iso_2 === order.shipping_address!.country_code
+        )?.display_name || order.shipping_address!.country_code
+      }
+
+      return order
+    })
+
+    const invoice = getOrderInvoiceStep({
+      order_id: transformedOrder.id,
+    })
+
+    const { pdf_buffer } = generateInvoicePdfStep({
+      order: transformedOrder,
+      items: transformedOrder.items,
+      invoice_id: invoice.id,
+    } as unknown as GenerateInvoicePdfStepInput)
+
+    return new WorkflowResponse({
+      pdf_buffer,
+    })
+  }
+)
+```
+
+In the workflow, you:
+
+1. Retrieve the order details using `useQueryGraphStep`.
+2. Prepare the country codes filter from the billing and shipping addresses. You'll use this filter to retrieve the display names of the countries.
+    - To manipulate data in a workflow, you need to use the `transform` function. Learn more in the [Data Manipulation](!docs!/learn/fundamentals/workflows/variable-manipulation) documentation.
+3. Retrieve the country details, including the display names, using `useQueryGraphStep`.
+4. Transform the order to replace country codes with display names.
+5. Retrieve or create the invoice using the `getOrderInvoiceStep`.
+6. Generate the invoice PDF using the `generateInvoicePdfStep`.
+7. Return the PDF buffer.
+
+### b. Generate Invoice Admin API Route
+
+Next, you'll create an API route that allows admin users to download an order's invoice.
+
+Create the file `src/api/admin/orders/[id]/invoices/route.ts` with the following content:
+
+export const adminInvoiceHighlights = [
+  ["12", "generateInvoicePdfWorkflow", "Generate the invoice PDF."],
+  ["19", "buffer", "Get the PDF buffer from the workflow result."],
+  ["21", "set", "Set the response headers for the PDF download."],
+  ["27", "res.send", "Send the PDF buffer as a response."]
+]
+
+```ts title="src/api/admin/orders/[id]/invoices/route.ts" highlights={adminInvoiceHighlights}
+import { MedusaRequest, MedusaResponse } from "@medusajs/framework"
+import { generateInvoicePdfWorkflow } from "../../../../../workflows/generate-invoice-pdf"
+
+export async function GET(
+  req: MedusaRequest,
+  res: MedusaResponse
+): Promise<void> {
+  const { id } = req.params
+
+  const { result: {
+    pdf_buffer,
+  } } = await generateInvoicePdfWorkflow(req.scope)
+    .run({
+      input: {
+        order_id: id,
+      },
+    })
+
+  const buffer = Buffer.from(pdf_buffer)
+
+  res.set({
+    "Content-Type": "application/pdf",
+    "Content-Disposition": `attachment; filename="invoice-${id}.pdf"`,
+    "Content-Length": buffer.length,
+  })
+  
+  res.send(buffer)
+} 
+```
+
+You export a `GET` route handler function, exposing a `GET` API route at `/admin/orders/:id/invoices`.
+
+In the route handler, you execute the `generateInvoicePdfWorkflow` which will return the PDF buffer.
+
+Workflows and steps serialize their output. So, you must recreate the buffer from the serialized output using `Buffer.from`. Learn more in the [Constructor Constraints](!docs!/learn/fundamentals/workflows/constructor-constraints#returned-values) documentation.
+
+Finally, you set the response headers to indicate that the response is a PDF file and send the buffer as the response body.
+
+### c. Generate Invoice Store API Route
+
+You'll also create an identical API route for the storefront, allowing customers to download their order invoices.
+
+Create the file `src/api/store/orders/[id]/invoices/route.ts` with the following content:
+
+```ts title="src/api/store/orders/[id]/invoices/route.ts"
+import { MedusaRequest, MedusaResponse } from "@medusajs/framework"
+import { generateInvoicePdfWorkflow } from "../../../../../workflows/generate-invoice-pdf"
+
+export async function GET(
+  req: MedusaRequest,
+  res: MedusaResponse
+): Promise<void> {
+  const { id } = req.params
+
+  const { result: {
+    pdf_buffer,
+  } } = await generateInvoicePdfWorkflow(req.scope)
+    .run({
+      input: {
+        order_id: id,
+      },
+    })
+
+  const buffer = Buffer.from(pdf_buffer)
+
+  res.set({
+    "Content-Type": "application/pdf",
+    "Content-Disposition": `attachment; filename="invoice-${id}.pdf"`,
+    "Content-Length": buffer.length,
+  })
+  
+  res.send(buffer)
+}
+```
+
+You expose a `GET` API route at `/store/orders/:id/invoices` that allows customers to download their order invoices.
+
+You'll test out both API routes in the next steps.
+
+---
+
+## Step 7: Add Admin Widget to Download Invoices
+
+In this step, you'll create an admin widget that allows admin users to download invoices directly from order detail pages.
+
+A [widget](!docs!/learn/fundamentals/admin/widgets) is a React component that is injected into an existing admin page.
+
+To create the widget, create the file `src/admin/widgets/order-invoice.tsx` with the following content:
+
+export const orderInvoiceWidgetHighlights1 = [
+  ["7", "OrderInvoiceWidget", "React component for the widget."],
+  ["11", "defineWidgetConfig", "Define the widget configuration."],
+  ["12", "zone", "Where the widget should be injected in the Medusa Admin."]
+]
+
+```tsx title="src/admin/widgets/order-invoice.tsx" highlights={orderInvoiceWidgetHighlights1}
+import { defineWidgetConfig } from "@medusajs/admin-sdk"
+import { Button, Container, Heading, Text, toast } from "@medusajs/ui"
+import { AdminOrder, DetailWidgetProps } from "@medusajs/framework/types"
+import { sdk } from "../lib/sdk"
+import { useState } from "react"
+
+const OrderInvoiceWidget = ({ data: order }: DetailWidgetProps<AdminOrder>) => {
+  // TODO implement widget
+}
+
+export const config = defineWidgetConfig({
+  zone: "order.details.side.before",
+})
+
+export default OrderInvoiceWidget 
+```
+
+A widget file must export:
+
+1. A React component that contains the widget UI. It's the default export of the file.
+2. A widget configuration object that defines where the widget should be injected in the Medusa Admin.
+
+Next, you'll add the implementation of the widget. Replace the implementation of the `OrderInvoiceWidget` component with the following code:
+
+export const orderInvoiceWidgetHighlights2 = [
+  ["2", "isDownloading", "Track whether the invoice is downloading."],
+  ["4", "downloadInvoice", "Retrieve and download the invoice PDF."],
+  ["47", "Button", "Trigger the invoice download."]
+]
+
+```tsx title="src/admin/widgets/order-invoice.tsx" highlights={orderInvoiceWidgetHighlights2}
+const OrderInvoiceWidget = ({ data: order }: DetailWidgetProps<AdminOrder>) => {
+  const [isDownloading, setIsDownloading] = useState(false)
+
+  const downloadInvoice = async () => {
+    setIsDownloading(true)
+    
+    try {
+      const response: Response = await sdk.client.fetch(
+        `/admin/orders/${order.id}/invoices`, 
+        {
+          method: "GET",
+          headers: {
+            "accept": "application/pdf",
+          },
+        }
+      )
+  
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = `invoice-${order.id}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+      setIsDownloading(false)
+      toast.success("Invoice generated and downloaded successfully")
+    } catch (error) {
+      toast.error(`Failed to generate invoice: ${error}`)
+      setIsDownloading(false)
+    }
+  }
+
+  return (
+    <Container className="divide-y p-0">
+      <div className="flex items-center justify-between px-6 py-4">
+        <div>
+          <Heading level="h2">Invoice</Heading>
+          <Text size="small" className="text-ui-fg-subtle">
+            Generate and download invoice for this order
+          </Text>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-end px-6 py-4">
+        <Button
+          variant="secondary"
+          disabled={isDownloading}
+          onClick={downloadInvoice}
+          isLoading={isDownloading}
+        >
+          Download Invoice
+        </Button>
+      </div>
+    </Container>
+  )
+}
+```
+
+The widget receives the order's data as a prop since it's injected into the order detail page.
+
+In the widget, you define a `downloadInvoice` function that retrieves the PDF from the `/admin/orders/:id/invoices` API route and then triggers the download of the PDF.
+
+You return a container with a button to download the invoice.
+
+### Test Admin Widget
+
+To test the admin widget, start the Medusa Admin application again.
+
+Next, start the Next.js Starter Storefront to easily place an order:
+
+<Note title="Reminder" forceMultiline>
+
+The Next.js Starter Storefront was installed in a separate directory from Medusa. The directory's name is `{your-project}-storefront`.
+
+So, if your Medusa application's directory is `medusa-invoice`, you can find the storefront by going back to the parent directory and changing to the `medusa-invoice-storefront` directory:
+
+```bash
+cd ../medusa-invoice-storefront # change based on your project name
+```
+
+</Note>
+
+```bash npm2yarn badgeLabel="Storefront" badgeColor="blue"
+npm run dev
+```
+
+Open the storefront at `http://localhost:8000`. Add a product to the cart, then place an order.
+
+In the Medusa Admin, open the order's detail page. You'll see an "Invoice" section at the top right of the page. Click on the "Download Invoice" button to generate and download the invoice PDF.
+
+![Download Invoice Button in Admin Widget](https://res.cloudinary.com/dza7lstvk/image/upload/v1753788505/Medusa%20Resources/CleanShot_2025-07-29_at_14.27.08_2x_rnn1er.png)
+
+You can view the downloaded invoice PDF to make sure all information is correct.
+
+#### Tip: Making Changes to the Invoice Generator
+
+After the first time the invoice is generated, the `generatePdf` method will use that same invoice content to avoid generating the content every time.
+
+If you make changes to the `createInvoiceContent` method and you want to test it out, you'll have to place a new order for now. In a [later step](#step-10-mark-invoices-as-stale-on-order-updates), you'll implement the functionality to mark an invoice as stale when an order is updated. This will allow you to easily test out changes to the invoice generation without placing a new order.
+
+---
+
+## Step 8: Download Invoice in Storefront
+
+In this step, you'll customize the Next.js Starter Storefront to allow customers to download an order's invoice either from its confirmation or detail pages.
+
+The `OrderDetails` component available in `src/modules/order/components/order-details/index.tsx` is used on both the order confirmation and detail pages. So, you only need to customize this component.
+
+First, add the following at the top of the file:
+
+```tsx title="src/modules/order/components/order-details/index.tsx" badgeLabel="Storefront" badgeColor="blue"
+"use client"
+
+// other imports...
+import { Button, toast } from "@medusajs/ui"
+import { useState } from "react"
+import { sdk } from "../../../../lib/config"
+```
+
+You make the component a [client component](https://react.dev/reference/rsc/use-client) and you add the necessary imports.
+
+Next, add the following variable and function in the `OrderDetails` component:
+
+export const orderDetailsHighlights = [
+  ["2", "isDownloading", "Track whether the invoice is being downloaded."],
+  ["4", "downloadInvoice", "Function to download the invoice PDF."]
+]
+
+```tsx title="src/modules/order/components/order-details/index.tsx" badgeLabel="Storefront" badgeColor="blue" highlights={orderDetailsHighlights}
+const OrderDetails = ({ order, showStatus }: OrderDetailsProps) => {
+  const [isDownloading, setIsDownloading] = useState(false)
+
+  const downloadInvoice = async () => {
+    setIsDownloading(true)
+    
+    try {
+      const response: Response = await sdk.client.fetch(
+        `/store/orders/${order.id}/invoices`, 
+        {
+          method: "GET",
+          headers: {
+            "accept": "application/pdf",
+          },
+        }
+      )
+  
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = `invoice-${order.id}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+      setIsDownloading(false)
+      toast.success("Invoice generated and downloaded successfully")
+    } catch (error) {
+      toast.error(`Failed to generate invoice: ${error}`)
+      setIsDownloading(false)
+    }
+  }
+
+  // ...
+}
+```
+
+You define an `isDownloading` state variable to manage the download state and a `downloadInvoice` function that retrieves the PDF from the `/store/orders/:id/invoices` API route and triggers the download.
+
+Finally, in the `return` statement, find the following lines:
+
+```tsx title="src/modules/order/components/order-details/index.tsx" badgeLabel="Storefront" badgeColor="blue" highlights={[["4"], ["5"], ["6"]]}
+return (
+  <div>
+    {/* ... */}
+    <Text className="mt-2 text-ui-fg-interactive">
+      Order number: <span data-testid="order-id">{order.display_id}</span>
+    </Text>
+    {/* ... */}
+  </div>
+)
+```
+
+And replace them with the following:
+
+```tsx title="src/modules/order/components/order-details/index.tsx" badgeLabel="Storefront" badgeColor="blue" highlights={[["4"], ["5"], ["6"], ["7"], ["8"], ["9"], ["10"], ["11"], ["12"], ["13"], ["14"], ["15"], ["16"]]}
+return (
+  <div>
+    {/* ... */}
+    <div className="flex gap-2 items-center mt-2">
+      <Text className="text-ui-fg-interactive">
+        Order number: <span data-testid="order-id">{order.display_id}</span>
+      </Text>
+      <Button 
+        variant="secondary" 
+        onClick={downloadInvoice} 
+        disabled={isDownloading} 
+        isLoading={isDownloading}
+      >
+        Download Invoice
+      </Button>
+    </div>
+    {/* ... */}
+  </div>
+)
+```
+
+You show the "Download Invoice" button next to the order number. When the customer clicks the button, it triggers the `downloadInvoice` function to download the invoice PDF.
+
+### Test Storefront Invoice Download
+
+To test the storefront changes, ensure both the Medusa application and the Next.js Starter Storefront are running.
+
+Then, place an order in the storefront. You'll see the "Download Invoice" button on the order confirmation page. You can click the button to generate and download the invoice PDF.
+
+![Download Invoice Button in Storefront](https://res.cloudinary.com/dza7lstvk/image/upload/v1753789117/Medusa%20Resources/CleanShot_2025-07-29_at_14.38.21_2x_oyydri.png)
+
+---
+
+## Step 9: Send Invoice in Email Notifications
+
+In this step, you'll send an order confirmation email with the invoice PDF attached when an order is placed.
+
+You can listen to events that occur in your Medusa application, such as when an order is placed, using [subscribers](!docs!/learn/fundamentals/events-and-subscribers). A subscriber is an asynchronous function that is executed whenever its associated event is emitted.
+
+To create a subscriber, create the file `src/subscribers/order-placed.ts` with the following content:
+
+export const orderPlacedHighlights = [
+  ["4", "orderPlacedHandler", "Subscriber function that handles the `order.placed` event."],
+  ["13", "order", "Retrieve the order details using Query."],
+  ["40", "generateInvoicePdfWorkflow", "Generate the invoice PDF using the workflow."],
+  ["50", "binaryString", "Convert the PDF buffer to a binary string for email attachment."],
+  ["54", "createNotifications", "Send the email with the invoice attached."]
+]
+
+```ts title="src/subscribers/order-placed.ts" highlights={orderPlacedHighlights}
+import { SubscriberArgs, type SubscriberConfig } from "@medusajs/framework"
+import { generateInvoicePdfWorkflow } from "../workflows/generate-invoice-pdf"
+
+export default async function orderPlacedHandler({
+  event: { data },
+  container,
+}: SubscriberArgs<{
+  id: string
+}>) {
+  const query = container.resolve("query")
+  const notificationModuleService = container.resolve("notification")
+
+  const { data: [order] } = await query.graph({
+    entity: "order",
+    fields: [
+      "id",
+      "display_id",
+      "created_at",
+      "currency_code",
+      "total",
+      "email",
+      "items.*",
+      "items.variant.*",
+      "items.variant.product.*",
+      "shipping_address.*",
+      "billing_address.*",
+      "shipping_methods.*",
+      "tax_total",
+      "subtotal",
+      "discount_total",
+      // add any other fields you need for the email template...
+    ],
+    filters: {
+      id: data.id,
+    },
+  })
+
+  const { result: {
+    pdf_buffer,
+  } } = await generateInvoicePdfWorkflow(container)
+    .run({
+      input: {
+        order_id: data.id,
+      },
+    })
+
+  const buffer = Buffer.from(pdf_buffer)
+
+  // Convert to binary string to pass as attachment
+  const binaryString = [...buffer]
+    .map((byte) => byte.toString(2).padStart(8, "0"))
+    .join("")
+
+  await notificationModuleService.createNotifications({
+    to: order.email || "",
+    template: "order-placed",
+    channel: "email",
+    data: order,
+    attachments: [
+      {
+        content: binaryString,
+        filename: `invoice-${order.id}.pdf`,
+        content_type: "application/pdf",
+        disposition: "attachment",
+      },
+    ],
+  })
+}
+
+export const config: SubscriberConfig = {
+  event: "order.placed",
+}
+```
+
+A subscriber file must export:
+
+- An asynchronous function, which is the subscriber function that is executed when the event is emitted.
+- A configuration object that defines the event the subscriber listens to.
+
+In the subscriber, you:
+
+- Use Query to retrieve the order details. These details are useful to pass to the notification template.
+- Generate the invoice PDF using the `generateInvoicePdfWorkflow`.
+- Convert the PDF buffer to a binary string, which is required for the email attachment.
+- Send an email using the [Notification Module](../../../infrastructure-modules/notification/page.mdx) with the order details and the invoice PDF attached.
+
+#### Notification Module Provider to Use
+
+Since the notification's channel is `email`, you need a Notification Module Provider that supports sending emails, such as [SendGrid](../../../infrastructure-modules/notification/sendgrid/page.mdx) or [Resend](../../../integrations/guides/resend/page.mdx).
+
+After setting up the Notification Module provider, make sure to replace the `template` of the notification with the template ID from the provider:
+
+```ts title="src/subscribers/order-placed.ts"
+await notificationModuleService.createNotifications({
+  template: "your-template-id", // Replace with your actual template ID
+  // ...
+})
+```
+
+Alternatively, for testing purposes, you can change the channel to `feed`. This will only log the notification to the console instead of sending an email:
+
+```ts title="src/subscribers/order-placed.ts"
+await notificationModuleService.createNotifications({
+  channel: "feed", // Change for testing
+  // ...
+})
+```
+
+### Test Order Confirmation Email with Invoice
+
+To test the order confirmation email, make sure that the Medusa application and the Next.js Starter Storefront are running.
+
+Then, place an order in the storefront. You'll see the following message in the Medusa application's console:
+
+```bash
+info:    Processing order.placed which has 1 subscribers
+```
+
+The notification will either be sent to the customer's email address, or logged to the console if you set the channel to `feed`.
+
+---
+
+## Step 10: Mark Invoices as Stale on Order Updates
+
+When an order is updated, you need to mark its existing invoice as stale so that the next time an invoice is generated, it includes the updated content. This ensures that admin users and customers always have access to an up-to-date invoice.
+
+In this step, you'll create a workflow that marks an order's existing invoices as stale. Then, you'll execute the workflow in a subscriber that runs whenever an order is updated.
+
+### a. Mark Invoices as Stale Workflow
+
+The workflow that marks invoices as stale will have only a single step that updates the invoice status in the database.
+
+#### Update Invoices Step
+
+To create the step that updates the status of invoices, create the file `src/workflows/steps/update-invoices.ts` with the following content:
+
+export const updateInvoicesStepHighlights = [
+  ["6", "selector", "Selector to filter invoices."],
+  ["9", "data", "Data to update the invoices with."],
+  ["19", "prevData", "Retrieve the invoices before updating."],
+  ["23", "updateInvoices", "Update the invoices with the new status."],
+  ["37", "updateInvoices", "Revert the invoices to their previous state if an error occurs."]
+]
+
+```ts title="src/workflows/steps/update-invoices.ts" highlights={updateInvoicesStepHighlights}
+import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
+import { InvoiceStatus } from "../../modules/invoice-generator/models/invoice"
+import { INVOICE_MODULE } from "../../modules/invoice-generator"
+
+type StepInput = {
+  selector: {
+    order_id: string
+  }
+  data: {
+    status: InvoiceStatus
+  }
+}
+
+export const updateInvoicesStep = createStep(
+  "update-invoices",
+  async ({ selector, data }: StepInput, { container }) => {
+    const invoiceGeneratorService = container.resolve(INVOICE_MODULE)
+
+    const prevData = await invoiceGeneratorService.listInvoices(
+      selector
+    )
+
+    const updatedInvoices = await invoiceGeneratorService.updateInvoices({
+      selector,
+      data,
+    })
+
+    return new StepResponse(updatedInvoices, prevData)
+  },
+  async (prevData, { container }) => {
+    if (!prevData) {
+      return
+    }
+
+    const invoiceGeneratorService = container.resolve(INVOICE_MODULE)
+
+    await invoiceGeneratorService.updateInvoices(
+      prevData.map((i) => ({
+        id: i.id,
+        status: i.status,
+      }))
+    )
+  }
+)
+```
+
+In the step, you retrieve the invoices that belong to an order and update their status to `stale`. In the compensation function, you revert the status of the invoices back to their previous state in case the workflow execution fails.
+
+The step returns the updated invoices.
+
+#### Mark Invoices Stale Workflow
+
+Next, to create the workflow that marks invoices as stale, create the file `src/workflows/mark-invoices-stale.ts` with the following content:
+
+```ts title="src/workflows/mark-invoices-stale.ts"
+import { createWorkflow, WorkflowResponse } from "@medusajs/framework/workflows-sdk"
+import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+import { updateInvoicesStep } from "./steps/update-invoices"
+import { InvoiceStatus } from "../modules/invoice-generator/models/invoice"
+
+type WorkflowInput = {
+  order_id: string
+}
+
+export const markInvoicesStaleWorkflow = createWorkflow(
+  "mark-invoices-stale",
+  (input: WorkflowInput) => {
+    const updatedInvoices = updateInvoicesStep({
+      selector: {
+        order_id: input.order_id,
+      },
+      data: {
+        status: InvoiceStatus.STALE,
+      },
+    })
+
+    return new WorkflowResponse({
+      invoices: updatedInvoices,
+    })
+  }
+)
+```
+
+The workflow accepts the ID of the order whose invoices should be marked as stale.
+
+In the workflow, you update the invoices using the `updateInvoicesStep`, and return the updated invoices.
+
+### b. Create Order Updated Subscriber
+
+Next, you'll create a subscriber that listens to order updates and marks the order's invoices as stale.
+
+Create the subscriber `src/subscribers/order-updated.ts` with the following content:
+
+```ts title="src/subscribers/order-updated.ts"
+import { SubscriberArgs, type SubscriberConfig } from "@medusajs/framework"
+import { markInvoicesStaleWorkflow } from "../workflows/mark-invoices-stale"
+
+type EventPayload = {
+  id: string
+} | {
+  order_id: string
+}
+
+export default async function orderUpdatedHandler({
+  event: { data },
+  container,
+}: SubscriberArgs<EventPayload>) {
+  const orderId = "id" in data ? data.id : data.order_id
+
+  await markInvoicesStaleWorkflow(container)
+    .run({
+      input: {
+        order_id: orderId,
+      },
+    })
+}
+
+export const config: SubscriberConfig = {
+  event: [
+    "order.updated", 
+    "order-edit.confirmed",
+    "order.exchange_created",
+    "order.claim_created",
+    "order.return_received",
+  ],
+}
+```
+
+The subscriber will run whenever any of the following events are emitted:
+
+- `order.updated`: When an order's general details, such as billing or shipping address, are updated.
+- `order-edit.confirmed`: When an order edit, which may change the order's items, is confirmed.
+- `order.exchange_created`: When an exchange is confirmed for an order, which may change the order's items and totals.
+- `order.claim_created`: When a claim is confirmed for an order, which may change the order's items and totals.
+- `order.return_received`: When a return is confirmed and received for an order, which may change the order's items and totals.
+
+In the subscriber, you execute the `markInvoicesStaleWorkflow` to mark the order's invoices as stale whenever an order is updated.
+
+<Note>
+
+Refer to the [Events Reference](/references/events) for a complete list of events that Medusa emits.
+
+</Note>
+
+### Test Order Updates
+
+To test the order updates subscriber, start the Medusa application and go to an order's page.
+
+On the order's page, try editing its billing or shipping address, or edit the order's items. You'll see the following message in the console:
+
+```bash
+info:    Processing order.updated which has 1 subscribers
+```
+
+Afterward, try clicking the "Download Invoice" button. The new invoice will contain the order's updated details.
+
+---
+
+## Next Steps
+
+You've successfully implemented the invoice generator feature in Medusa. You can expand on this feature to:
+
+1. Customize the PDF's content and layout to match your branding or include more details.
+2. Show all invoices for an order in the admin and storefront, allowing users to download previous invoices.
+3. Trigger sending invoices to customers from the Medusa Admin dashboard.
+
+### Learn More about Medusa
+
+If you're new to Medusa, check out the [main documentation](!docs!/learn), where you'll get a more in-depth understanding of all the concepts you've used in this guide and more.
+
+To learn more about the commerce features that Medusa provides, check out Medusa's [Commerce Modules](../../../commerce-modules/page.mdx).
+
+### Troubleshooting
+
+If you encounter issues during your development, check out the [troubleshooting guides](../../../troubleshooting/page.mdx).
+
+### Getting Help
+
+If you encounter issues not covered in the troubleshooting guides:
+
+1. Visit the [Medusa GitHub repository](https://github.com/medusajs/medusa) to report issues or ask questions.
+2. Join the [Medusa Discord community](https://discord.gg/medusajs) for real-time support from community members.

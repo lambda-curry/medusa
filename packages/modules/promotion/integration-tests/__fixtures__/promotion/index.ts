@@ -59,7 +59,7 @@ export async function createDefaultPromotion(
     campaign_id: "campaign-id-1",
     ...promotion,
     application_method: {
-      currency_code: "USD",
+      currency_code: "usd",
       target_type: "items",
       type: "fixed",
       allocation: "across",

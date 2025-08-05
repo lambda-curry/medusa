@@ -6,20 +6,27 @@ export const metadata = {
 
 # {metadata.title}
 
-This section of the documentation provides a reference of the methods generated for services extending the service factory (`MedusaService`), and how to use them.
+This section of the documentation provides a reference to the methods generated for services extending the service factory (`MedusaService`) and how to use them.
 
 <Note title="Tip">
 
-Learn more about the service factory in [this documentation](!docs!/learn/fundamentals/modules/service-factory).
+Refer to the [Service Factory](!docs!/learn/fundamentals/modules/service-factory) documentation to learn more.
 
 </Note>
 
 ## Method Names
 
-Generated method names are of the format `{operationName}_{dataModelName}`, where:
+When your module's main service extends the service factory, Medusa will:
+
+1. Generate data-management methods in your main service for each of the data models passed to the `MedusaService` function.
+2. Generate internal services for each of the data models passed to the `MedusaService` function, which can be resolved in loaders.
+
+### Main Service Methods
+
+The names of the generated methods for a service extending the service factory are of the format `{operationName}_{dataModelName}`, where:
 
 - `{operationName}` is the name of the operation. For example, `create`.
-- `{dataModelName}` is the pascal-case version of the data model's key that's passed in the object parameter of `MedusaService`. The name is pluralized for all operations except for the `retrieve` operation.
+- `{dataModelName}` is the pascal-case version of the data model's key that's passed in the object parameter of `MedusaService`. The name is pluralized for all operations except the `retrieve` operation.
 
 Some examples of method names:
 
@@ -27,6 +34,14 @@ Some examples of method names:
 - `createMyPosts`
 - `retrievePost`
 - `listPosts`
+
+### Internal Generated Service Methods
+
+The internal services are useful when you need to perform database operations in loaders, as they're executed before the module's services are registered. Learn more in the [Module Container](!docs!/learn/fundamentals/modules/container) documentation.
+
+For the internal services, the method names are only the operation name, without the data model name.
+
+For example, a `Post` data model would have a `postService` with methods like `create`, `retrieve`, `update`, and `delete`.
 
 ---
 

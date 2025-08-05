@@ -344,8 +344,7 @@ export declare type MedusaEvent = {
   payload: string
   description?: string
   workflows: string[]
-  version?: string
+  since?: string
   deprecated?: boolean
   deprecated_message?: string
-  version?: string
 }

@@ -37,6 +37,9 @@
  *         metadata:
  *           type: object
  *           description: The item's metadata, can hold custom key-value pairs.
+ *           externalDocs:
+ *             url: https://docs.medusajs.com/api/admin#manage-metadata
+ *             description: Learn how to manage metadata
  *         compare_at_unit_price:
  *           type: number
  *           title: compare_at_unit_price

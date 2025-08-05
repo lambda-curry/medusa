@@ -343,6 +343,7 @@ export default class PricingModuleService
         /**
          * When deciding which price to use we follow the following logic:
          * - If the price list is of type OVERRIDE, we always use the price list price.
+         *   - If there are multiple price list prices of type OVERRIDE, we use the one with the lowest amount.
          * - If the price list is of type SALE, we use the lowest price between the price list price and the default price
          */
         if (priceListPrice) {
@@ -368,6 +369,7 @@ export default class PricingModuleService
             }
           }
         }
+
 
         pricesSetPricesMap.set(key, { calculatedPrice, originalPrice })
         priceIds.push(

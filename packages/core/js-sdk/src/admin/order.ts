@@ -195,6 +195,37 @@ export class Order {
   }
 
   /**
+   * This method archives an order. It sends a request to the
+   * [Archive Order](https://docs.medusajs.com/api/admin#orders_postordersidarchive)
+   * API route.
+   *
+   * @param id - The order's ID.
+   * @param queryParams - Configure the fields to retrieve in the order.
+   * @param headers - Headers to pass in the request
+   * @returns The order's details.
+   *
+   * @example
+   * sdk.admin.order.archive("order_123")
+   * .then(({ order }) => {
+   *   console.log(order)
+   * })
+   */
+  async archive(
+    id: string,
+    queryParams?: SelectParams,
+    headers?: ClientHeaders
+  ) {
+    return await this.client.fetch<HttpTypes.AdminOrderResponse>(
+      `/admin/orders/${id}/archive`,
+      {
+        method: "POST",
+        query: queryParams,
+        headers,
+      }
+    )
+  }
+
+  /**
    * This method cancels an order. It sends a request to the
    * [Cancel Order](https://docs.medusajs.com/api/admin#orders_postordersidcancel)
    * API route.
@@ -214,6 +245,38 @@ export class Order {
       `/admin/orders/${id}/cancel`,
       {
         method: "POST",
+        headers,
+      }
+    )
+  }
+
+  /**
+   * This method completes an order. It sends a request to the
+   * [Complete Order](https://docs.medusajs.com/api/admin#orders_postordersidcomplete)
+   * API route.
+   *
+   * @param id - The order's ID.
+   * @param headers - Headers to pass in the request.
+   * @returns The order's details.
+   *
+   * @example
+   * sdk.admin.order.complete("order_123")
+   * .then(({ order }) => {
+   *   console.log(order)
+   * })
+   */
+  async complete(
+    id: string,
+    body: HttpTypes.AdditionalData,
+    queryParams?: SelectParams,
+    headers?: ClientHeaders
+  ) {
+    return await this.client.fetch<HttpTypes.AdminOrderResponse>(
+      `/admin/orders/${id}/complete`,
+      {
+        method: "POST",
+        body,
+        query: queryParams,
         headers,
       }
     )
@@ -504,13 +567,13 @@ export class Order {
   /**
    * This method creates a credit line for an order. It sends a request to the
    * [Create Credit Line](https://docs.medusajs.com/api/admin#orders_postordersidcredit-lines) API route.
-   * 
+   *
    * @param orderId - The order's ID.
    * @param body - The credit line's details.
    * @param query - Configure the fields to retrieve in the order.
    * @param headers - Headers to pass in the request
    * @returns The order's details.
-   * 
+   *
    * @example
    * sdk.admin.order.createCreditLine(
    *   "order_123",

@@ -80,7 +80,7 @@ export type RemoteQueryInput<TEntry extends string> =
         /**
          * The name of the entity to retrieve. For example, `product`.
          */
-        entity: TEntry
+        entity: TEntry | keyof RemoteQueryEntryPoints
         /**
          * The fields and relations to retrieve in the entity.
          */

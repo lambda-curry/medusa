@@ -31,6 +31,9 @@
  *   metadata:
  *     type: object
  *     description: The reservation's metadata, used to store custom key-value pairs.
+ *     externalDocs:
+ *       url: https://docs.medusajs.com/api/admin#manage-metadata
+ *       description: Learn how to manage metadata
  * 
 */
 

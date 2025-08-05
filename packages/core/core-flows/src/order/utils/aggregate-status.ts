@@ -26,7 +26,7 @@ export const getLastPaymentStatus = (order: OrderDetailDTO) => {
       (isDefined(paymentCollection.amount) &&
         MathBN.eq(paymentCollection.amount, 0))
     ) {
-      paymentStatus[PaymentStatus.CAPTURED] += MathBN.eq(
+      paymentStatus[PaymentStatus.CAPTURED] += MathBN.gte(
         paymentCollection.captured_amount as number,
         paymentCollection.amount
       )
@@ -35,7 +35,7 @@ export const getLastPaymentStatus = (order: OrderDetailDTO) => {
     }
 
     if (MathBN.gt(paymentCollection.refunded_amount ?? 0, 0)) {
-      paymentStatus[PaymentStatus.REFUNDED] += MathBN.eq(
+      paymentStatus[PaymentStatus.REFUNDED] += MathBN.gte(
         paymentCollection.refunded_amount as number,
         paymentCollection.amount
       )

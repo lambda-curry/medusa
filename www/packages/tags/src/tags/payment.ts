@@ -8,7 +8,7 @@ export const payment = [
     "path": "https://docs.medusajs.com/resources/how-to-tutorials/tutorials/saved-payment-methods"
   },
   {
-    "title": "Customize the Stripe Integration in the Next.js Starter",
+    "title": "Customize Stripe in Next.js Starter",
     "path": "https://docs.medusajs.com/resources/nextjs-starter/guides/customize-stripe"
   },
   {
@@ -142,10 +142,6 @@ export const payment = [
   {
     "title": "capturePaymentWorkflow",
     "path": "https://docs.medusajs.com/resources/references/medusa-workflows/capturePaymentWorkflow"
-  },
-  {
-    "title": "processPaymentWorkflow",
-    "path": "https://docs.medusajs.com/resources/references/medusa-workflows/processPaymentWorkflow"
   },
   {
     "title": "refundPaymentWorkflow",

@@ -110,7 +110,7 @@ export default defineLink(
     field: "id",
   },
   {
-    linkable: BlogModule.linkable.post.id,
+    ...BlogModule.linkable.post.id,
     primaryKey: "product_id",
   },
   {
@@ -272,7 +272,7 @@ export default defineLink(
     field: "id",
   },
   {
-    linkable: BlogModule.linkable.post.id,
+    ...BlogModule.linkable.post.id,
     primaryKey: "product_id",
   },
   {
@@ -346,7 +346,7 @@ export default defineLink(
     isList: true,
   },
   {
-    linkable: BlogModule.linkable.post.id,
+    ...BlogModule.linkable.post.id,
     primaryKey: "product_id",
   },
   {

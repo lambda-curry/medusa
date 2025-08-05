@@ -6,19 +6,21 @@ export const metadata = {
 
 In this chapter, you'll learn how to expose a hook in your workflow.
 
-## When to Expose a Hook
+<Note>
 
-<Note title="Expose workflow hooks when" type="success">
-
-Your workflow is reusable in other applications, and you allow performing an external action at some point in your workflow.
+Refer to the [Workflow Hooks](../workflow-hooks/page.mdx) chapter to learn what a workflow hook is and how to consume Medusa's workflow hooks.
 
 </Note>
 
-<Note title="Don't expose workflow hooks if" type="error">
+## When to Expose a Hook?
 
-Your workflow isn't reusable by other applications. Use a step that performs what a hook handler would instead.
+Medusa exposes hooks in many of its workflows to allow you to inject custom functionality.
 
-</Note>
+You can also expose your own hooks in your workflows to allow other developers to consume them. This is useful when you're creating a workflow in a [plugin](../../plugins/page.mdx) and you want plugin users to extend the workflow's functionality.
+
+For example, you are creating a blog plugin and you want to allow developers to perform custom validation before a blog post is created. You can expose a hook in your workflow that developers can consume to perform their custom validation.
+
+If your workflow is not in a plugin, you probably don't need to expose a hook as you can perform the necessary actions directly in the workflow.
 
 ---
 
@@ -29,32 +31,32 @@ To expose a hook in your workflow, use `createHook` from the Workflows SDK.
 For example:
 
 export const hookHighlights = [
-  ["13", "createHook", "Add a hook to the workflow."],
-  ["14", `"productCreated"`, "The hook's name."],
-  ["15", "productId", "The data to pass to the hook handler."],
+  ["12", "createHook", "Add a hook to the workflow."],
+  ["13", `"validate"`, "The hook's name."],
+  ["14", "", "The data to pass to the hook handler."],
   ["19", "hooks", "Return the list of hooks in the workflow."]
 ]
 
-```ts title="src/workflows/my-workflow/index.ts" highlights={hookHighlights}
+```ts title="src/workflows/create-blog-post/index.ts" highlights={hookHighlights}
 import {
   createStep,
   createHook,
   createWorkflow,
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
-import { createProductStep } from "./steps/create-product"
+import { createPostStep } from "./steps/create-post"
 
-export const myWorkflow = createWorkflow(
-  "my-workflow", 
+export const createBlogPostWorkflow = createWorkflow(
+  "create-blog-post", 
   function (input) {
-    const product = createProductStep(input)
-    const productCreatedHook = createHook(
-      "productCreated", 
-      { productId: product.id }
+    const validate = createHook(
+      "validate", 
+      { post: input }
     )
+    const post = createPostStep(input)
 
-    return new WorkflowResponse(product, {
-      hooks: [productCreatedHook],
+    return new WorkflowResponse(post, {
+      hooks: [validate],
     })
   }
 )
@@ -62,29 +64,61 @@ export const myWorkflow = createWorkflow(
 
 The `createHook` function accepts two parameters:
 
-1. The first is a string indicating the hook's name. You use this to consume the hook later.
-2. The second is the input to pass to the hook handler.
+1. The first is a string indicating the hook's name. Developers consuming the hook will use this name to access the hook.
+2. The second is the input to pass to the hook handler. Developers consuming the hook will receive this input in the hook handler.
 
-The workflow must also pass an object having a `hooks` property as a second parameter to the `WorkflowResponse` constructor. Its value is an array of the workflow's hooks.
+You must also return the hook in the workflow's response by passing a `hooks` property to the `WorkflowResponse`'s second parameter object. Its value is an array of the workflow's hooks.
 
 ### How to Consume the Hook?
 
-To consume the hook of the workflow, create the file `src/workflows/hooks/my-workflow.ts` with the following content:
+To consume the hook of the workflow, create the file `src/workflows/hooks/create-blog-post.ts` with the following content:
 
 export const handlerHighlights = [
-  ["3", "productCreated", "Invoke the hook, passing it a step function as a parameter."],
+  ["4", "validate", "Invoke the hook, passing it a step function as a parameter."],
 ]
 
-```ts title="src/workflows/hooks/my-workflow.ts" highlights={handlerHighlights}
-import { myWorkflow } from "../my-workflow"
+```ts title="src/workflows/hooks/create-blog-post.ts" highlights={handlerHighlights}
+import { MedusaError } from "@medusajs/framework/utils"
+import { createBlogPostWorkflow } from "../create-blog-post"
 
-myWorkflow.hooks.productCreated(
-  async ({ productId }, { container }) => {
+createBlogPostWorkflow.hooks.validate(
+  async ({ post }, { container }) => {
     // TODO perform an action
+    if (!post.additional_data.custom_title) {
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        "Custom title is required"
+      )
+    }
   }
 )
 ```
 
-The hook is available on the workflow's `hooks` property using its name `productCreated`.
+The hook is available on the workflow's `hooks` property using its name `validate`.
 
 You invoke the hook, passing a step function (the hook handler) as a parameter.
+
+The hook handler is essentially a step function. You can perform in it any actions you perform in a step. For example, you can throw an error, which would stop the workflow execution.
+
+You can also access the Medusa container in the hook handler to perform actions like using Query or module services.
+
+For example:
+
+```ts title="src/workflows/hooks/create-blog-post.ts"
+import { createBlogPostWorkflow } from "../create-blog-post"
+
+createBlogPostWorkflow.hooks.validate(
+  async ({ post }, { container }) => {
+    const query = container.resolve("query")
+
+    const { data: existingPosts } = await query.graph({
+      entity: "post",
+      fields: ["*"],
+    })
+
+    // TODO do something with existing posts...
+  }
+)
+```
+
+Learn more about the hook handler in the [Workflow Hooks](../workflow-hooks/page.mdx) chapter.

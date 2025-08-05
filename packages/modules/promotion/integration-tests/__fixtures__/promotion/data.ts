@@ -7,7 +7,7 @@ export const defaultPromotionsData: CreatePromotionDTO[] = [
     code: "PROMOTION_1",
     type: PromotionType.STANDARD,
     application_method: {
-      currency_code: "USD",
+      currency_code: "usd",
       target_type: "items",
       type: "fixed",
       allocation: "across",
@@ -19,7 +19,7 @@ export const defaultPromotionsData: CreatePromotionDTO[] = [
     code: "PROMOTION_2",
     type: PromotionType.STANDARD,
     application_method: {
-      currency_code: "USD",
+      currency_code: "usd",
       target_type: "items",
       type: "fixed",
       allocation: "across",

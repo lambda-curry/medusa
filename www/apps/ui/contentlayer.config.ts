@@ -4,6 +4,7 @@ import { defineDocumentType, makeSource } from "contentlayer/source-files"
 import rehypeSlug from "rehype-slug"
 import { uiRehypePlugin } from "../../packages/remark-rehype-plugins/src"
 import { ExampleRegistry } from "./src/registries/example-registry"
+import rehypeMdxCodeProps from "rehype-mdx-code-props"
 
 export const Doc = defineDocumentType(() => ({
   name: "Doc",
@@ -38,6 +39,13 @@ export default makeSource({
         },
       ],
       [rehypeSlug],
+      [
+        // @ts-expect-error issue with type compatibility
+        rehypeMdxCodeProps,
+        {
+          tagName: "code",
+        },
+      ],
     ],
     mdxOptions: (options) => {
       return {

@@ -1,4 +1,4 @@
-import { NotificationContent } from "./common"
+import { Attachment, NotificationContent } from "./common"
 
 /**
  * @interface
@@ -52,4 +52,8 @@ export interface CreateNotificationDTO {
    * An idempotency key that ensures the same notification is not sent multiple times.
    */
   idempotency_key?: string | null
+  /**
+   * Optional attachments for the notification.
+   */
+  attachments?: Attachment[] | null
 }

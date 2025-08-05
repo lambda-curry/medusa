@@ -12,6 +12,12 @@ In this chapter, you'll learn how to install and run a Medusa application.
 
 A Medusa application is made up of a Node.js server and an admin dashboard. You can optionally install the [Next.js Starter Storefront](!resources!/nextjs-starter) separately either while installing the Medusa application or at a later point.
 
+<Note>
+
+While this is the recommended way to create a Medusa application, you can alternatively [install a Medusa application with Docker](./docker/page.mdx).
+
+</Note>
+
 <Prerequisites items={[
   {
     text: "Node.js v20+",
@@ -35,11 +41,17 @@ npx create-medusa-app@latest my-medusa-store
 
 Where `my-medusa-store` is the name of the project's directory and PostgreSQL database created for the project. When you run the command, you'll be asked whether you want to install the Next.js Starter Storefront.
 
+<Note>
+
+To customize the default installation behavior, such as specify a database URL, refer to the [create-medusa-app reference](!resources!/create-medusa-app).
+
+</Note>
+
 After answering the prompts, the command installs the Medusa application in a directory with your project name, and sets up a PostgreSQL database that the application connects to.
 
 If you chose to install the storefront with the Medusa application, the storefront is installed in a separate directory named `{project-name}-storefront`.
 
-![Diagram showcasing an overview of the installation directories](https://res.cloudinary.com/dza7lstvk/image/upload/v1745856132/Medusa%20Resources/installation-dirs_x8jux4.jpg)
+![Directory structure overview after Medusa installation showing the main project folder containing the Medusa backend application and admin dashboard, alongside the separate storefront directory for the customer-facing Next.js application](https://res.cloudinary.com/dza7lstvk/image/upload/v1745856132/Medusa%20Resources/installation-dirs_x8jux4.jpg)
 
 ### Successful Installation Result
 
@@ -51,7 +63,7 @@ If you also installed the Next.js Starter Storefront, it'll be running at `http:
 
 You can stop the servers for the Medusa application and Next.js Starter Storefront by exiting the installation command. To run the server for the Medusa application again, refer to [this section](#run-medusa-application-in-development).
 
-![Diagram showcasing the server and applications running after successful installation](https://res.cloudinary.com/dza7lstvk/image/upload/v1745856706/Medusa%20Resources/success-overview_bj4pbt.jpg)
+![Post-installation running services overview: Medusa backend server and admin dashboard running on localhost:9000, Next.js Starter Storefront running on localhost:8000, with PostgreSQL database and other essential services active and ready for development](https://res.cloudinary.com/dza7lstvk/image/upload/v1745856706/Medusa%20Resources/success-overview_bj4pbt.jpg)
 
 ### Troubleshooting Installation Errors
 

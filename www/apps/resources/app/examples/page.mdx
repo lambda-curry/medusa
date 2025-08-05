@@ -1245,12 +1245,14 @@ Learn more in [this documentation](!docs!/learn/fundamentals/data-models/propert
 
 The following creates a one-to-one relationship between the `User` and `Email` data models:
 
-```ts highlights={[["5", "hasOne"], ["10", "belongsTo"]]}
+```ts highlights={[["5", "hasOne"], ["12", "belongsTo"]]}
 import { model } from "@medusajs/framework/utils"
 
 const User = model.define("user", {
   id: model.id().primaryKey(),
-  email: model.hasOne(() => Email),
+  email: model.hasOne(() => Email, {
+    mappedBy: "user",
+  }),
 })
 
 const Email = model.define("email", {
@@ -1267,12 +1269,14 @@ Learn more in [this documentation](!docs!/learn/fundamentals/data-models/relatio
 
 The following creates a one-to-many relationship between the `Store` and `Product` data models:
 
-```ts highlights={[["5", "hasMany"], ["10", "belongsTo"]]}
+```ts highlights={[["5", "hasMany"], ["12", "belongsTo"]]}
 import { model } from "@medusajs/framework/utils"
 
 const Store = model.define("store", {
   id: model.id().primaryKey(),
-  products: model.hasMany(() => Product),
+  products: model.hasMany(() => Product, {
+    mappedBy: "store",
+  }),
 })
 
 const Product = model.define("product", {
@@ -1313,13 +1317,15 @@ Learn more in [this documentation](!docs!/learn/fundamentals/data-models/relatio
 
 To configure cascade on a data model:
 
-```ts highlights={[["7", "cascades"]]}
+```ts highlights={[["10", "cascades"]]}
 import { model } from "@medusajs/framework/utils"
-// Product import
+import Product from "./product"
 
 const Store = model.define("store", {
   id: model.id().primaryKey(),
-  products: model.hasMany(() => Product),
+  products: model.hasMany(() => Product, {
+    mappedBy: "store",
+  }),
 })
 .cascades({
   delete: ["products"],

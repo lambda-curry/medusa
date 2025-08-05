@@ -77,6 +77,5 @@
  *     format: date-time
  *     title: updated_at
  *     description: The date the gift card was updated.
- *
+ * 
 */
-

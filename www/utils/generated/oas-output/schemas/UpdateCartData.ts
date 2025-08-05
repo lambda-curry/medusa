@@ -45,6 +45,9 @@
  *   metadata:
  *     type: object
  *     description: The cart's metadata, ca hold custom key-value pairs.
+ *     externalDocs:
+ *       url: https://docs.medusajs.com/api/store#manage-metadata
+ *       description: Learn how to manage metadata
  * 
 */
 

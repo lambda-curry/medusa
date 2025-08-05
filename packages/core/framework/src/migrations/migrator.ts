@@ -139,6 +139,7 @@ export abstract class Migrator {
           cwd: basePath,
           ignore: ["**/index.{js,ts}", "**/*.d.ts"],
         })
+        scriptFiles.sort((a, b) => a.localeCompare(b))
 
         if (!scriptFiles?.length) {
           continue

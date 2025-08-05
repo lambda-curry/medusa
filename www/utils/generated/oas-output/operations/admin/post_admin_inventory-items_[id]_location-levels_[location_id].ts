@@ -38,17 +38,7 @@
  *   content:
  *     application/json:
  *       schema:
- *         type: object
- *         description: The properties to update in the inventory level.
- *         properties:
- *           stocked_quantity:
- *             type: number
- *             title: stocked_quantity
- *             description: The inventory level's stocked quantity.
- *           incoming_quantity:
- *             type: number
- *             title: incoming_quantity
- *             description: The inventory level's incoming quantity.
+ *         $ref: "#/components/schemas/AdminUpdateInventoryLocationLevel"
  * x-codeSamples:
  *   - lang: JavaScript
  *     label: JS SDK

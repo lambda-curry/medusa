@@ -119,18 +119,18 @@ function formatEventsType(
       }
     }
 
-    const versionTag = event.comment?.blockTags.find(
-      (tag) => tag.tag === "@version"
+    const sinceTag = event.comment?.blockTags.find(
+      (tag) => tag.tag === "@since"
     )
 
-    if (versionTag) {
+    if (sinceTag) {
       eventName += `\n`
-      const versionText = versionTag.content
+      const sinceText = sinceTag.content
         .map((content) => content.text)
         .join("")
         .trim()
-      eventName += `<Tooltip text="This event was added in version v${versionText}">`
-      eventName += `<Badge variant="blue">v${versionText}</Badge>`
+      eventName += `<Tooltip text="This event was added in version v${sinceText}">`
+      eventName += `<Badge variant="blue">v${sinceText}</Badge>`
       eventName += `</Tooltip>`
     }
 
@@ -166,8 +166,8 @@ function formatEventsType(
       .join("")
       .trim()
 
-    const versionTag = event.comment?.blockTags.find(
-      (tag) => tag.tag === "@version"
+    const sinceTag = event.comment?.blockTags.find(
+      (tag) => tag.tag === "@since"
     )
 
     content.push(
@@ -177,8 +177,8 @@ function formatEventsType(
         payload: eventPayload || "",
         deprecated: !!deprecatedTag,
         deprecatedMessage,
-        version: versionTag
-          ? versionTag.content
+        since: sinceTag
+          ? sinceTag.content
               .map((content) => content.text)
               .join("")
               .trim()
@@ -215,14 +215,14 @@ function getEventHeading({
   payload,
   deprecated = false,
   deprecatedMessage,
-  version,
+  since,
 }: {
   titleLevel: number
   eventName: string
   payload: string
   deprecated?: boolean
   deprecatedMessage?: string
-  version?: string
+  since?: string
 }) {
   const heading = [eventName]
   if (deprecated) {
@@ -236,12 +236,12 @@ function getEventHeading({
       heading.push(`</Tooltip>`)
     }
   }
-  if (version) {
+  if (since) {
     if (deprecated) {
       heading.push(`\n`)
     }
-    heading.push(`<Tooltip text="This event was added in version v${version}">`)
-    heading.push(`<Badge variant="blue">v${version}</Badge>`)
+    heading.push(`<Tooltip text="This event was added in version v${since}">`)
+    heading.push(`<Badge variant="blue">v${since}</Badge>`)
     heading.push(`</Tooltip>`)
   }
   return `<EventHeader headerLvl="${titleLevel}" headerProps={{ id: "${getEventNameSlug(

@@ -5,11 +5,9 @@ import { MathBN } from "../math"
 
 export function calculateAdjustmentTotal({
   adjustments,
-  includesTax,
   taxRate,
 }: {
   adjustments: Pick<AdjustmentLineDTO, "amount" | "is_tax_inclusive">[]
-  includesTax?: boolean
   taxRate?: BigNumberInput
 }) {
   // the sum of all adjustment amounts excluding tax
@@ -24,35 +22,22 @@ export function calculateAdjustmentTotal({
       continue
     }
 
-    const adjustmentAmount = MathBN.convert(adj.amount)
+    const adjustmentSubtotal =
+      isDefined(taxRate) && adj.is_tax_inclusive
+        ? MathBN.div(adj.amount, MathBN.add(1, taxRate))
+        : adj.amount
 
-    if (adj.is_tax_inclusive && isDefined(taxRate)) {
-      adjustmentsSubtotal = MathBN.add(
-        adjustmentsSubtotal,
-        MathBN.div(adjustmentAmount, MathBN.add(1, taxRate))
-      )
-    } else {
-      adjustmentsSubtotal = MathBN.add(adjustmentsSubtotal, adjustmentAmount)
-    }
+    const adjustmentTaxTotal = isDefined(taxRate)
+      ? MathBN.mult(adjustmentSubtotal, taxRate)
+      : 0
+    const adjustmentTotal = MathBN.add(adjustmentSubtotal, adjustmentTaxTotal)
 
-    if (isDefined(taxRate)) {
-      const adjustmentSubtotal = includesTax
-        ? MathBN.div(adjustmentAmount, MathBN.add(1, taxRate))
-        : adjustmentAmount
+    adjustmentsSubtotal = MathBN.add(adjustmentsSubtotal, adjustmentSubtotal)
+    adjustmentsTaxTotal = MathBN.add(adjustmentsTaxTotal, adjustmentTaxTotal)
+    adjustmentsTotal = MathBN.add(adjustmentsTotal, adjustmentTotal)
 
-      const adjustmentTaxTotal = MathBN.mult(adjustmentSubtotal, taxRate)
-      const adjustmentTotal = MathBN.add(adjustmentSubtotal, adjustmentTaxTotal)
-
-      adj["subtotal"] = new BigNumber(adjustmentSubtotal)
-      adj["total"] = new BigNumber(adjustmentTotal)
-
-      adjustmentsTotal = MathBN.add(adjustmentsTotal, adjustmentTotal)
-      adjustmentsTaxTotal = MathBN.add(adjustmentsTaxTotal, adjustmentTaxTotal)
-    } else {
-      adj["subtotal"] = new BigNumber(adjustmentAmount)
-      adj["adjustmentAmount"] = new BigNumber(adjustmentAmount)
-      adjustmentsTotal = MathBN.add(adjustmentsTotal, adjustmentAmount)
-    }
+    adj["subtotal"] = new BigNumber(adjustmentsSubtotal)
+    adj["total"] = new BigNumber(adjustmentsTotal)
   }
 
   return {

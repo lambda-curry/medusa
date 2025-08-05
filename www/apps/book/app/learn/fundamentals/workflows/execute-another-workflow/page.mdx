@@ -1,16 +1,18 @@
 export const metadata = {
-  title: `${pageNumber} Execute Another Workflow`,
+  title: `${pageNumber} Execute Nested Workflows`,
 }
 
 # {metadata.title}
 
-In this chapter, you'll learn how to execute a workflow in another.
+In this chapter, you'll learn how to execute a workflow in another workflow.
 
-## Execute in a Workflow
+## How to Execute a Workflow in Another?
 
-To execute a workflow in another, use the `runAsStep` method that every workflow has.
+In many cases, you may have a workflow that you want to re-use in another workflow. This is most common when you build custom workflows and you want to utilize Medusa's [existing workflows](!resources!/medusa-workflows-reference).
 
-For example:
+Executing a workflow within another is slightly different from how you usually execute a workflow. Instead of invoking the workflow, passing it the container, then running its `run` method, you use the `runAsStep` method of the workflow. This will pass the Medusa container and workflow context to the nested workflow.
+
+For example, to execute the [createProductsWorkflow](!resources!/references/medusa-workflows/createProductsWorkflow) in your custom workflow:
 
 export const workflowsHighlights = [
   ["11", "runAsStep", "Use the `runAsStep` method to run the workflow as a step."],
@@ -41,21 +43,21 @@ const workflow = createWorkflow(
 )
 ```
 
-Instead of invoking the workflow and passing it the container, you use its `runAsStep` method and pass it an object as a parameter.
+The `runAsStep` method accepts an `input` property to pass input to the workflow.
 
-The object has an `input` property to pass input to the workflow.
+### Returned Data
+
+Notice that you don't need to use `await` when executing the nested workflow, as it's not a promise in this scenario.
+
+You also receive the workflow's output as a return value from the `runAsStep` method. This is different from the usual workflow response, where you receive the output in a `result` property.
 
 ---
 
-## Preparing Input Data
+## Prepare Input Data
 
-If you need to perform some data manipulation to prepare the other workflow's input data, use `transform` from the Workflows SDK.
+Since Medusa creates an internal representation of your workflow's constructor function, you can't manipulate data directly in the workflow constructor. You can learn more about this in the [Data Manipulation](../variable-manipulation/page.mdx) chapter.
 
-<Note>
-
-Learn about transform in [this chapter](../variable-manipulation/page.mdx).
-
-</Note>
+If you need to perform some data manipulation to prepare the nested workflow's input data, use `transform` from the Workflows SDK.
 
 For example:
 
@@ -99,25 +101,25 @@ const workflow = createWorkflow(
 )
 ```
 
-In this example, you use the `transform` function to prepend `Hello` to the title of the product. Then, you pass the result as an input to the `createProductsWorkflow`.
+In this example, you use the `transform` function to prepend `Hello` to the title of the product. Then, you pass the result as input to the `createProductsWorkflow`.
+
+<Note>
+
+Learn more about `transform` in the [Data Manipulation](../variable-manipulation/page.mdx) chapter.
+
+</Note>
 
 ---
 
 ## Run Workflow Conditionally
 
-To run a workflow in another based on a condition, use when-then from the Workflows SDK.
-
-<Note>
-
-Learn about when-then in [this chapter](../conditions/page.mdx).
-
-</Note>
+Similar to the [previous section](#prepare-input-data), you can't use conditional statements directly in the workflow constructor. Instead, you can use the `when-then` function from the Workflows SDK to run a workflow conditionally.
 
 For example:
 
 export const whenHighlights = [
   ["20", "when", "If `should_create` passed in the input is enabled, then run the function passed to `then`."],
-  ["22", "createProductsWorkflow", "Workflow only runs if `when`'s condition is `true`."]
+  ["22", "createProductsWorkflow", "The workflow only runs if `when`'s condition is `true`."]
 ]
 
 ```ts highlights={whenHighlights} collapsibleLines="1-16"
@@ -152,4 +154,30 @@ const workflow = createWorkflow(
 )
 ```
 
-In this example, you use when-then to run the `createProductsWorkflow` only if `should_create` (passed in the `input`) is enabled.
+In this example, you use `when-then` to run the `createProductsWorkflow` only if `should_create` (passed in the `input`) is enabled.
+
+<Note>
+
+Learn more about `when-then` in the [When-Then Conditions](../conditions/page.mdx) chapter.
+
+</Note>
+
+---
+
+## Errors in Nested Workflows
+
+A nested workflow behaves similarly to a step in a workflow. So, if the nested workflow fails, it will throw an error that stops the parent workflow's execution and compensates previous steps.
+
+In addition, if another step fails after the nested workflow, the nested workflow's steps will be compensated as part of the compensation process.
+
+Learn more about handling errors in workflows in the [Error Handling](../errors/page.mdx) chapter.
+
+---
+
+## Nested Long-Running Workflows
+
+When you execute a long-running workflow within another workflow, the parent workflow becomes a long-running workflow as well.
+
+So, the parent workflow will wait for the nested workflow to finish before continuing its execution.
+
+Refer to the [Long-Running Workflows](../long-running-workflow/page.mdx) chapter for more information on how to handle long-running workflows.

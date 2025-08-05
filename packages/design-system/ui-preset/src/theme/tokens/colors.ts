@@ -180,7 +180,7 @@ export const colors = {
     "--bg-overlay": "rgba(24, 24, 27, 0.4)",
     "--fg-disabled": "rgba(161, 161, 170, 1)",
     "--fg-muted": "rgba(113, 113, 122, 1)",
-    "--alpha-400": "rgba(24, 24, 27, 0.24)",
-    "--alpha-250": "rgba(24, 24, 27, 0.1)"
+    "--alpha-250": "rgba(24, 24, 27, 0.1)",
+    "--alpha-400": "rgba(24, 24, 27, 0.24)"
   }
 }

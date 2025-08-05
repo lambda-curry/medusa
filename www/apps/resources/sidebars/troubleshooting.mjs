@@ -149,6 +149,11 @@ export const troubleshootingSidebar = [
         path: "/troubleshooting/s3",
         title: "S3 Module Provider Errors",
       },
+      {
+        type: "link",
+        path: "/troubleshooting/payment",
+        title: "Payment Provider Errors",
+      },
     ],
   },
   {

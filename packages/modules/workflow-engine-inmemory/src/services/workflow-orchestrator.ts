@@ -51,6 +51,7 @@ type NotifyOptions = {
   eventType: keyof DistributedTransactionEvents
   workflowId: string
   transactionId?: string
+  state?: TransactionState
   step?: TransactionStep
   response?: unknown
   result?: unknown
@@ -212,6 +213,7 @@ export class WorkflowOrchestratorService {
         eventType: "onFinish",
         workflowId,
         transactionId: context.transactionId,
+        state: ret.transaction.getFlow().state as TransactionState,
         result,
         errors,
       })
@@ -269,9 +271,6 @@ export class WorkflowOrchestratorService {
       throw new Error(`Workflow with id "${workflowId}" not found.`)
     }
 
-    const originalOnFinishHandler = events.onFinish!
-    delete events.onFinish
-
     const transaction = await this.getRunningTransaction(
       workflowId,
       transactionId,
@@ -307,12 +306,11 @@ export class WorkflowOrchestratorService {
     const metadata = ret.transaction.getFlow().metadata
     const { parentStepIdempotencyKey } = metadata ?? {}
 
-    const hasFailed = [TransactionState.FAILED].includes(
-      ret.transaction.getFlow().state
-    )
+    const transactionState = ret.transaction.getFlow().state
+    const hasFailed = [TransactionState.FAILED].includes(transactionState)
 
     const acknowledgement = {
-      transactionId: context.transactionId,
+      transactionId: transaction.transactionId,
       workflowId: workflowId,
       parentStepIdempotencyKey,
       hasFinished,
@@ -323,8 +321,11 @@ export class WorkflowOrchestratorService {
     if (hasFinished) {
       const { result, errors } = ret
 
-      await originalOnFinishHandler({
-        transaction: ret.transaction,
+      this.notify({
+        eventType: "onFinish",
+        workflowId,
+        transactionId: transaction.transactionId,
+        state: transactionState as TransactionState,
         result,
         errors,
       })
@@ -423,6 +424,7 @@ export class WorkflowOrchestratorService {
         eventType: "onFinish",
         workflowId,
         transactionId,
+        state: ret.transaction.getFlow().state as TransactionState,
         result,
         errors,
       })
@@ -493,6 +495,7 @@ export class WorkflowOrchestratorService {
         eventType: "onFinish",
         workflowId,
         transactionId,
+        state: ret.transaction.getFlow().state as TransactionState,
         result,
         errors,
       })
@@ -521,14 +524,16 @@ export class WorkflowOrchestratorService {
     const subscribers = this.subscribers.get(workflowId) ?? new Map()
 
     const handlerIndex = (handlers) => {
-      return handlers.indexOf((s) => s === subscriber || s._id === subscriberId)
+      return handlers.findIndex(
+        (s) => s === subscriber || s._id === subscriberId
+      )
     }
 
     if (transactionId) {
       const transactionSubscribers = subscribers.get(transactionId) ?? []
       const subscriberIndex = handlerIndex(transactionSubscribers)
       if (subscriberIndex !== -1) {
-        transactionSubscribers.slice(subscriberIndex, 1)
+        transactionSubscribers.splice(subscriberIndex, 1)
       }
 
       transactionSubscribers.push(subscriber)
@@ -540,7 +545,7 @@ export class WorkflowOrchestratorService {
     const workflowSubscribers = subscribers.get(AnySubscriber) ?? []
     const subscriberIndex = handlerIndex(workflowSubscribers)
     if (subscriberIndex !== -1) {
-      workflowSubscribers.slice(subscriberIndex, 1)
+      workflowSubscribers.splice(subscriberIndex, 1)
     }
 
     workflowSubscribers.push(subscriber)
@@ -568,14 +573,22 @@ export class WorkflowOrchestratorService {
       const newTransactionSubscribers = filterSubscribers(
         transactionSubscribers
       )
-      subscribers.set(transactionId, newTransactionSubscribers)
+      if (newTransactionSubscribers.length) {
+        subscribers.set(transactionId, newTransactionSubscribers)
+      } else {
+        subscribers.delete(transactionId)
+      }
       this.subscribers.set(workflowId, subscribers)
       return
     }
 
     const workflowSubscribers = subscribers.get(AnySubscriber) ?? []
     const newWorkflowSubscribers = filterSubscribers(workflowSubscribers)
-    subscribers.set(AnySubscriber, newWorkflowSubscribers)
+    if (newWorkflowSubscribers.length) {
+      subscribers.set(AnySubscriber, newWorkflowSubscribers)
+    } else {
+      subscribers.delete(AnySubscriber)
+    }
     this.subscribers.set(workflowId, subscribers)
   }
 
@@ -588,6 +601,7 @@ export class WorkflowOrchestratorService {
       result,
       step,
       response,
+      state,
     } = options
 
     const subscribers: TransactionSubscribers =
@@ -603,6 +617,7 @@ export class WorkflowOrchestratorService {
           response,
           result,
           errors,
+          state,
         })
       })
     }
@@ -610,6 +625,10 @@ export class WorkflowOrchestratorService {
     if (transactionId) {
       const transactionSubscribers = subscribers.get(transactionId) ?? []
       notifySubscribers(transactionSubscribers)
+
+      if (options.eventType === "onFinish") {
+        subscribers.delete(transactionId)
+      }
     }
 
     const workflowSubscribers = subscribers.get(AnySubscriber) ?? []
@@ -627,12 +646,14 @@ export class WorkflowOrchestratorService {
       result,
       response,
       errors,
+      state,
     }: {
       eventType: keyof DistributedTransactionEvents
       step?: TransactionStep
       response?: unknown
       result?: unknown
       errors?: unknown[]
+      state?: TransactionState
     }) => {
       this.notify({
         workflowId,
@@ -642,6 +663,7 @@ export class WorkflowOrchestratorService {
         step,
         result,
         errors,
+        state,
       })
     }
 
@@ -664,7 +686,6 @@ export class WorkflowOrchestratorService {
         notify({ eventType: "onCompensateBegin" })
       },
       onFinish: ({ transaction, result, errors }) => {
-        // TODO: unsubscribe transaction handlers on finish
         customEventHandlers?.onFinish?.({ transaction, result, errors })
       },
 

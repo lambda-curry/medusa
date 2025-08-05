@@ -3,10 +3,8 @@ slug: /references/medusa-workflows/refreshCartShippingMethodsWorkflow
 sidebar_label: refreshCartShippingMethodsWorkflow
 sidebar_description: Refresh a cart's shipping methods after an update.
 tags:
-  - remote query
   - cart
   - workflow
-  - query
   - fulfillment
 ---
 
@@ -21,7 +19,7 @@ and retrieve their correct pricing after a cart update. This workflow is used by
 
 You can use this workflow within your own customizations or custom workflows, allowing you to refresh the cart's shipping method after making updates to the cart.
 
-<SourceCodeLink link="https://github.com/medusajs/medusa/blob/e0b5bb0b224458ebc8c93111e72f9a10aecf0275/packages/core/core-flows/src/cart/workflows/refresh-cart-shipping-methods.ts#L52" />
+<SourceCodeLink link="https://github.com/medusajs/medusa/blob/394226b5c18d11072da826ed6a07d4e602e62f18/packages/core/core-flows/src/cart/workflows/refresh-cart-shipping-methods.ts#L52" />
 
 ## Examples
 
@@ -130,7 +128,7 @@ const myWorkflow = createWorkflow(
 
 ## Steps
 
-<WorkflowDiagram workflow={{"name":"refreshCartShippingMethodsWorkflow","steps":[{"type":"when","condition":"{\n      return !input.cart\n    }","depth":"1","steps":[{"type":"step","name":"useRemoteQueryStep","description":"This step fetches data across modules using the remote query.\n\nLearn more in the [Remote Query documentation](https://docs.medusajs.com/learn/fundamentals/module-links/query).\n\n:::note\n\nThis step is deprecated. Use [useQueryGraphStep](../../../../Common/Steps_Common/functions/core_flows.Common.Steps_Common.useQueryGraphStep/page.mdx) instead.\n\n:::","link":"../../../../Common/Steps_Common/functions/core_flows.Common.Steps_Common.useRemoteQueryStep/page.mdx","depth":1}]},{"type":"hook","name":"validate","description":"This hook is executed before all operations. You can consume this hook to perform any custom validation. If validation fails, you can throw an error to stop the workflow execution.","link":"#validate","depth":2},{"type":"when","condition":"{\n      return !!listShippingOptionsInput?.length\n    }","depth":"3","steps":[{"type":"workflow","name":"listShippingOptionsForCartWithPricingWorkflow","description":"List a cart's shipping options with prices.","link":"../core_flows.Cart.Workflows_Cart.listShippingOptionsForCartWithPricingWorkflow/page.mdx","depth":3},{"type":"step","name":"removeShippingMethodFromCartStep","description":"This step removes shipping methods from a cart.","link":"../../../Steps_Cart/functions/core_flows.Cart.Steps_Cart.removeShippingMethodFromCartStep/page.mdx","depth":3},{"type":"step","name":"updateShippingMethodsStep","description":"This step updates a cart's shipping methods.","link":"../../../Steps_Cart/functions/core_flows.Cart.Steps_Cart.updateShippingMethodsStep/page.mdx","depth":3}]}]}} />
+<WorkflowDiagram workflow={{"name":"refreshCartShippingMethodsWorkflow","steps":[{"type":"hook","name":"validate","description":"This hook is executed before all operations. You can consume this hook to perform any custom validation. If validation fails, you can throw an error to stop the workflow execution.","link":"#validate","depth":2},{"type":"when","condition":"{\n      return !!listShippingOptionsInput?.length\n    }","depth":"3","steps":[{"type":"workflow","name":"listShippingOptionsForCartWithPricingWorkflow","description":"List a cart's shipping options with prices.","link":"../core_flows.Cart.Workflows_Cart.listShippingOptionsForCartWithPricingWorkflow/page.mdx","depth":3},{"type":"step","name":"removeShippingMethodFromCartStep","description":"This step removes shipping methods from a cart.","link":"../../../Steps_Cart/functions/core_flows.Cart.Steps_Cart.removeShippingMethodFromCartStep/page.mdx","depth":3},{"type":"step","name":"updateShippingMethodsStep","description":"This step updates a cart's shipping methods.","link":"../../../Steps_Cart/functions/core_flows.Cart.Steps_Cart.updateShippingMethodsStep/page.mdx","depth":3}]}]}} />
 
 ## Input
 

@@ -1,5 +1,5 @@
 export const metadata = {
-  title: `${pageNumber} Multiple Step Usage in Workflow`,
+  title: `${pageNumber} Multiple Step Usage in Workflows`,
 }
 
 # {metadata.title}
@@ -12,7 +12,7 @@ In some cases, you may need to use a step multiple times in the same workflow.
 
 The most common example is using the `useQueryGraphStep` multiple times in a workflow to retrieve multiple unrelated data, such as customers and products.
 
-Each workflow step must have a unique ID, which is the ID passed as a first parameter when creating the step:
+Steps must have a unique ID, which you pass as the first parameter of the `createStep` function.
 
 ```ts
 const useQueryGraphStep = createStep(
@@ -21,7 +21,7 @@ const useQueryGraphStep = createStep(
 )
 ```
 
-This causes an error when you use the same step multiple times in a workflow, as it's registered in the workflow as two steps having the same ID:
+So, when a step is used multiple times in a workflow, it's registered multiple times in the workflow with the same ID, which causes an error.
 
 ```ts
 const helloWorkflow = createWorkflow(
@@ -51,7 +51,7 @@ When you execute a step in a workflow, you can chain a `config` method to it to 
 
 Use the `config` method to change a step's ID for a single execution.
 
-So, this is the correct way to write the example above:
+For example, this is the correct way to write the example above:
 
 export const highlights = [
   ["13", "name", "Change the step's ID for this execution."]
@@ -75,6 +75,6 @@ const helloWorkflow = createWorkflow(
 )
 ```
 
-The `config` method accepts an object with a `name` property. Its value is a new ID of the step to use for this execution only.
+The `config` method accepts an object with a `name` property. Its value is the new ID for the step to use for this execution only.
 
 The first `useQueryGraphStep` usage has the ID `use-query-graph`, and the second `useQueryGraphStep` usage has the ID `fetch-customers`.

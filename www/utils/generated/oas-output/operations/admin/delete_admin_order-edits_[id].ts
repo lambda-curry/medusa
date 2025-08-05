@@ -90,7 +90,7 @@
  *       ```
  *     description: Emitted when an order edit request is canceled.
  *     deprecated: false
- *     version: 2.8.0
+ *     since: 2.8.0
  * 
 */
 

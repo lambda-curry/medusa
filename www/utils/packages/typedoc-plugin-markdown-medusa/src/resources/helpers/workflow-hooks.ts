@@ -115,7 +115,10 @@ export default function (theme: MarkdownTheme) {
         str += `Handlers consuming this hook accept the following input.\n\n`
 
         str += Handlebars.helpers.parameterComponent.call(
-          cleanUpHookInput(signatures[0].parameters),
+          cleanUpHookInput(
+            signatures[0].parameters,
+            this.name === "addToCartWorkflow" && hook.name === "validate"
+          ),
           {
             hash: {
               sectionTitle: hook.name,

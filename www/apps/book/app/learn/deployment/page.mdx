@@ -13,7 +13,7 @@ A standard Medusa project is made up of:
 - Medusa application: The Medusa server and the Medusa Admin.
 - One or more storefronts
 
-![Diagram showcasing the connection between the three deployed components](https://res.cloudinary.com/dza7lstvk/image/upload/v1708600807/Medusa%20Book/deployment-options_ceuuvo.jpg)
+![Medusa deployment architecture showing the relationship between three main components: the Medusa server (backend API), Medusa Admin dashboard (for store management), and customer-facing storefronts, all connected to facilitate complete ecommerce functionality](https://res.cloudinary.com/dza7lstvk/image/upload/v1708600807/Medusa%20Book/deployment-options_ceuuvo.jpg)
 
 You deploy the Medusa application, with the server and admin, separately from the storefront.
 
@@ -25,7 +25,7 @@ You must deploy the Medusa application before the storefront, as it connects to 
 
 The Medusa application must be deployed to a hosting provider supporting Node.js server deployments, such as Railway, DigitalOcean, AWS, Heroku, etc…
 
-![Diagram showcasing how the Medusa server and its associated services would be deployed](https://res.cloudinary.com/dza7lstvk/image/upload/v1708600972/Medusa%20Book/backend_deployment_pgexo3.jpg)
+![Medusa server deployment infrastructure diagram illustrating the backend services ecosystem: the Node.js Medusa server connected to essential services including PostgreSQL database for data storage, and Redis for caching and session management](https://res.cloudinary.com/dza7lstvk/image/upload/v1708600972/Medusa%20Book/backend_deployment_pgexo3.jpg)
 
 Your server connects to a PostgreSQL database, Redis, and other services relevant for your setup. Most hosting providers support deploying and managing these databases along with your Medusa server (such as Railway and DigitalOcean).
 

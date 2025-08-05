@@ -1,7 +1,7 @@
-import React, { useEffect, useRef } from "react"
+import React, { useEffect, useMemo, useRef } from "react"
 import clsx from "clsx"
 import { ArrowUpCircleSolid } from "@medusajs/icons"
-import { useAiAssistant } from "../../../../providers"
+import { useAiAssistant, useIsBrowser } from "../../../../providers"
 import { useChat } from "@kapaai/react-sdk"
 import { useAiAssistantChatNavigation } from "../../../../hooks"
 
@@ -12,14 +12,30 @@ type AiAssistantChatWindowInputProps = {
 export const AiAssistantChatWindowInput = ({
   chatWindowRef,
 }: AiAssistantChatWindowInputProps) => {
-  const { chatOpened, inputRef, loading } = useAiAssistant()
+  const { chatOpened, inputRef, loading, setChatOpened, isCaptchaLoaded } =
+    useAiAssistant()
   const { submitQuery, conversation } = useChat()
+  const { isBrowser } = useIsBrowser()
+  const { searchQuery, searchQueryType } = useMemo(() => {
+    if (!isBrowser) {
+      return {}
+    }
+    const searchParams = new URLSearchParams(location.search)
+
+    return {
+      searchQuery: searchParams.get("query"),
+      searchQueryType: searchParams.get("queryType"),
+    }
+  }, [isBrowser])
   const [question, setQuestion] = React.useState("")
   const formRef = useRef<HTMLFormElement | null>(null)
 
-  const onSubmit = (e?: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = (
+    e?: React.FormEvent<HTMLFormElement>,
+    overrideQuestion?: string
+  ) => {
     e?.preventDefault()
-    submitQuery(question)
+    submitQuery(overrideQuestion || question)
     setQuestion("")
   }
 
@@ -64,7 +80,9 @@ export const AiAssistantChatWindowInput = ({
 
   useEffect(() => {
     adjustTextareaHeight()
-    inputRef.current?.focus()
+    if (chatOpened) {
+      inputRef.current?.focus()
+    }
   }, [question])
 
   const handleTouch = (e: React.TouchEvent<HTMLTextAreaElement>) => {
@@ -96,6 +114,19 @@ export const AiAssistantChatWindowInput = ({
       }),
     question,
   })
+
+  useEffect(() => {
+    if (!searchQuery || !isCaptchaLoaded) {
+      return
+    }
+
+    setQuestion(searchQuery)
+    setChatOpened(true)
+    if (searchQueryType !== "submit") {
+      return
+    }
+    onSubmit(undefined, searchQuery)
+  }, [searchQuery, searchQueryType, isCaptchaLoaded])
 
   return (
     <div
@@ -131,7 +162,7 @@ export const AiAssistantChatWindowInput = ({
               "appearance-none p-0 text-medusa-fg-base disabled:text-medusa-fg-disabled",
               "transition-colors"
             )}
-            disabled={!question || loading}
+            disabled={!question || loading || !isCaptchaLoaded}
           >
             <ArrowUpCircleSolid />
           </button>

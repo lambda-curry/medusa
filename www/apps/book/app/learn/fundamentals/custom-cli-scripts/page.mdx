@@ -4,17 +4,22 @@ export const metadata = {
 
 # {metadata.title}
 
-In this chapter, you'll learn how to create and execute custom scripts from Medusa's CLI tool.
+In this chapter, you'll learn how to create and execute custom scripts using Medusa's CLI tool.
 
 ## What is a Custom CLI Script?
 
-A custom CLI script is a function to execute through Medusa's CLI tool. This is useful when creating custom Medusa tooling to run through the CLI.
+A custom CLI script is a function that you can execute using Medusa's CLI tool. It is useful when you need a script that has access to the [Medusa container](../medusa-container/page.mdx) and can be executed using Medusa's CLI.
+
+For example, you can create a custom CLI script that:
+
+- [Seeds data into the database](./seed-data/page.mdx).
+- Runs a script before starting the Medusa application.
 
 ---
 
 ## How to Create a Custom CLI Script?
 
-To create a custom CLI script, create a TypeScript or JavaScript file under the `src/scripts` directory. The file must default export a function.
+To create a custom CLI script, create a TypeScript or JavaScript file under the `src/scripts` directory. The file must export a function by default.
 
 For example, create the file `src/scripts/my-script.ts` with the following content:
 
@@ -37,13 +42,13 @@ export default async function myScript({ container }: ExecArgs) {
 }
 ```
 
-The function receives as a parameter an object having a `container` property, which is an instance of the Medusa Container. Use it to resolve resources in your Medusa application.
+The function receives as a parameter an object with a `container` property, which is an instance of the Medusa Container. Use it to resolve resources in your Medusa application.
 
 ---
 
-## How to Run Custom CLI Script?
+## How to Run a Custom CLI Script?
 
-To run the custom CLI script, run the Medusa CLI's `exec` command:
+To run a custom CLI script, run the Medusa CLI's `exec` command:
 
 ```bash
 npx medusa exec ./src/scripts/my-script.ts
@@ -55,7 +60,7 @@ npx medusa exec ./src/scripts/my-script.ts
 
 Your script can accept arguments from the command line. Arguments are passed to the function's object parameter in the `args` property.
 
-For example:
+For example, create the following CLI script that logs the command line arguments:
 
 ```ts
 import { ExecArgs } from "@medusajs/framework/types"
@@ -65,8 +70,32 @@ export default async function myScript({ args }: ExecArgs) {
 }
 ```
 
-Then, pass the arguments in the `exec` command after the file path:
+Then, run the script with the `exec` command and pass arguments after the script's path.
 
 ```bash
 npx medusa exec ./src/scripts/my-script.ts arg1 arg2
 ```
+
+---
+
+## Run Custom Script on Application Startup
+
+In some cases, you may need to perform an action when the Medusa application starts.
+
+If the action is related to a module, you should use a [loader](../modules/loaders/page.mdx). Otherwise, you can create a custom CLI script and run it before starting the Medusa application.
+
+To run a custom script on application startup, modify the `dev` and `start` commands in `package.json` to execute your script first.
+
+For example:
+
+```json title="package.json"
+{
+  "scripts": {
+    "startup": "medusa exec ./src/scripts/startup.ts",
+    "dev": "npm run startup && medusa develop",
+    "start": "npm run startup && medusa start"
+  }
+}
+```
+
+The `startup` script will run every time you run the Medusa application.

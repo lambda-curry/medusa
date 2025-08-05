@@ -41,22 +41,18 @@ export default function () {
         const eventPayloadFormatted = eventPayload
           .replace("```ts\n", "")
           .replace("\n```", "")
-        const isDeprecatedOrHasVersion = commentContent.length >= 4
-        const deprecatedIndex = isDeprecatedOrHasVersion
+        const isDeprecatedOrHasSince = commentContent.length >= 4
+        const deprecatedIndex = isDeprecatedOrHasSince
           ? commentContent.slice(3).findIndex((c) => c.trim() === "deprecated")
           : -1
         const isDeprecated = deprecatedIndex !== -1
         const deprecatedText = (
           isDeprecated ? commentContent[3 + deprecatedIndex] || "" : ""
         ).trim()
-        const version = isDeprecatedOrHasVersion
-          ? commentContent
-              .slice(3)
-              .find((c) => c.trim().startsWith("version: "))
+        const since = isDeprecatedOrHasSince
+          ? commentContent.slice(3).find((c) => c.trim().startsWith("since: "))
           : undefined
-        const versionText = (
-          version ? version.replace("version: ", "") : ""
-        ).trim()
+        const sinceText = (since ? since.replace("since: ", "") : "").trim()
 
         if (isDeprecated) {
           eventNameFormatted += `\n`
@@ -69,10 +65,10 @@ export default function () {
           }
         }
 
-        if (versionText) {
+        if (sinceText) {
           eventNameFormatted += `\n\n`
-          eventNameFormatted += `<Tooltip text="This event was added in version v${versionText}">`
-          eventNameFormatted += `<Badge variant="blue">v${versionText}</Badge>`
+          eventNameFormatted += `<Tooltip text="This event was added in version v${sinceText}">`
+          eventNameFormatted += `<Badge variant="blue">v${sinceText}</Badge>`
           eventNameFormatted += `</Tooltip>\n`
         }
 

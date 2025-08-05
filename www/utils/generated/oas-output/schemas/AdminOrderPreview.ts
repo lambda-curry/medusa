@@ -214,6 +214,9 @@
  *             metadata:
  *               type: object
  *               description: The item's metadata, can hold custom key-value pairs.
+ *               externalDocs:
+ *                 url: https://docs.medusajs.com/api/admin#manage-metadata
+ *                 description: Learn how to manage metadata
  *             original_total:
  *               type: number
  *               title: original_total
@@ -340,6 +343,9 @@
  *             metadata:
  *               type: object
  *               description: The shipping method's metadata, can hold custom key-value pairs.
+ *               externalDocs:
+ *                 url: https://docs.medusajs.com/api/admin#manage-metadata
+ *                 description: Learn how to manage metadata
  *             tax_lines:
  *               type: array
  *               description: The shipping method's tax lines.
@@ -517,6 +523,9 @@
  *   metadata:
  *     type: object
  *     description: The order's metadata, can hold custom key-value pairs.
+ *     externalDocs:
+ *       url: https://docs.medusajs.com/api/admin#manage-metadata
+ *       description: Learn how to manage metadata
  *   created_at:
  *     type: string
  *     format: date-time

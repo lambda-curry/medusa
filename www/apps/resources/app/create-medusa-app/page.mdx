@@ -223,6 +223,23 @@ npx create-medusa-app@latest [project-name]
 
       </Table.Cell>
     </Table.Row>
+    <Table.Row>
+      <Table.Cell>
+
+        `--version`
+
+      </Table.Cell>
+      <Table.Cell>
+
+        Specify the Medusa version to install in the project. The specified version will be used for every `@medusajs/*` package in the Medusa and Next.js Starter projects.
+
+      </Table.Cell>
+      <Table.Cell>
+      
+        The latest version of Medusa at the time of running the command.
+
+      </Table.Cell>
+    </Table.Row>
   </Table.Body>
 </Table>
 
@@ -267,6 +284,18 @@ npx create-medusa-app@latest my-plugin --plugin
 ```
 
 Learn more about how to create a plugin in [this documentation](!docs!/learn/fundamentals/plugins).
+
+---
+
+## Install a Specific Medusa Version
+
+To install a specific version of Medusa, use the `--version` option. This will install the specified version for every `@medusajs/*` package in the Medusa and Next.js Starter projects. For example:
+
+```bash
+npx create-medusa-app@latest my-medusa-store --version 2.3.0
+```
+
+This will create a new Medusa project with the `2.3.0` version.
 
 ---
 

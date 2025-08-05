@@ -79,6 +79,8 @@ export const orderEditUpdateItemQuantityWorkflowId =
  * This workflow updates the quantity of an existing item in an order's edit. It's used by the
  * [Update Order Item Quantity Admin API Route](https://docs.medusajs.com/api/admin#order-edits_postordereditsiditemsitemitem_id).
  * 
+ * You can also use this workflow to remove an item from an order by setting its quantity to `0`.
+ * 
  * You can use this workflow within your customizations or your own custom workflows, allowing you to update the quantity of an existing 
  * item in an order's edit in your custom flow.
  * 
@@ -98,7 +100,7 @@ export const orderEditUpdateItemQuantityWorkflowId =
  * 
  * @summary
  * 
- * Update the quantity of an existing order item in the order's edit.
+ * Update or remove an existing order item's quantity in the order's edit.
  */
 export const orderEditUpdateItemQuantityWorkflow = createWorkflow(
   orderEditUpdateItemQuantityWorkflowId,

@@ -15024,7 +15024,7 @@ paths:
           $ref: '#/components/responses/500_error'
       x-workflow: deleteDraftOrdersWorkflow
       x-events: []
-      x-version: 2.8.4
+      x-since: 2.8.4
   /admin/draft-orders/{id}/convert-to-order:
     post:
       operationId: PostDraftOrdersIdConvertToOrder
@@ -18672,137 +18672,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              description: The service zone's details.
-              required:
-                - name
-              properties:
-                name:
-                  type: string
-                  title: name
-                  description: The service zone's name.
-                geo_zones:
-                  type: array
-                  description: The service zone's geo zones.
-                  items:
-                    oneOf:
-                      - type: object
-                        description: A country geo zone.
-                        required:
-                          - metadata
-                          - country_code
-                          - type
-                        properties:
-                          metadata:
-                            type: object
-                            description: The geo zone's metadata.
-                          country_code:
-                            type: string
-                            title: country_code
-                            description: The geo zone's country code.
-                          type:
-                            type: string
-                            title: type
-                            description: The geo zone's type.
-                            default: country
-                      - type: object
-                        description: A province geo zone.
-                        required:
-                          - metadata
-                          - country_code
-                          - type
-                          - province_code
-                        properties:
-                          metadata:
-                            type: object
-                            description: The geo zone's metadata.
-                          country_code:
-                            type: string
-                            title: country_code
-                            description: The geo zone's country code.
-                          type:
-                            type: string
-                            title: type
-                            description: The geo zone's type.
-                            default: province
-                          province_code:
-                            type: string
-                            title: province_code
-                            description: The geo zone's ISO 3166-2 province code. Must be lower-case.
-                            example: us-ca
-                            externalDocs:
-                              url: https://en.wikipedia.org/wiki/ISO_3166-2
-                              description: Learn more about ISO 3166-2
-                      - type: object
-                        description: A city geo zone
-                        required:
-                          - metadata
-                          - country_code
-                          - type
-                          - province_code
-                          - city
-                        properties:
-                          metadata:
-                            type: object
-                            description: The geo zone's metadata.
-                          country_code:
-                            type: string
-                            title: country_code
-                            description: The geo zone's country code.
-                          type:
-                            type: string
-                            title: type
-                            description: The geo zone's type.
-                            default: city
-                          province_code:
-                            type: string
-                            title: province_code
-                            description: The geo zone's ISO 3166-2 province code. Must be lower-case.
-                            example: us-ca
-                            externalDocs:
-                              url: https://en.wikipedia.org/wiki/ISO_3166-2
-                              description: Learn more about ISO 3166-2
-                          city:
-                            type: string
-                            title: city
-                            description: The geo zone's city.
-                      - type: object
-                        description: A ZIP geo zone.
-                        required:
-                          - metadata
-                          - country_code
-                          - type
-                          - province_code
-                          - city
-                          - postal_expression
-                        properties:
-                          metadata:
-                            type: object
-                            description: The geo zone's metadata.
-                          country_code:
-                            type: string
-                            title: country_code
-                            description: The geo zone's country code.
-                          type:
-                            type: string
-                            title: type
-                            description: The geo zone's type.
-                            default: zip
-                          province_code:
-                            type: string
-                            title: province_code
-                            description: The geo zone's ISO 3166-2 province code. Must be lower-case.
-                            example: us-ca
-                            externalDocs:
-                              url: https://en.wikipedia.org/wiki/ISO_3166-2
-                              description: Learn more about ISO 3166-2
-                          city:
-                            type: string
-                            title: city
-                            description: The geo zone's city.
-                          postal_expression:
-                            type: object
-                            description: The geo zone's postal expression or ZIP code.
+              $ref: '#/components/schemas/AdminCreateFulfillmentSetServiceZones'
       x-codeSamples:
         - lang: JavaScript
           label: JS SDK
@@ -18977,151 +18847,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              description: The service zone's details.
-              properties:
-                name:
-                  type: string
-                  title: name
-                  description: The service zone's name.
-                geo_zones:
-                  type: array
-                  description: The service zone's associated geo zones.
-                  items:
-                    oneOf:
-                      - type: object
-                        description: A country geo zone.
-                        required:
-                          - type
-                          - metadata
-                          - country_code
-                        properties:
-                          type:
-                            type: string
-                            title: type
-                            description: The geo zone's type.
-                            default: country
-                          metadata:
-                            type: object
-                            description: The geo zone's metadata.
-                          country_code:
-                            type: string
-                            title: country_code
-                            description: The geo zone's country code.
-                          id:
-                            type: string
-                            title: id
-                            description: The ID of an existing geo zone.
-                      - type: object
-                        description: A province geo zone.
-                        required:
-                          - type
-                          - metadata
-                          - country_code
-                          - province_code
-                        properties:
-                          type:
-                            type: string
-                            title: type
-                            description: The geo zone's type.
-                            default: province
-                          metadata:
-                            type: object
-                            description: The geo zone's metadata.
-                          country_code:
-                            type: string
-                            title: country_code
-                            description: The geo zone's country code.
-                          province_code:
-                            type: string
-                            title: province_code
-                            description: The geo zone's ISO 3166-2 province code. Must be lower-case.
-                            example: us-ca
-                            externalDocs:
-                              url: https://en.wikipedia.org/wiki/ISO_3166-2
-                              description: Learn more about ISO 3166-2
-                          id:
-                            type: string
-                            title: id
-                            description: The ID of an existing geo zone.
-                      - type: object
-                        description: A city geo zone
-                        required:
-                          - type
-                          - metadata
-                          - city
-                          - country_code
-                          - province_code
-                        properties:
-                          type:
-                            type: string
-                            title: type
-                            description: The geo zone's type.
-                            default: city
-                          metadata:
-                            type: object
-                            description: The geo zone's metadata.
-                          city:
-                            type: string
-                            title: city
-                            description: The geo zone's city.
-                          country_code:
-                            type: string
-                            title: country_code
-                            description: The geo zone's country code.
-                          province_code:
-                            type: string
-                            title: province_code
-                            description: The geo zone's ISO 3166-2 province code. Must be lower-case.
-                            example: us-ca
-                            externalDocs:
-                              url: https://en.wikipedia.org/wiki/ISO_3166-2
-                              description: Learn more about ISO 3166-2
-                          id:
-                            type: string
-                            title: id
-                            description: The ID of an existing geo zone.
-                      - type: object
-                        description: A ZIP geo zone.
-                        required:
-                          - type
-                          - metadata
-                          - city
-                          - country_code
-                          - province_code
-                          - postal_expression
-                        properties:
-                          type:
-                            type: string
-                            title: type
-                            description: The geo zone's type.
-                            default: zip
-                          metadata:
-                            type: object
-                            description: The geo zone's metadata.
-                          city:
-                            type: string
-                            title: city
-                            description: The geo zone's city.
-                          country_code:
-                            type: string
-                            title: country_code
-                            description: The geo zone's country code.
-                          province_code:
-                            type: string
-                            title: province_code
-                            description: The geo zone's ISO 3166-2 province code. Must be lower-case.
-                            example: us-ca
-                            externalDocs:
-                              url: https://en.wikipedia.org/wiki/ISO_3166-2
-                              description: Learn more about ISO 3166-2
-                          postal_expression:
-                            type: object
-                            description: The geo zone's postal expression or ZIP code.
-                          id:
-                            type: string
-                            title: id
-                            description: The ID of an existing geo zone.
+              $ref: '#/components/schemas/AdminUpdateFulfillmentSetServiceZones'
       x-codeSamples:
         - lang: JavaScript
           label: JS SDK
@@ -20998,64 +20724,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              description: The properties to update in the inventory item.
-              properties:
-                sku:
-                  type: string
-                  title: sku
-                  description: The inventory item's SKU.
-                hs_code:
-                  type: string
-                  title: hs_code
-                  description: The inventory item's HS code.
-                weight:
-                  type: number
-                  title: weight
-                  description: The inventory item's weight.
-                length:
-                  type: number
-                  title: length
-                  description: The inventory item's length.
-                height:
-                  type: number
-                  title: height
-                  description: The inventory item's height.
-                width:
-                  type: number
-                  title: width
-                  description: The inventory item's width.
-                origin_country:
-                  type: string
-                  title: origin_country
-                  description: The inventory item's origin country.
-                mid_code:
-                  type: string
-                  title: mid_code
-                  description: The inventory item's MID code.
-                material:
-                  type: string
-                  title: material
-                  description: The inventory item's material.
-                title:
-                  type: string
-                  title: title
-                  description: The inventory item's title.
-                description:
-                  type: string
-                  title: description
-                  description: The inventory item's description.
-                requires_shipping:
-                  type: boolean
-                  title: requires_shipping
-                  description: Whether the inventory item requires shipping.
-                thumbnail:
-                  type: string
-                  title: thumbnail
-                  description: The URL of an image to be used as the inventory item's thumbnail. You can use the Upload API routes to upload an image and get its URL.
-                metadata:
-                  type: object
-                  description: The inventory item's metadata. Can be custom data in key-value pairs.
+              $ref: '#/components/schemas/AdminUpdateInventoryItem'
       x-codeSamples:
         - lang: JavaScript
           label: JS SDK
@@ -21386,23 +21055,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              description: The inventory level's details.
-              required:
-                - location_id
-              properties:
-                location_id:
-                  type: string
-                  title: location_id
-                  description: The ID of the associated location.
-                stocked_quantity:
-                  type: number
-                  title: stocked_quantity
-                  description: The inventory level's stocked quantity.
-                incoming_quantity:
-                  type: number
-                  title: incoming_quantity
-                  description: The inventory level's incoming quantity.
+              $ref: '#/components/schemas/AdminCreateInventoryLocationLevel'
       x-codeSamples:
         - lang: Shell
           label: cURL
@@ -21545,17 +21198,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              description: The properties to update in the inventory level.
-              properties:
-                stocked_quantity:
-                  type: number
-                  title: stocked_quantity
-                  description: The inventory level's stocked quantity.
-                incoming_quantity:
-                  type: number
-                  title: incoming_quantity
-                  description: The inventory level's incoming quantity.
+              $ref: '#/components/schemas/AdminUpdateInventoryLocationLevel'
       x-codeSamples:
         - lang: JavaScript
           label: JS SDK
@@ -22368,22 +22011,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              description: The details of the user to be created.
-              properties:
-                email:
-                  type: string
-                  title: email
-                  description: The user's email.
-                  format: email
-                first_name:
-                  type: string
-                  title: first_name
-                  description: The user's first name.
-                last_name:
-                  type: string
-                  title: last_name
-                  description: The user's last name.
+              $ref: '#/components/schemas/AdminInviteAccept'
       x-codeSamples:
         - lang: JavaScript
           label: JS SDK
@@ -23110,7 +22738,7 @@ paths:
             ```
           description: Emitted when an order edit request is canceled.
           deprecated: false
-          version: 2.8.0
+          since: 2.8.0
   /admin/order-edits/{id}/confirm:
     post:
       operationId: PostOrderEditsIdConfirm
@@ -23184,7 +22812,7 @@ paths:
             ```
           description: Emitted when an order edit request is confirmed.
           deprecated: false
-          version: 2.8.0
+          since: 2.8.0
   /admin/order-edits/{id}/items:
     post:
       operationId: PostOrderEditsIdItems
@@ -23266,7 +22894,9 @@ paths:
       operationId: PostOrderEditsIdItemsItemItem_id
       summary: Update Order Item Quantity of Order Edit
       x-sidebar-summary: Update Item Quantity
-      description: Update an existing order item's quantity of an order edit.
+      description: |
+        Update an existing order item's quantity of an order edit.
+        You can also use this API route to remove an item from an order by setting its quantity to `0`.
       x-authenticated: true
       parameters:
         - name: id
@@ -23578,7 +23208,7 @@ paths:
             ```
           description: Emitted when an order edit is requested.
           deprecated: false
-          version: 2.8.0
+          since: 2.8.0
   /admin/order-edits/{id}/shipping-method:
     post:
       operationId: PostOrderEditsIdShippingMethod
@@ -24691,6 +24321,23 @@ paths:
         - cookie_auth: []
         - jwt_token: []
       x-codeSamples:
+        - lang: JavaScript
+          label: JS SDK
+          source: |-
+            import Medusa from "@medusajs/js-sdk"
+
+            export const sdk = new Medusa({
+              baseUrl: import.meta.env.VITE_BACKEND_URL || "/",
+              debug: import.meta.env.DEV,
+              auth: {
+                type: "session",
+              },
+            })
+
+            sdk.admin.order.archive("order_123")
+            .then(({ order }) => {
+              console.log(order)
+            })
         - lang: Shell
           label: cURL
           source: |-
@@ -24939,6 +24586,23 @@ paths:
                   type: object
                   description: Pass additional custom data to the API route. This data is passed to the underlying workflow under the `additional_data` parameter.
       x-codeSamples:
+        - lang: JavaScript
+          label: JS SDK
+          source: |-
+            import Medusa from "@medusajs/js-sdk"
+
+            export const sdk = new Medusa({
+              baseUrl: import.meta.env.VITE_BACKEND_URL || "/",
+              debug: import.meta.env.DEV,
+              auth: {
+                type: "session",
+              },
+            })
+
+            sdk.admin.order.complete("order_123")
+            .then(({ order }) => {
+              console.log(order)
+            })
         - lang: Shell
           label: cURL
           source: |-
@@ -26044,20 +25708,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              description: The payment collection's details.
-              required:
-                - order_id
-                - amount
-              properties:
-                order_id:
-                  type: string
-                  title: order_id
-                  description: The ID of the associated order.
-                amount:
-                  type: number
-                  title: amount
-                  description: The amount to be paid.
+              $ref: '#/components/schemas/AdminCreatePaymentCollection'
       x-codeSamples:
         - lang: JavaScript
           label: JS SDK
@@ -26205,15 +25856,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              description: The payment details.
-              required:
-                - order_id
-              properties:
-                order_id:
-                  type: string
-                  title: order_id
-                  description: The ID of the order associated with the payment collection.
+              $ref: '#/components/schemas/AdminMarkPaymentCollectionPaid'
       x-codeSamples:
         - lang: JavaScript
           label: JS SDK
@@ -27088,13 +26731,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              description: The payment's details.
-              properties:
-                amount:
-                  type: number
-                  title: amount
-                  description: The amount to capture.
+              $ref: '#/components/schemas/AdminCreatePaymentCapture'
       x-codeSamples:
         - lang: JavaScript
           label: JS SDK
@@ -27181,21 +26818,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              description: The refund's details.
-              properties:
-                amount:
-                  type: number
-                  title: amount
-                  description: The amount to refund.
-                refund_reason_id:
-                  type: string
-                  title: refund_reason_id
-                  description: The ID of a refund reason.
-                note:
-                  type: string
-                  title: note
-                  description: A note to attach to the refund.
+              $ref: '#/components/schemas/AdminCreatePaymentRefund'
       x-codeSamples:
         - lang: JavaScript
           label: JS SDK
@@ -29517,40 +29140,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              description: The properties to update in the product category.
-              properties:
-                name:
-                  type: string
-                  title: name
-                  description: The product category's name.
-                description:
-                  type: string
-                  title: description
-                  description: The product category's description.
-                handle:
-                  type: string
-                  title: handle
-                  description: The product category's handle. Must be a unique value.
-                is_internal:
-                  type: boolean
-                  title: is_internal
-                  description: Whether the product category is only used for internal purposes and shouldn't be shown the customer.
-                is_active:
-                  type: boolean
-                  title: is_active
-                  description: Whether the product category is active.
-                parent_category_id:
-                  type: string
-                  title: parent_category_id
-                  description: The ID of a parent category.
-                metadata:
-                  type: object
-                  description: The product category's metadata. Can hold custom key-value pairs.
-                rank:
-                  type: number
-                  title: rank
-                  description: The product category's rank among other categories.
+              $ref: '#/components/schemas/AdminUpdateProductCategory'
       x-codeSamples:
         - lang: JavaScript
           label: JS SDK
@@ -30482,16 +30072,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              description: The properties to update in the product tag.
-              properties:
-                value:
-                  type: string
-                  title: value
-                  description: The product tag's value.
-                metadata:
-                  type: object
-                  description: The product tag's metadata. Can hold custom key-value pairs.
+              $ref: '#/components/schemas/AdminUpdateProductTag'
       x-codeSamples:
         - lang: JavaScript
           label: JS SDK
@@ -31324,16 +30905,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              description: The properties to update in the product type.
-              properties:
-                value:
-                  type: string
-                  title: value
-                  description: The product type's value.
-                metadata:
-                  type: object
-                  description: The product type's metadata. Can hold custom key-value pairs.
+              $ref: '#/components/schemas/AdminUpdateProductType'
       x-codeSamples:
         - lang: JavaScript
           label: JS SDK
@@ -33705,7 +33277,7 @@ paths:
           $ref: '#/components/responses/500_error'
       x-workflow: importProductsAsChunksWorkflow
       x-events: []
-      x-version: 2.8.5
+      x-since: 2.8.5
   /admin/products/imports/{transaction_id}/confirm:
     post:
       operationId: PostProductsImportsTransaction_idConfirm
@@ -33763,7 +33335,7 @@ paths:
           $ref: '#/components/responses/invalid_request_error'
         '500':
           $ref: '#/components/responses/500_error'
-      x-version: 2.8.5
+      x-since: 2.8.5
   /admin/products/{id}:
     get:
       operationId: GetProductsId
@@ -38394,17 +37966,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              description: The properties to update in the refund reason.
-              properties:
-                label:
-                  type: string
-                  title: label
-                  description: The refund reason's label.
-                description:
-                  type: string
-                  title: description
-                  description: The refund reason's description.
+              $ref: '#/components/schemas/AdminUpdatePaymentRefundReason'
       x-codeSamples:
         - lang: Shell
           label: cURL
@@ -39247,42 +38809,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              description: The propeties to update in the region.
-              properties:
-                name:
-                  type: string
-                  title: name
-                  description: The region's name.
-                currency_code:
-                  type: string
-                  title: currency_code
-                  description: The region's currency code.
-                countries:
-                  type: array
-                  description: The region's countries.
-                  items:
-                    type: string
-                    title: countries
-                    description: A country code.
-                automatic_taxes:
-                  type: boolean
-                  title: automatic_taxes
-                  description: Whether taxes are calculated automatically for carts in the region.
-                payment_providers:
-                  type: array
-                  description: The payment providers enabled in the region.
-                  items:
-                    type: string
-                    title: payment_providers
-                    description: A payment provider's ID.
-                metadata:
-                  type: object
-                  description: The region's metadata. Can hold custom key-value pairs.
-                is_tax_inclusive:
-                  type: boolean
-                  title: is_tax_inclusive
-                  description: Whether the prices in the region are tax inclusive.
+              $ref: '#/components/schemas/AdminUpdateRegion'
       x-codeSamples:
         - lang: JavaScript
           label: JS SDK
@@ -40215,24 +39742,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              description: The properties to update in the reservation.
-              properties:
-                location_id:
-                  type: string
-                  title: location_id
-                  description: The ID of the associated location.
-                quantity:
-                  type: number
-                  title: quantity
-                  description: The reserved quantity.
-                description:
-                  type: string
-                  title: description
-                  description: The reservation's description.
-                metadata:
-                  type: object
-                  description: The reservation's metadata. Can hold custom key-value pairs.
+              $ref: '#/components/schemas/AdminUpdateReservation'
       x-codeSamples:
         - lang: JavaScript
           label: JS SDK
@@ -45470,172 +44980,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              description: The properties to update in the shipping option.
-              properties:
-                name:
-                  type: string
-                  title: name
-                  description: The shipping option's name.
-                data:
-                  type: object
-                  description: The shipping option's data that is useful for third-party providers.
-                  externalDocs:
-                    url: https://docs.medusajs.com/v2/resources/commerce-modules/fulfillment/shipping-option#data-property
-                price_type:
-                  type: string
-                  description: |
-                    The type of the shipping option's price. If `calculated`, its price is retrieved by the  associated fulfillment provider during checkout. If `flat`, its price is set in the `prices` property.
-                  enum:
-                    - calculated
-                    - flat
-                provider_id:
-                  type: string
-                  title: provider_id
-                  description: The ID of the associated fulfillment provider that is used to process the option.
-                shipping_profile_id:
-                  type: string
-                  title: shipping_profile_id
-                  description: The ID of the shipping profile this shipping option belongs to.
-                type:
-                  type: object
-                  description: The shipping option's type.
-                  required:
-                    - code
-                    - description
-                    - label
-                  properties:
-                    label:
-                      type: string
-                      title: label
-                      description: The type's label.
-                    description:
-                      type: string
-                      title: description
-                      description: The type's description.
-                    code:
-                      type: string
-                      title: code
-                      description: The type's code.
-                prices:
-                  type: array
-                  description: The shipping option's prices. If the `price_type` is `calculated`, pass an empty array.
-                  items:
-                    oneOf:
-                      - type: object
-                        description: The shipping option's price for a currency code.
-                        properties:
-                          id:
-                            type: string
-                            title: id
-                            description: The ID of an existing price.
-                          currency_code:
-                            type: string
-                            title: currency_code
-                            description: The price's currency code.
-                          amount:
-                            type: number
-                            title: amount
-                            description: The price's amount.
-                      - type: object
-                        description: The shipping option's price for a region.
-                        properties:
-                          id:
-                            type: string
-                            title: id
-                            description: The ID of an existing price.
-                          region_id:
-                            type: string
-                            title: region_id
-                            description: The ID of the associated region.
-                          amount:
-                            type: number
-                            title: amount
-                            description: The price's amount.
-                rules:
-                  type: array
-                  description: The shipping option's rules.
-                  items:
-                    oneOf:
-                      - type: object
-                        description: The details of a new shipping option rule.
-                        required:
-                          - operator
-                          - attribute
-                          - value
-                        properties:
-                          operator:
-                            type: string
-                            description: The operator used to check whether a rule applies.
-                            enum:
-                              - in
-                              - eq
-                              - ne
-                              - gt
-                              - gte
-                              - lt
-                              - lte
-                              - nin
-                          attribute:
-                            type: string
-                            title: attribute
-                            description: The name of a property or table that the rule applies to.
-                            example: customer_group
-                          value:
-                            oneOf:
-                              - type: string
-                                title: value
-                                description: A value of the attribute that enables this rule.
-                                example: cusgroup_123
-                              - type: array
-                                description: Values of the attribute that enable this rule.
-                                items:
-                                  type: string
-                                  title: value
-                                  description: A value of the attribute that enables this rule.
-                                  example: cusgroup_123
-                      - type: object
-                        description: Update the properties of an existing rule.
-                        required:
-                          - id
-                          - operator
-                          - attribute
-                          - value
-                        properties:
-                          id:
-                            type: string
-                            title: id
-                            description: The rule's ID.
-                          operator:
-                            type: string
-                            description: The operator used to check whether a rule applies.
-                            enum:
-                              - in
-                              - eq
-                              - ne
-                              - gt
-                              - gte
-                              - lt
-                              - lte
-                              - nin
-                          attribute:
-                            type: string
-                            title: attribute
-                            description: The name of a property or table that the rule applies to.
-                            example: customer_group
-                          value:
-                            oneOf:
-                              - type: string
-                                title: value
-                                description: A value of the attribute that enables this rule.
-                                example: cusgroup_123
-                              - type: array
-                                description: Values of the attribute that enable this rule.
-                                items:
-                                  type: string
-                                  title: value
-                                  description: A value of the attribute that enables this rule.
-                                  example: cusgroup_123
+              $ref: '#/components/schemas/AdminUpdateShippingOption'
       x-codeSamples:
         - lang: JavaScript
           label: JS SDK
@@ -46609,20 +45954,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              description: The properties to update in the shipping profile.
-              properties:
-                name:
-                  type: string
-                  title: name
-                  description: The shipping profile's name.
-                type:
-                  type: string
-                  title: type
-                  description: The shipping profile's type.
-                metadata:
-                  type: object
-                  description: The shipping profile's metadata.
+              $ref: '#/components/schemas/AdminUpdateShippingProfile'
       x-codeSamples:
         - lang: JavaScript
           label: JS SDK
@@ -47704,20 +47036,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              description: The fulfillment set to create.
-              required:
-                - type
-                - name
-              properties:
-                name:
-                  type: string
-                  title: name
-                  description: The fulfillment set's name.
-                type:
-                  type: string
-                  title: type
-                  description: The fulfillment set's type.
+              $ref: '#/components/schemas/AdminCreateStockLocationFulfillmentSet'
       x-codeSamples:
         - lang: JavaScript
           label: JS SDK
@@ -49637,7 +48956,7 @@ paths:
           $ref: '#/components/responses/invalid_request_error'
         '500':
           $ref: '#/components/responses/500_error'
-      x-version: 2.8.0
+      x-since: 2.8.0
   /admin/tax-rates:
     get:
       operationId: GetTaxRates
@@ -54881,6 +54200,9 @@ components:
               metadata:
                 type: object
                 description: The item's metadata, can hold custom key-value pairs.
+                externalDocs:
+                  url: https://docs.medusajs.com/api/admin#manage-metadata
+                  description: Learn how to manage metadata
     AdminAddDraftOrderPromotions:
       type: object
       description: The details of the promotions to add to a draft order.
@@ -54921,6 +54243,9 @@ components:
         metadata:
           type: object
           description: The shipping method's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
     AdminApiKey:
       type: object
       description: The API key's details.
@@ -55511,6 +54836,9 @@ components:
         metadata:
           type: object
           description: The product's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         external_id:
           type: string
           title: external_id
@@ -55597,6 +54925,9 @@ components:
         metadata:
           type: object
           description: The product variant's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         prices:
           type: array
           description: The product variant's prices.
@@ -55784,6 +55115,9 @@ components:
         metadata:
           type: object
           description: The claim's metadata, used to store custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -55982,6 +55316,9 @@ components:
         metadata:
           type: object
           description: The collection's metadata, used to store custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
     AdminCollectionDeleteResponse:
       type: object
       description: The details of the deleted collection.
@@ -56077,15 +55414,18 @@ components:
         metadata:
           type: object
           description: The customer group's metadata, used to store custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
     AdminCreateFulfillment:
       type: object
       description: The filfillment's details.
       x-schemaName: AdminCreateFulfillment
       required:
-        - data
         - items
         - metadata
         - order_id
+        - data
         - location_id
         - provider_id
         - delivery_address
@@ -56150,6 +55490,9 @@ components:
             metadata:
               type: object
               description: The delivery address's metadata, used to store custom key-value pairs.
+              externalDocs:
+                url: https://docs.medusajs.com/api/admin#manage-metadata
+                description: Learn how to manage metadata
         items:
           type: array
           description: The items to fulfill.
@@ -56246,6 +55589,154 @@ components:
         metadata:
           type: object
           description: The fulfillment's metadata, used to store custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
+    AdminCreateFulfillmentSetServiceZones:
+      type: object
+      description: The service zone's details.
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          title: name
+          description: The service zone's name.
+        geo_zones:
+          type: array
+          description: The service zone's geo zones.
+          items:
+            oneOf:
+              - type: object
+                description: A country geo zone.
+                required:
+                  - metadata
+                  - country_code
+                  - type
+                properties:
+                  metadata:
+                    type: object
+                    description: The geo zone's metadata.
+                    externalDocs:
+                      url: https://docs.medusajs.com/api/admin#manage-metadata
+                      description: Learn how to manage metadata
+                  country_code:
+                    type: string
+                    title: country_code
+                    description: The geo zone's country code.
+                  type:
+                    type: string
+                    title: type
+                    description: The geo zone's type.
+                    default: country
+              - type: object
+                description: A province geo zone.
+                required:
+                  - metadata
+                  - country_code
+                  - type
+                  - province_code
+                properties:
+                  metadata:
+                    type: object
+                    description: The geo zone's metadata.
+                    externalDocs:
+                      url: https://docs.medusajs.com/api/admin#manage-metadata
+                      description: Learn how to manage metadata
+                  country_code:
+                    type: string
+                    title: country_code
+                    description: The geo zone's country code.
+                  type:
+                    type: string
+                    title: type
+                    description: The geo zone's type.
+                    default: province
+                  province_code:
+                    type: string
+                    title: province_code
+                    description: The geo zone's ISO 3166-2 province code. Must be lower-case.
+                    example: us-ca
+                    externalDocs:
+                      url: https://en.wikipedia.org/wiki/ISO_3166-2
+                      description: Learn more about ISO 3166-2
+              - type: object
+                description: A city geo zone
+                required:
+                  - metadata
+                  - country_code
+                  - type
+                  - province_code
+                  - city
+                properties:
+                  metadata:
+                    type: object
+                    description: The geo zone's metadata.
+                    externalDocs:
+                      url: https://docs.medusajs.com/api/admin#manage-metadata
+                      description: Learn how to manage metadata
+                  country_code:
+                    type: string
+                    title: country_code
+                    description: The geo zone's country code.
+                  type:
+                    type: string
+                    title: type
+                    description: The geo zone's type.
+                    default: city
+                  province_code:
+                    type: string
+                    title: province_code
+                    description: The geo zone's ISO 3166-2 province code. Must be lower-case.
+                    example: us-ca
+                    externalDocs:
+                      url: https://en.wikipedia.org/wiki/ISO_3166-2
+                      description: Learn more about ISO 3166-2
+                  city:
+                    type: string
+                    title: city
+                    description: The geo zone's city.
+              - type: object
+                description: A ZIP geo zone.
+                required:
+                  - metadata
+                  - country_code
+                  - type
+                  - province_code
+                  - city
+                  - postal_expression
+                properties:
+                  metadata:
+                    type: object
+                    description: The geo zone's metadata.
+                    externalDocs:
+                      url: https://docs.medusajs.com/api/admin#manage-metadata
+                      description: Learn how to manage metadata
+                  country_code:
+                    type: string
+                    title: country_code
+                    description: The geo zone's country code.
+                  type:
+                    type: string
+                    title: type
+                    description: The geo zone's type.
+                    default: zip
+                  province_code:
+                    type: string
+                    title: province_code
+                    description: The geo zone's ISO 3166-2 province code. Must be lower-case.
+                    example: us-ca
+                    externalDocs:
+                      url: https://en.wikipedia.org/wiki/ISO_3166-2
+                      description: Learn more about ISO 3166-2
+                  city:
+                    type: string
+                    title: city
+                    description: The geo zone's city.
+                  postal_expression:
+                    type: object
+                    description: The geo zone's postal expression or ZIP code.
+      x-schemaName: AdminCreateFulfillmentSetServiceZones
     AdminCreateGiftCardParams:
       type: object
       description: The details of the gift card to create.
@@ -56298,6 +55789,9 @@ components:
         metadata:
           type: object
           description: The gift card's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
     AdminCreateInventoryItem:
       type: object
       description: The inventory item's details.
@@ -56358,6 +55852,28 @@ components:
         metadata:
           type: object
           description: The inventory item's metadata, used to store custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
+    AdminCreateInventoryLocationLevel:
+      type: object
+      description: The inventory level's details.
+      required:
+        - location_id
+      properties:
+        location_id:
+          type: string
+          title: location_id
+          description: The ID of the associated location.
+        stocked_quantity:
+          type: number
+          title: stocked_quantity
+          description: The inventory level's stocked quantity.
+        incoming_quantity:
+          type: number
+          title: incoming_quantity
+          description: The inventory level's incoming quantity.
+      x-schemaName: AdminCreateInventoryLocationLevel
     AdminCreateOrderCreditLines:
       type: object
       description: The details of a credit line to add to an order.
@@ -56385,6 +55901,51 @@ components:
         metadata:
           type: object
           description: The credit line's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
+    AdminCreatePaymentCapture:
+      type: object
+      description: The payment's details.
+      properties:
+        amount:
+          type: number
+          title: amount
+          description: The amount to capture.
+      x-schemaName: AdminCreatePaymentCapture
+    AdminCreatePaymentCollection:
+      type: object
+      description: The payment collection's details.
+      required:
+        - order_id
+        - amount
+      properties:
+        order_id:
+          type: string
+          title: order_id
+          description: The ID of the associated order.
+        amount:
+          type: number
+          title: amount
+          description: The amount to be paid.
+      x-schemaName: AdminCreatePaymentCollection
+    AdminCreatePaymentRefund:
+      type: object
+      description: The refund's details.
+      properties:
+        amount:
+          type: number
+          title: amount
+          description: The amount to refund.
+        refund_reason_id:
+          type: string
+          title: refund_reason_id
+          description: The ID of a refund reason.
+        note:
+          type: string
+          title: note
+          description: A note to attach to the refund.
+      x-schemaName: AdminCreatePaymentRefund
     AdminCreatePriceList:
       type: object
       description: The price list's details.
@@ -56632,6 +56193,9 @@ components:
         metadata:
           type: object
           description: The product's metadata, used to store custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         external_id:
           type: string
           title: external_id
@@ -56678,6 +56242,9 @@ components:
         metadata:
           type: object
           description: The product category's metadata, used to store custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
     AdminCreateProductOption:
       type: object
       description: The product option's details.
@@ -56711,6 +56278,9 @@ components:
         metadata:
           type: object
           description: The product tag's metadata, used to store custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
     AdminCreateProductType:
       type: object
       description: The details of the product type to create.
@@ -56721,6 +56291,9 @@ components:
         metadata:
           type: object
           description: The product's metadata, used to store custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         value:
           type: string
           title: value
@@ -56800,6 +56373,9 @@ components:
         metadata:
           type: object
           description: The variant's metadata, used to store custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         prices:
           type: array
           description: The variant's prices.
@@ -56967,6 +56543,9 @@ components:
         metadata:
           type: object
           description: The region's metadata, used to store custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
     AdminCreateReservation:
       type: object
       description: The reservation's details.
@@ -56999,6 +56578,9 @@ components:
         metadata:
           type: object
           description: The reservation's metadata, used to store custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
     AdminCreateReturnReason:
       type: object
       description: The details of the return reason to create.
@@ -57026,6 +56608,9 @@ components:
         metadata:
           type: object
           description: The return reason's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
     AdminCreateSalesChannel:
       type: object
       description: The sales channel's details.
@@ -57048,6 +56633,9 @@ components:
         metadata:
           type: object
           description: The sales channel's metadata, used to store custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
     AdminCreateShipment:
       type: object
       description: The shipment's details.
@@ -57240,6 +56828,9 @@ components:
         metadata:
           type: object
           description: The shipping profile's metadata, used to store custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
     AdminCreateStockLocation:
       type: object
       description: The stock location's details.
@@ -57260,6 +56851,25 @@ components:
         metadata:
           type: object
           description: The stock location's metadata, used to store custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
+    AdminCreateStockLocationFulfillmentSet:
+      type: object
+      description: The fulfillment set to create.
+      required:
+        - type
+        - name
+      properties:
+        name:
+          type: string
+          title: name
+          description: The fulfillment set's name.
+        type:
+          type: string
+          title: type
+          description: The fulfillment set's type.
+      x-schemaName: AdminCreateStockLocationFulfillmentSet
     AdminCreateStoreCreditAccount:
       type: object
       description: The details of the store credit account to create.
@@ -57280,6 +56890,9 @@ components:
         metadata:
           type: object
           description: The store credit account's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
     AdminCreateTaxRate:
       type: object
       description: The tax rate's details.
@@ -57325,6 +56938,9 @@ components:
         metadata:
           type: object
           description: The tax rate's metadata, used to store custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
     AdminCreateTaxRateRule:
       type: object
       description: The tax rate rule's details.
@@ -57396,9 +57012,15 @@ components:
             metadata:
               type: object
               description: The default tax rate's metadata, used to store custom key-value pairs.
+              externalDocs:
+                url: https://docs.medusajs.com/api/admin#manage-metadata
+                description: Learn how to manage metadata
         metadata:
           type: object
           description: The tax region's metadata, used to store custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         provider_id:
           type: string
           title: provider_id
@@ -57619,6 +57241,9 @@ components:
         metadata:
           type: object
           description: The customer's metadata, used to store custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         created_by:
           type: string
           title: created_by
@@ -57730,6 +57355,9 @@ components:
         metadata:
           type: object
           description: The address's metadata, used to store custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -57777,6 +57405,9 @@ components:
         metadata:
           type: object
           description: The customer group's metadata, used to store custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -58528,6 +58159,9 @@ components:
         metadata:
           type: object
           description: The draft order's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -58884,6 +58518,9 @@ components:
                   metadata:
                     type: object
                     description: The item's metadata, can hold custom key-value pairs.
+                    externalDocs:
+                      url: https://docs.medusajs.com/api/admin#manage-metadata
+                      description: Learn how to manage metadata
                   original_total:
                     type: number
                     title: original_total
@@ -59010,6 +58647,9 @@ components:
                   metadata:
                     type: object
                     description: The shipping method's metadata, can hold custom key-value pairs.
+                    externalDocs:
+                      url: https://docs.medusajs.com/api/admin#manage-metadata
+                      description: Learn how to manage metadata
                   tax_lines:
                     type: array
                     description: The shipping method's tax lines.
@@ -59187,6 +58827,9 @@ components:
         metadata:
           type: object
           description: The order's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -59387,6 +59030,9 @@ components:
         metadata:
           type: object
           description: The exchange's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -59628,6 +59274,9 @@ components:
         metadata:
           type: object
           description: The fulfillment's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -59720,6 +59369,9 @@ components:
         metadata:
           type: object
           description: The address's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -60425,6 +60077,9 @@ components:
         metadata:
           type: object
           description: The location level's metadata.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         inventory_item:
           type: object
         available_quantity:
@@ -60469,6 +60124,9 @@ components:
         metadata:
           type: object
           description: The invite's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -60479,6 +60137,24 @@ components:
           format: date-time
           title: updated_at
           description: The date the invite was updated.
+    AdminInviteAccept:
+      type: object
+      description: The details of the user to be created.
+      properties:
+        email:
+          type: string
+          title: email
+          description: The user's email.
+          format: email
+        first_name:
+          type: string
+          title: first_name
+          description: The user's first name.
+        last_name:
+          type: string
+          title: last_name
+          description: The user's last name.
+      x-schemaName: AdminInviteAccept
     AdminInviteResponse:
       type: object
       description: The invite's details.
@@ -60500,6 +60176,17 @@ components:
             title: remove
             description: The ID of a product.
       x-schemaName: AdminLinkPriceListProducts
+    AdminMarkPaymentCollectionPaid:
+      type: object
+      description: The payment details.
+      required:
+        - order_id
+      properties:
+        order_id:
+          type: string
+          title: order_id
+          description: The ID of the order associated with the payment collection.
+      x-schemaName: AdminMarkPaymentCollectionPaid
     AdminNotification:
       type: object
       description: The notification's details.
@@ -60750,6 +60437,9 @@ components:
         metadata:
           type: object
           description: The order's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -60931,6 +60621,9 @@ components:
         metadata:
           type: object
           description: The address's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -61054,6 +60747,9 @@ components:
         metadata:
           type: object
           description: The order change's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         declined_at:
           type: string
           title: declined_at
@@ -61272,6 +60968,9 @@ components:
         metadata:
           type: object
           description: The fulfillment's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -61495,6 +61194,9 @@ components:
         metadata:
           type: object
           description: The item's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         original_total:
           type: number
           title: original_total
@@ -61766,6 +61468,9 @@ components:
                   metadata:
                     type: object
                     description: The item's metadata, can hold custom key-value pairs.
+                    externalDocs:
+                      url: https://docs.medusajs.com/api/admin#manage-metadata
+                      description: Learn how to manage metadata
                   original_total:
                     type: number
                     title: original_total
@@ -61892,6 +61597,9 @@ components:
                   metadata:
                     type: object
                     description: The shipping method's metadata, can hold custom key-value pairs.
+                    externalDocs:
+                      url: https://docs.medusajs.com/api/admin#manage-metadata
+                      description: Learn how to manage metadata
                   tax_lines:
                     type: array
                     description: The shipping method's tax lines.
@@ -62069,6 +61777,9 @@ components:
         metadata:
           type: object
           description: The order's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -62276,6 +61987,9 @@ components:
         metadata:
           type: object
           description: The shipping method's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         tax_lines:
           type: array
           description: The shipping method's tax lines.
@@ -62460,6 +62174,9 @@ components:
         metadata:
           type: object
           description: The payment collection's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         status:
           type: string
           description: The payment collection's status.
@@ -62700,6 +62417,9 @@ components:
               metadata:
                 type: object
                 description: The item's metadata, can hold custom key-value pairs.
+                externalDocs:
+                  url: https://docs.medusajs.com/api/admin#manage-metadata
+                  description: Learn how to manage metadata
     AdminPostClaimsItemsActionReqSchema:
       type: object
       description: The details to update in the item.
@@ -62733,6 +62453,9 @@ components:
         metadata:
           type: object
           description: The claim's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
     AdminPostClaimsShippingReqSchema:
       type: object
       description: The details of the shipping method used to ship outbound items.
@@ -62759,6 +62482,9 @@ components:
         metadata:
           type: object
           description: The claim's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
     AdminPostExchangesAddItemsReqSchema:
       type: object
       description: The details of outbound items.
@@ -62797,6 +62523,9 @@ components:
               metadata:
                 type: object
                 description: The item's metadata, can hold custom key-value pairs.
+                externalDocs:
+                  url: https://docs.medusajs.com/api/admin#manage-metadata
+                  description: Learn how to manage metadata
     AdminPostExchangesItemsActionReqSchema:
       type: object
       description: The details to update in an outbound item.
@@ -62830,6 +62559,9 @@ components:
         metadata:
           type: object
           description: The exchange's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
     AdminPostExchangesReturnRequestItemsReqSchema:
       type: object
       description: The details of the inbound (return) items.
@@ -62868,6 +62600,9 @@ components:
               metadata:
                 type: object
                 description: The item's metadata, can hold custom key-value pairs.
+                externalDocs:
+                  url: https://docs.medusajs.com/api/admin#manage-metadata
+                  description: Learn how to manage metadata
     AdminPostExchangesShippingActionReqSchema:
       type: object
       description: The details of the shipping method to update.
@@ -62884,6 +62619,9 @@ components:
         metadata:
           type: object
           description: The exchange's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
     AdminPostExchangesShippingReqSchema:
       type: object
       description: The outbound shipping method's details.
@@ -62910,6 +62648,9 @@ components:
         metadata:
           type: object
           description: The exchange's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
     AdminPostOrderClaimsReqSchema:
       type: object
       description: The claim's details.
@@ -62943,6 +62684,9 @@ components:
         metadata:
           type: object
           description: The claim's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
     AdminPostOrderEditsAddItemsReqSchema:
       type: object
       description: The details of items to be edited.
@@ -62981,6 +62725,9 @@ components:
               metadata:
                 type: object
                 description: The item's metadata, can hold custom key-value pairs.
+                externalDocs:
+                  url: https://docs.medusajs.com/api/admin#manage-metadata
+                  description: Learn how to manage metadata
               compare_at_unit_price:
                 type: number
                 title: compare_at_unit_price
@@ -63028,6 +62775,9 @@ components:
         metadata:
           type: object
           description: The order edit's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
     AdminPostOrderEditsShippingActionReqSchema:
       type: object
       description: The shipping method's details.
@@ -63044,6 +62794,9 @@ components:
         metadata:
           type: object
           description: The order edit's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
     AdminPostOrderEditsShippingReqSchema:
       type: object
       description: The shipping method's details.
@@ -63070,6 +62823,9 @@ components:
         metadata:
           type: object
           description: The shipping method's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
     AdminPostOrderEditsUpdateItemQuantityReqSchema:
       type: object
       description: The order item's details to update.
@@ -63115,6 +62871,9 @@ components:
         metadata:
           type: object
           description: The exchange's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
     AdminPostReceiveReturnsReqSchema:
       type: object
       description: The return receival details.
@@ -63131,6 +62890,9 @@ components:
         metadata:
           type: object
           description: The return's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
     AdminPostReturnsConfirmRequestReqSchema:
       type: object
       description: The confirmation's details.
@@ -63227,6 +62989,9 @@ components:
         metadata:
           type: object
           description: The return's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
     AdminPostReturnsRequestItemsActionReqSchema:
       type: object
       description: The details to update in the item.
@@ -63247,6 +63012,9 @@ components:
         metadata:
           type: object
           description: The claim's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
     AdminPostReturnsRequestItemsReqSchema:
       type: object
       description: The items' details.
@@ -63285,6 +63053,9 @@ components:
               metadata:
                 type: object
                 description: The item's metadata, can hold custom key-value pairs.
+                externalDocs:
+                  url: https://docs.medusajs.com/api/admin#manage-metadata
+                  description: Learn how to manage metadata
     AdminPostReturnsReturnReqSchema:
       type: object
       description: The return's details.
@@ -63301,6 +63072,9 @@ components:
         metadata:
           type: object
           description: The return's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
     AdminPostReturnsShippingActionReqSchema:
       type: object
       description: The shipping method's details.
@@ -63317,6 +63091,9 @@ components:
         metadata:
           type: object
           description: The return's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
     AdminPostReturnsShippingReqSchema:
       type: object
       description: The shipping method's details.
@@ -63343,6 +63120,9 @@ components:
         metadata:
           type: object
           description: The exchange's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
     AdminPrice:
       type: object
       description: The price's details.
@@ -63857,6 +63637,9 @@ components:
         metadata:
           type: object
           description: The product's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -63985,6 +63768,9 @@ components:
         metadata:
           type: object
           description: The category's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -64136,6 +63922,9 @@ components:
         metadata:
           type: object
           description: The image's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         rank:
           type: number
           title: rank
@@ -64174,6 +63963,9 @@ components:
         metadata:
           type: object
           description: The product option's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -64247,6 +64039,9 @@ components:
         metadata:
           type: object
           description: The value's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -64307,6 +64102,9 @@ components:
         metadata:
           type: object
           description: The tag's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
     AdminProductTagDeleteResponse:
       type: object
       description: The details of the product tag deletion.
@@ -64406,6 +64204,9 @@ components:
         metadata:
           type: object
           description: The type's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
     AdminProductTypeDeleteResponse:
       type: object
       description: The details of the product type deletion.
@@ -64604,6 +64405,9 @@ components:
         metadata:
           type: object
           description: The variant's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         inventory_items:
           type: array
           description: The variant's inventory items.
@@ -65018,6 +64822,9 @@ components:
         metadata:
           type: object
           description: The refund reason's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -65067,6 +64874,9 @@ components:
         metadata:
           type: object
           description: The region's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -65180,6 +64990,9 @@ components:
         metadata:
           type: object
           description: The reservation's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         created_by:
           type: string
           title: created_by
@@ -65332,6 +65145,9 @@ components:
         metadata:
           type: object
           description: The return item's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
     AdminReturnPreviewResponse:
       type: object
       description: The details of a return and a preview of the order once the return is applied.
@@ -65374,6 +65190,9 @@ components:
         metadata:
           type: object
           description: The return reason's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -65546,6 +65365,9 @@ components:
         metadata:
           type: object
           description: The sales channel's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -65759,6 +65581,9 @@ components:
         metadata:
           type: object
           description: The shipping option's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -65983,8 +65808,18 @@ components:
             - gte
             - nin
         value:
-          type: string
-          title: value
+          oneOf:
+            - type: string
+              title: value
+              description: The shipping option rule's value.
+              example: 'true'
+            - type: array
+              description: The shipping option rule's values.
+              items:
+                type: string
+                title: value
+                description: A value of the shipping option rule.
+                example: 'true'
         shipping_option_id:
           type: string
           title: shipping_option_id
@@ -66073,6 +65908,9 @@ components:
         metadata:
           type: object
           description: The shipping profile's metadata, holds custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -66327,6 +66165,9 @@ components:
         metadata:
           type: object
           description: The store's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -66389,6 +66230,9 @@ components:
         metadata:
           type: object
           description: The store credit account's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -66586,6 +66430,9 @@ components:
         metadata:
           type: object
           description: The tax rate's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         tax_region_id:
           type: string
           title: tax_region_id
@@ -66713,6 +66560,9 @@ components:
         metadata:
           type: object
           description: The tax region's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         parent_id:
           type: string
           title: parent_id
@@ -66833,6 +66683,9 @@ components:
         metadata:
           type: object
           description: The transaction's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -66881,6 +66734,9 @@ components:
         metadata:
           type: object
           description: The transaction group's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
     AdminTransactionGroupsResponse:
       type: object
       description: The paginated list of transaction groups.
@@ -66987,6 +66843,9 @@ components:
         metadata:
           type: object
           description: The customer group's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
     AdminUpdateDraftOrder:
       type: object
       description: The data to update in the draft order.
@@ -67049,6 +66908,9 @@ components:
             metadata:
               type: object
               description: The shipping address's metadata, can hold custom key-value pairs.
+              externalDocs:
+                url: https://docs.medusajs.com/api/admin#manage-metadata
+                description: Learn how to manage metadata
         billing_address:
           type: object
           description: The draft order's billing address.
@@ -67101,9 +66963,15 @@ components:
             metadata:
               type: object
               description: The billing address's metadata, can hold custom key-value pairs.
+              externalDocs:
+                url: https://docs.medusajs.com/api/admin#manage-metadata
+                description: Learn how to manage metadata
         metadata:
           type: object
           description: The draft order's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         customer_id:
           type: string
           title: customer_id
@@ -67138,6 +67006,9 @@ components:
         metadata:
           type: object
           description: The shipping method's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
     AdminUpdateDraftOrderItem:
       type: object
       description: The updates to make on a draft order's item.
@@ -67178,6 +67049,165 @@ components:
           type: string
           title: internal_note
           description: A note viewed only by admin users about the shipping method.
+    AdminUpdateFulfillmentSetServiceZones:
+      type: object
+      description: The service zone's details.
+      properties:
+        name:
+          type: string
+          title: name
+          description: The service zone's name.
+        geo_zones:
+          type: array
+          description: The service zone's associated geo zones.
+          items:
+            oneOf:
+              - type: object
+                description: A country geo zone.
+                required:
+                  - type
+                  - metadata
+                  - country_code
+                properties:
+                  type:
+                    type: string
+                    title: type
+                    description: The geo zone's type.
+                    default: country
+                  metadata:
+                    type: object
+                    description: The geo zone's metadata.
+                    externalDocs:
+                      url: https://docs.medusajs.com/api/admin#manage-metadata
+                      description: Learn how to manage metadata
+                  country_code:
+                    type: string
+                    title: country_code
+                    description: The geo zone's country code.
+                  id:
+                    type: string
+                    title: id
+                    description: The ID of an existing geo zone.
+              - type: object
+                description: A province geo zone.
+                required:
+                  - type
+                  - metadata
+                  - country_code
+                  - province_code
+                properties:
+                  type:
+                    type: string
+                    title: type
+                    description: The geo zone's type.
+                    default: province
+                  metadata:
+                    type: object
+                    description: The geo zone's metadata.
+                    externalDocs:
+                      url: https://docs.medusajs.com/api/admin#manage-metadata
+                      description: Learn how to manage metadata
+                  country_code:
+                    type: string
+                    title: country_code
+                    description: The geo zone's country code.
+                  province_code:
+                    type: string
+                    title: province_code
+                    description: The geo zone's ISO 3166-2 province code. Must be lower-case.
+                    example: us-ca
+                    externalDocs:
+                      url: https://en.wikipedia.org/wiki/ISO_3166-2
+                      description: Learn more about ISO 3166-2
+                  id:
+                    type: string
+                    title: id
+                    description: The ID of an existing geo zone.
+              - type: object
+                description: A city geo zone
+                required:
+                  - type
+                  - metadata
+                  - city
+                  - country_code
+                  - province_code
+                properties:
+                  type:
+                    type: string
+                    title: type
+                    description: The geo zone's type.
+                    default: city
+                  metadata:
+                    type: object
+                    description: The geo zone's metadata.
+                    externalDocs:
+                      url: https://docs.medusajs.com/api/admin#manage-metadata
+                      description: Learn how to manage metadata
+                  city:
+                    type: string
+                    title: city
+                    description: The geo zone's city.
+                  country_code:
+                    type: string
+                    title: country_code
+                    description: The geo zone's country code.
+                  province_code:
+                    type: string
+                    title: province_code
+                    description: The geo zone's ISO 3166-2 province code. Must be lower-case.
+                    example: us-ca
+                    externalDocs:
+                      url: https://en.wikipedia.org/wiki/ISO_3166-2
+                      description: Learn more about ISO 3166-2
+                  id:
+                    type: string
+                    title: id
+                    description: The ID of an existing geo zone.
+              - type: object
+                description: A ZIP geo zone.
+                required:
+                  - type
+                  - metadata
+                  - city
+                  - country_code
+                  - province_code
+                  - postal_expression
+                properties:
+                  type:
+                    type: string
+                    title: type
+                    description: The geo zone's type.
+                    default: zip
+                  metadata:
+                    type: object
+                    description: The geo zone's metadata.
+                    externalDocs:
+                      url: https://docs.medusajs.com/api/admin#manage-metadata
+                      description: Learn how to manage metadata
+                  city:
+                    type: string
+                    title: city
+                    description: The geo zone's city.
+                  country_code:
+                    type: string
+                    title: country_code
+                    description: The geo zone's country code.
+                  province_code:
+                    type: string
+                    title: province_code
+                    description: The geo zone's ISO 3166-2 province code. Must be lower-case.
+                    example: us-ca
+                    externalDocs:
+                      url: https://en.wikipedia.org/wiki/ISO_3166-2
+                      description: Learn more about ISO 3166-2
+                  postal_expression:
+                    type: object
+                    description: The geo zone's postal expression or ZIP code.
+                  id:
+                    type: string
+                    title: id
+                    description: The ID of an existing geo zone.
+      x-schemaName: AdminUpdateFulfillmentSetServiceZones
     AdminUpdateGiftCardParams:
       type: object
       description: The details to update in the gift card.
@@ -67213,6 +67243,85 @@ components:
         metadata:
           type: object
           description: The gift card's metadata.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
+    AdminUpdateInventoryItem:
+      type: object
+      description: The properties to update in the inventory item.
+      properties:
+        sku:
+          type: string
+          title: sku
+          description: The inventory item's SKU.
+        hs_code:
+          type: string
+          title: hs_code
+          description: The inventory item's HS code.
+        weight:
+          type: number
+          title: weight
+          description: The inventory item's weight.
+        length:
+          type: number
+          title: length
+          description: The inventory item's length.
+        height:
+          type: number
+          title: height
+          description: The inventory item's height.
+        width:
+          type: number
+          title: width
+          description: The inventory item's width.
+        origin_country:
+          type: string
+          title: origin_country
+          description: The inventory item's origin country.
+        mid_code:
+          type: string
+          title: mid_code
+          description: The inventory item's MID code.
+        material:
+          type: string
+          title: material
+          description: The inventory item's material.
+        title:
+          type: string
+          title: title
+          description: The inventory item's title.
+        description:
+          type: string
+          title: description
+          description: The inventory item's description.
+        requires_shipping:
+          type: boolean
+          title: requires_shipping
+          description: Whether the inventory item requires shipping.
+        thumbnail:
+          type: string
+          title: thumbnail
+          description: The URL of an image to be used as the inventory item's thumbnail. You can use the Upload API routes to upload an image and get its URL.
+        metadata:
+          type: object
+          description: The inventory item's metadata. Can be custom data in key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
+      x-schemaName: AdminUpdateInventoryItem
+    AdminUpdateInventoryLocationLevel:
+      type: object
+      description: The properties to update in the inventory level.
+      properties:
+        stocked_quantity:
+          type: number
+          title: stocked_quantity
+          description: The inventory level's stocked quantity.
+        incoming_quantity:
+          type: number
+          title: incoming_quantity
+          description: The inventory level's incoming quantity.
+      x-schemaName: AdminUpdateInventoryLocationLevel
     AdminUpdateOrder:
       type: object
       description: The details to update in the order.
@@ -67275,6 +67384,9 @@ components:
             metadata:
               type: object
               description: The address's metadata, can hold custom key-value pairs.
+              externalDocs:
+                url: https://docs.medusajs.com/api/admin#manage-metadata
+                description: Learn how to manage metadata
         billing_address:
           type: object
           description: The order's billing address.
@@ -67327,9 +67439,28 @@ components:
             metadata:
               type: object
               description: The address's metadata, can hold custom key-value pairs.
+              externalDocs:
+                url: https://docs.medusajs.com/api/admin#manage-metadata
+                description: Learn how to manage metadata
         metadata:
           type: object
           description: The order's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
+    AdminUpdatePaymentRefundReason:
+      type: object
+      description: The properties to update in the refund reason.
+      properties:
+        label:
+          type: string
+          title: label
+          description: The refund reason's label.
+        description:
+          type: string
+          title: description
+          description: The refund reason's description.
+      x-schemaName: AdminUpdatePaymentRefundReason
     AdminUpdatePriceList:
       type: object
       description: the details to update in a price list.
@@ -67536,10 +67667,52 @@ components:
         metadata:
           type: object
           description: The product's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         external_id:
           type: string
           title: external_id
           description: The ID of the product in an external or third-party system.
+    AdminUpdateProductCategory:
+      type: object
+      description: The properties to update in the product category.
+      properties:
+        name:
+          type: string
+          title: name
+          description: The product category's name.
+        description:
+          type: string
+          title: description
+          description: The product category's description.
+        handle:
+          type: string
+          title: handle
+          description: The product category's handle. Must be a unique value.
+        is_internal:
+          type: boolean
+          title: is_internal
+          description: Whether the product category is only used for internal purposes and shouldn't be shown the customer.
+        is_active:
+          type: boolean
+          title: is_active
+          description: Whether the product category is active.
+        parent_category_id:
+          type: string
+          title: parent_category_id
+          description: The ID of a parent category.
+        metadata:
+          type: object
+          description: The product category's metadata. Can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
+        rank:
+          type: number
+          title: rank
+          description: The product category's rank among other categories.
+      x-schemaName: AdminUpdateProductCategory
     AdminUpdateProductOption:
       type: object
       description: The details to update in a product option.
@@ -67556,6 +67729,36 @@ components:
             type: string
             title: values
             description: An option value.
+    AdminUpdateProductTag:
+      type: object
+      description: The properties to update in the product tag.
+      properties:
+        value:
+          type: string
+          title: value
+          description: The product tag's value.
+        metadata:
+          type: object
+          description: The product tag's metadata. Can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
+      x-schemaName: AdminUpdateProductTag
+    AdminUpdateProductType:
+      type: object
+      description: The properties to update in the product type.
+      properties:
+        value:
+          type: string
+          title: value
+          description: The product type's value.
+        metadata:
+          type: object
+          description: The product type's metadata. Can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
+      x-schemaName: AdminUpdateProductType
     AdminUpdateProductVariant:
       type: object
       description: The properties to update of a product variant.
@@ -67628,6 +67831,9 @@ components:
         metadata:
           type: object
           description: The product variant's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         prices:
           type: array
           description: The product variant's prices.
@@ -67681,6 +67887,70 @@ components:
                 description: An attribute value.
                 example: prod_123
       x-schemaName: AdminUpdatePromotionRule
+    AdminUpdateRegion:
+      type: object
+      description: The propeties to update in the region.
+      properties:
+        name:
+          type: string
+          title: name
+          description: The region's name.
+        currency_code:
+          type: string
+          title: currency_code
+          description: The region's currency code.
+        countries:
+          type: array
+          description: The region's countries.
+          items:
+            type: string
+            title: countries
+            description: A country code.
+        automatic_taxes:
+          type: boolean
+          title: automatic_taxes
+          description: Whether taxes are calculated automatically for carts in the region.
+        payment_providers:
+          type: array
+          description: The payment providers enabled in the region.
+          items:
+            type: string
+            title: payment_providers
+            description: A payment provider's ID.
+        metadata:
+          type: object
+          description: The region's metadata. Can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
+        is_tax_inclusive:
+          type: boolean
+          title: is_tax_inclusive
+          description: Whether the prices in the region are tax inclusive.
+      x-schemaName: AdminUpdateRegion
+    AdminUpdateReservation:
+      type: object
+      description: The properties to update in the reservation.
+      properties:
+        location_id:
+          type: string
+          title: location_id
+          description: The ID of the associated location.
+        quantity:
+          type: number
+          title: quantity
+          description: The reserved quantity.
+        description:
+          type: string
+          title: description
+          description: The reservation's description.
+        metadata:
+          type: object
+          description: The reservation's metadata. Can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
+      x-schemaName: AdminUpdateReservation
     AdminUpdateReturnReason:
       type: object
       description: The details to update in a return reason.
@@ -67701,6 +67971,9 @@ components:
         metadata:
           type: object
           description: The return reason's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
       required:
         - value
         - label
@@ -67724,6 +67997,177 @@ components:
         metadata:
           type: object
           description: The sales channel's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
+    AdminUpdateShippingOption:
+      type: object
+      description: The properties to update in the shipping option.
+      properties:
+        name:
+          type: string
+          title: name
+          description: The shipping option's name.
+        data:
+          type: object
+          description: The shipping option's data that is useful for third-party providers.
+          externalDocs:
+            url: https://docs.medusajs.com/v2/resources/commerce-modules/fulfillment/shipping-option#data-property
+        price_type:
+          type: string
+          description: |
+            The type of the shipping option's price. If `calculated`, its price is retrieved by the  associated fulfillment provider during checkout. If `flat`, its price is set in the `prices` property.
+          enum:
+            - calculated
+            - flat
+        provider_id:
+          type: string
+          title: provider_id
+          description: The ID of the associated fulfillment provider that is used to process the option.
+        shipping_profile_id:
+          type: string
+          title: shipping_profile_id
+          description: The ID of the shipping profile this shipping option belongs to.
+        type:
+          type: object
+          description: The shipping option's type.
+          required:
+            - code
+            - description
+            - label
+          properties:
+            label:
+              type: string
+              title: label
+              description: The type's label.
+            description:
+              type: string
+              title: description
+              description: The type's description.
+            code:
+              type: string
+              title: code
+              description: The type's code.
+        prices:
+          type: array
+          description: The shipping option's prices. If the `price_type` is `calculated`, pass an empty array.
+          items:
+            oneOf:
+              - type: object
+                description: The shipping option's price for a currency code.
+                properties:
+                  id:
+                    type: string
+                    title: id
+                    description: The ID of an existing price.
+                  currency_code:
+                    type: string
+                    title: currency_code
+                    description: The price's currency code.
+                  amount:
+                    type: number
+                    title: amount
+                    description: The price's amount.
+              - type: object
+                description: The shipping option's price for a region.
+                properties:
+                  id:
+                    type: string
+                    title: id
+                    description: The ID of an existing price.
+                  region_id:
+                    type: string
+                    title: region_id
+                    description: The ID of the associated region.
+                  amount:
+                    type: number
+                    title: amount
+                    description: The price's amount.
+        rules:
+          type: array
+          description: The shipping option's rules.
+          items:
+            oneOf:
+              - type: object
+                description: The details of a new shipping option rule.
+                required:
+                  - operator
+                  - attribute
+                  - value
+                properties:
+                  operator:
+                    type: string
+                    description: The operator used to check whether a rule applies.
+                    enum:
+                      - in
+                      - eq
+                      - ne
+                      - gt
+                      - gte
+                      - lt
+                      - lte
+                      - nin
+                  attribute:
+                    type: string
+                    title: attribute
+                    description: The name of a property or table that the rule applies to.
+                    example: customer_group
+                  value:
+                    oneOf:
+                      - type: string
+                        title: value
+                        description: A value of the attribute that enables this rule.
+                        example: cusgroup_123
+                      - type: array
+                        description: Values of the attribute that enable this rule.
+                        items:
+                          type: string
+                          title: value
+                          description: A value of the attribute that enables this rule.
+                          example: cusgroup_123
+              - type: object
+                description: Update the properties of an existing rule.
+                required:
+                  - id
+                  - operator
+                  - attribute
+                  - value
+                properties:
+                  id:
+                    type: string
+                    title: id
+                    description: The rule's ID.
+                  operator:
+                    type: string
+                    description: The operator used to check whether a rule applies.
+                    enum:
+                      - in
+                      - eq
+                      - ne
+                      - gt
+                      - gte
+                      - lt
+                      - lte
+                      - nin
+                  attribute:
+                    type: string
+                    title: attribute
+                    description: The name of a property or table that the rule applies to.
+                    example: customer_group
+                  value:
+                    oneOf:
+                      - type: string
+                        title: value
+                        description: A value of the attribute that enables this rule.
+                        example: cusgroup_123
+                      - type: array
+                        description: Values of the attribute that enable this rule.
+                        items:
+                          type: string
+                          title: value
+                          description: A value of the attribute that enables this rule.
+                          example: cusgroup_123
+      x-schemaName: AdminUpdateShippingOption
     AdminUpdateShippingOptionRule:
       type: object
       description: The properties to update in the shipping option rule.
@@ -67768,6 +68212,25 @@ components:
                 description: A value of the attribute that enables this rule.
                 example: cusgroup_123
       x-schemaName: AdminUpdateShippingOptionRule
+    AdminUpdateShippingProfile:
+      type: object
+      description: The properties to update in the shipping profile.
+      properties:
+        name:
+          type: string
+          title: name
+          description: The shipping profile's name.
+        type:
+          type: string
+          title: type
+          description: The shipping profile's type.
+        metadata:
+          type: object
+          description: The shipping profile's metadata.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
+      x-schemaName: AdminUpdateShippingProfile
     AdminUpdateStockLocation:
       type: object
       description: The properties to update in a stock location.
@@ -67828,6 +68291,9 @@ components:
         metadata:
           type: object
           description: The stock location's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
     AdminUpdateStore:
       type: object
       description: The properties to update in a store.
@@ -67874,6 +68340,9 @@ components:
         metadata:
           type: object
           description: The store's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
     AdminUpdateTaxRate:
       type: object
       description: The properties to update in the tax rate.
@@ -67924,6 +68393,9 @@ components:
         metadata:
           type: object
           description: The tax rate's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
     AdminUpdateTaxRegion:
       type: object
       description: The details to update in a tax region.
@@ -67940,6 +68412,9 @@ components:
         metadata:
           type: object
           description: The tax region's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         provider_id:
           type: string
           title: provider_id
@@ -67964,6 +68439,9 @@ components:
         metadata:
           type: object
           description: The user's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
     AdminUpdateVariantInventoryItem:
       type: object
       description: The properties to update of the variant's inventory item association.
@@ -68125,6 +68603,9 @@ components:
         metadata:
           type: object
           description: The user's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/admin#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -68693,6 +69174,9 @@ components:
         metadata:
           type: object
           description: The cart's metadata.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -68931,6 +69415,9 @@ components:
         metadata:
           type: object
           description: The item's metadata.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -69047,6 +69534,9 @@ components:
         metadata:
           type: object
           description: The shipping method's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         tax_lines:
           type: array
           description: The shipping method's tax lines.
@@ -69157,6 +69647,9 @@ components:
         metadata:
           type: object
           description: The item's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -69215,6 +69708,9 @@ components:
         metadata:
           type: object
           description: The collection's metadata, used to store custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
     BaseExchangeItem:
       type: object
       description: The item's details.
@@ -69251,6 +69747,9 @@ components:
         metadata:
           type: object
           description: The item's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -69534,6 +70033,9 @@ components:
         metadata:
           type: object
           description: The order's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -69706,6 +70208,9 @@ components:
         metadata:
           type: object
           description: The address's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -69779,6 +70284,9 @@ components:
         metadata:
           type: object
           description: The fulfillment's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -70032,6 +70540,9 @@ components:
         metadata:
           type: object
           description: The item's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         original_total:
           type: number
           title: original_total
@@ -70311,6 +70822,9 @@ components:
         metadata:
           type: object
           description: The shipping method's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         tax_lines:
           type: array
           description: The shipping method's tax lines.
@@ -70572,6 +71086,9 @@ components:
         metadata:
           type: object
           description: The transaction's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -70712,6 +71229,9 @@ components:
         metadata:
           type: object
           description: The payment collection's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         status:
           type: string
           description: The payment collection's status.
@@ -70891,6 +71411,9 @@ components:
         metadata:
           type: object
           description: The product's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -71017,6 +71540,9 @@ components:
         metadata:
           type: object
           description: The category's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -71083,6 +71609,9 @@ components:
         metadata:
           type: object
           description: The image's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         rank:
           type: number
           title: rank
@@ -71121,6 +71650,9 @@ components:
         metadata:
           type: object
           description: The product option's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -71161,6 +71693,9 @@ components:
         metadata:
           type: object
           description: The value's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -71212,6 +71747,9 @@ components:
         metadata:
           type: object
           description: The tag's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
     BaseProductType:
       type: object
       description: The product type's details.
@@ -71248,6 +71786,9 @@ components:
         metadata:
           type: object
           description: The type's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
     BaseProductVariant:
       type: object
       description: The product variant's details.
@@ -71377,6 +71918,9 @@ components:
         metadata:
           type: object
           description: The variant's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
     BasePromotionRuleValue:
       type: object
       description: The rule value's details.
@@ -71469,6 +72013,9 @@ components:
         metadata:
           type: object
           description: The region's metadata.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -71787,6 +72334,9 @@ components:
         metadata:
           type: object
           description: The address's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
     CustomerGroupInCustomerFilters:
       type: object
       description: Filter by customer groups to get their associated customers.
@@ -72243,6 +72793,9 @@ components:
         metadata:
           type: object
           description: The inventory level's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
     Order:
       type: object
       description: The order change's order.
@@ -72421,6 +72974,9 @@ components:
         metadata:
           type: object
           description: The order's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         canceled_at:
           type: string
           format: date-time
@@ -72615,6 +73171,9 @@ components:
         metadata:
           type: object
           description: The address's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -72738,6 +73297,9 @@ components:
         metadata:
           type: object
           description: The order change's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         declined_at:
           type: string
           title: declined_at
@@ -72929,6 +73491,9 @@ components:
         metadata:
           type: object
           description: The claim's metadata, used to store custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -73015,6 +73580,9 @@ components:
         metadata:
           type: object
           description: The credit line's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -73087,6 +73655,9 @@ components:
         metadata:
           type: object
           description: The exchange's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -73200,6 +73771,9 @@ components:
         metadata:
           type: object
           description: The item's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -73354,6 +73928,9 @@ components:
         metadata:
           type: object
           description: The item's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         original_total:
           type: number
           title: original_total
@@ -73572,6 +74149,9 @@ components:
         metadata:
           type: object
           description: The return item's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         order_id:
           type: string
           title: order_id
@@ -73647,6 +74227,9 @@ components:
         metadata:
           type: object
           description: The shipping method's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         tax_lines:
           type: array
           description: The shipping method's tax lines.
@@ -73867,6 +74450,9 @@ components:
         metadata:
           type: object
           description: The transaction's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -73909,6 +74495,9 @@ components:
         metadata:
           type: object
           description: The refund reason's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -73978,6 +74567,9 @@ components:
         metadata:
           type: object
           description: The return's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -74082,6 +74674,26 @@ components:
         metadata:
           type: object
           description: The item's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
+    StoreAddCartShippingMethods:
+      type: object
+      description: The shipping method's details.
+      required:
+        - option_id
+      properties:
+        option_id:
+          type: string
+          title: option_id
+          description: The ID of the shipping option this method is created from.
+        data:
+          type: object
+          description: Any additional data relevant for the third-party fulfillment provider to process the shipment.
+          externalDocs:
+            url: https://docs.medusajs.com/v2/resources/storefront-development/checkout/shipping#data-request-body-parameter
+            description: Learn more about the data parameter.
+      x-schemaName: StoreAddCartShippingMethods
     StoreAddGiftCardToCart:
       type: object
       description: The details to add a gift card to the cart.
@@ -74306,6 +74918,9 @@ components:
         metadata:
           type: object
           description: The cart's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -74488,6 +75103,9 @@ components:
         metadata:
           type: object
           description: The address's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           title: created_at
@@ -74778,6 +75396,9 @@ components:
         metadata:
           type: object
           description: The item's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           title: created_at
@@ -74958,6 +75579,9 @@ components:
         metadata:
           type: object
           description: The shipping method's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         tax_lines:
           type: array
           description: The shipping method's tax lines.
@@ -75301,6 +75925,9 @@ components:
         metadata:
           type: object
           description: The collection's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
     StoreCollectionResponse:
       type: object
       description: The collection's details.
@@ -75345,6 +75972,9 @@ components:
         metadata:
           type: object
           description: The cart's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
     StoreCreateCustomer:
       type: object
       description: The details of the customer to create.
@@ -75376,6 +76006,73 @@ components:
         metadata:
           type: object
           description: The customer's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
+    StoreCreateCustomerAddress:
+      type: object
+      description: The address's details.
+      properties:
+        first_name:
+          type: string
+          title: first_name
+          description: The customer's first name.
+        last_name:
+          type: string
+          title: last_name
+          description: The customer's last name.
+        phone:
+          type: string
+          title: phone
+          description: The customer's phone.
+        company:
+          type: string
+          title: company
+          description: The address's company.
+        address_1:
+          type: string
+          title: address_1
+          description: The address's first line.
+        address_2:
+          type: string
+          title: address_2
+          description: The address's second line.
+        city:
+          type: string
+          title: city
+          description: The address's city.
+        country_code:
+          type: string
+          title: country_code
+          description: The address's country code.
+        province:
+          type: string
+          title: province
+          description: The address's ISO 3166-2 province code. Must be lower-case.
+          example: us-ca
+          externalDocs:
+            url: https://en.wikipedia.org/wiki/ISO_3166-2
+            description: Learn more about ISO 3166-2
+        postal_code:
+          type: string
+          title: postal_code
+          description: The address's postal code.
+        address_name:
+          type: string
+          title: address_name
+          description: The address's name.
+        is_default_shipping:
+          type: boolean
+          title: is_default_shipping
+          description: Whether the address is used by default for shipping during checkout.
+        is_default_billing:
+          type: boolean
+          title: is_default_billing
+          description: Whether the address is used by default for billing during checkout.
+        metadata:
+          type: object
+          description: Holds custom key-value pairs.
+      x-schemaName: StoreCreateCustomerAddress
     StoreCreatePaymentCollection:
       type: object
       description: The details of the payment collection to create.
@@ -75609,6 +76306,9 @@ components:
         metadata:
           type: object
           description: The customer's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -75716,6 +76416,9 @@ components:
         metadata:
           type: object
           description: The address's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -75865,31 +76568,6 @@ components:
           format: date-time
           title: updated_at
           description: The date the gift card was updated.
-    StoreGiftCardInvitation:
-      type: object
-      description: The gift card invitation's details.
-      x-schemaName: StoreGiftCardInvitation
-      required:
-        - id
-        - email
-        - status
-        - gift_card
-      properties:
-        id:
-          type: string
-          title: id
-          description: The gift card invitation's ID.
-        email:
-          type: string
-          title: email
-          description: The gift card invitation's email.
-          format: email
-        status:
-          type: string
-          title: status
-          description: The gift card invitation's status.
-        gift_card:
-          $ref: '#/components/schemas/StoreGiftCard'
     StoreGiftCardResponse:
       type: object
       description: The gift card's details.
@@ -76045,6 +76723,9 @@ components:
         metadata:
           type: object
           description: The order's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -76226,6 +76907,9 @@ components:
         metadata:
           type: object
           description: The address's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -76299,6 +76983,9 @@ components:
         metadata:
           type: object
           description: The fulfillment's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -76665,6 +77352,9 @@ components:
                           metadata:
                             type: object
                             description: The variant's metadata.
+                            externalDocs:
+                              url: https://docs.medusajs.com/api/store#manage-metadata
+                              description: Learn how to manage metadata
                       variant_id:
                         type: string
                         title: variant_id
@@ -76846,6 +77536,9 @@ components:
                           metadata:
                             type: object
                             description: The product's metadata.
+                            externalDocs:
+                              url: https://docs.medusajs.com/api/store#manage-metadata
+                              description: Learn how to manage metadata
                       product_id:
                         type: string
                         title: product_id
@@ -77110,6 +77803,9 @@ components:
                           metadata:
                             type: object
                             description: The detail's metadata.
+                            externalDocs:
+                              url: https://docs.medusajs.com/api/store#manage-metadata
+                              description: Learn how to manage metadata
                           created_at:
                             type: string
                             format: date-time
@@ -77133,6 +77829,9 @@ components:
                       metadata:
                         type: object
                         description: The item's metadata.
+                        externalDocs:
+                          url: https://docs.medusajs.com/api/store#manage-metadata
+                          description: Learn how to manage metadata
                       original_total:
                         type: number
                         title: original_total
@@ -77332,6 +78031,9 @@ components:
                           metadata:
                             type: object
                             description: The variant's metadata.
+                            externalDocs:
+                              url: https://docs.medusajs.com/api/store#manage-metadata
+                              description: Learn how to manage metadata
                           created_at:
                             type: string
                             format: date-time
@@ -77517,6 +78219,9 @@ components:
                           metadata:
                             type: object
                             description: The product's metadata.
+                            externalDocs:
+                              url: https://docs.medusajs.com/api/store#manage-metadata
+                              description: Learn how to manage metadata
                           created_at:
                             type: string
                             format: date-time
@@ -77810,6 +78515,9 @@ components:
                               metadata:
                                 type: object
                                 description: The detail's metadata.
+                                externalDocs:
+                                  url: https://docs.medusajs.com/api/store#manage-metadata
+                                  description: Learn how to manage metadata
                               created_at:
                                 type: string
                                 format: date-time
@@ -77840,6 +78548,9 @@ components:
                       metadata:
                         type: object
                         description: The item's metadata.
+                        externalDocs:
+                          url: https://docs.medusajs.com/api/store#manage-metadata
+                          description: Learn how to manage metadata
                       created_at:
                         type: string
                         format: date-time
@@ -78194,6 +78905,9 @@ components:
                           metadata:
                             type: object
                             description: The variant's metadata.
+                            externalDocs:
+                              url: https://docs.medusajs.com/api/store#manage-metadata
+                              description: Learn how to manage metadata
                       variant_id:
                         type: string
                         title: variant_id
@@ -78375,6 +79089,9 @@ components:
                           metadata:
                             type: object
                             description: The product's metadata.
+                            externalDocs:
+                              url: https://docs.medusajs.com/api/store#manage-metadata
+                              description: Learn how to manage metadata
                       product_id:
                         type: string
                         title: product_id
@@ -78639,6 +79356,9 @@ components:
                           metadata:
                             type: object
                             description: The detail's metadata.
+                            externalDocs:
+                              url: https://docs.medusajs.com/api/store#manage-metadata
+                              description: Learn how to manage metadata
                           created_at:
                             type: string
                             format: date-time
@@ -78662,6 +79382,9 @@ components:
                       metadata:
                         type: object
                         description: The item's metadata.
+                        externalDocs:
+                          url: https://docs.medusajs.com/api/store#manage-metadata
+                          description: Learn how to manage metadata
                       original_total:
                         type: number
                         title: original_total
@@ -78857,6 +79580,9 @@ components:
                           metadata:
                             type: object
                             description: The variant's metadata.
+                            externalDocs:
+                              url: https://docs.medusajs.com/api/store#manage-metadata
+                              description: Learn how to manage metadata
                           created_at:
                             type: string
                             format: date-time
@@ -79042,6 +79768,9 @@ components:
                           metadata:
                             type: object
                             description: The product's metadata.
+                            externalDocs:
+                              url: https://docs.medusajs.com/api/store#manage-metadata
+                              description: Learn how to manage metadata
                           created_at:
                             type: string
                             format: date-time
@@ -79335,6 +80064,9 @@ components:
                               metadata:
                                 type: object
                                 description: The detail's metadata.
+                                externalDocs:
+                                  url: https://docs.medusajs.com/api/store#manage-metadata
+                                  description: Learn how to manage metadata
                               created_at:
                                 type: string
                                 format: date-time
@@ -79365,6 +80097,9 @@ components:
                       metadata:
                         type: object
                         description: The item's metadata.
+                        externalDocs:
+                          url: https://docs.medusajs.com/api/store#manage-metadata
+                          description: Learn how to manage metadata
                       created_at:
                         type: string
                         format: date-time
@@ -79611,6 +80346,9 @@ components:
                         metadata:
                           type: object
                           description: The variant's metadata.
+                          externalDocs:
+                            url: https://docs.medusajs.com/api/store#manage-metadata
+                            description: Learn how to manage metadata
                         created_at:
                           type: string
                           format: date-time
@@ -79796,6 +80534,9 @@ components:
                         metadata:
                           type: object
                           description: The product's metadata.
+                          externalDocs:
+                            url: https://docs.medusajs.com/api/store#manage-metadata
+                            description: Learn how to manage metadata
                         created_at:
                           type: string
                           format: date-time
@@ -80089,6 +80830,9 @@ components:
                             metadata:
                               type: object
                               description: The detail's metadata.
+                              externalDocs:
+                                url: https://docs.medusajs.com/api/store#manage-metadata
+                                description: Learn how to manage metadata
                             created_at:
                               type: string
                               format: date-time
@@ -80119,6 +80863,9 @@ components:
                     metadata:
                       type: object
                       description: The item's metadata.
+                      externalDocs:
+                        url: https://docs.medusajs.com/api/store#manage-metadata
+                        description: Learn how to manage metadata
                     created_at:
                       type: string
                       format: date-time
@@ -80274,6 +81021,9 @@ components:
         metadata:
           type: object
           description: The item's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         original_total:
           type: number
           title: original_total
@@ -80399,6 +81149,9 @@ components:
         metadata:
           type: object
           description: The shipping method's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         tax_lines:
           type: array
           description: The shipping method's tax lines.
@@ -80476,6 +81229,9 @@ components:
                       metadata:
                         type: object
                         description: The shipping method's metadata.
+                        externalDocs:
+                          url: https://docs.medusajs.com/api/store#manage-metadata
+                          description: Learn how to manage metadata
                       tax_lines:
                         type: array
                         description: The shipping method's tax lines.
@@ -81007,6 +81763,9 @@ components:
                       metadata:
                         type: object
                         description: The shipping method's metadata.
+                        externalDocs:
+                          url: https://docs.medusajs.com/api/store#manage-metadata
+                          description: Learn how to manage metadata
                       original_total:
                         type: number
                         title: original_total
@@ -81125,6 +81884,9 @@ components:
                       metadata:
                         type: object
                         description: The shipping method's metadata.
+                        externalDocs:
+                          url: https://docs.medusajs.com/api/store#manage-metadata
+                          description: Learn how to manage metadata
                       tax_lines:
                         type: array
                         description: The shipping method's tax lines.
@@ -81652,6 +82414,9 @@ components:
                       metadata:
                         type: object
                         description: The shipping method's metadata.
+                        externalDocs:
+                          url: https://docs.medusajs.com/api/store#manage-metadata
+                          description: Learn how to manage metadata
                       original_total:
                         type: number
                         title: original_total
@@ -82008,6 +82773,9 @@ components:
                     metadata:
                       type: object
                       description: The shipping method's metadata.
+                      externalDocs:
+                        url: https://docs.medusajs.com/api/store#manage-metadata
+                        description: Learn how to manage metadata
                     original_total:
                       type: number
                       title: original_total
@@ -82104,6 +82872,9 @@ components:
         metadata:
           type: object
           description: The payment collection's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         status:
           type: string
           description: The payment collection's status.
@@ -82346,6 +83117,9 @@ components:
         metadata:
           type: object
           description: The product's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -82489,6 +83263,9 @@ components:
         metadata:
           type: object
           description: The category's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -82585,6 +83362,9 @@ components:
         metadata:
           type: object
           description: The image's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         rank:
           type: number
           title: rank
@@ -82616,6 +83396,9 @@ components:
         metadata:
           type: object
           description: The option's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -82659,6 +83442,9 @@ components:
         metadata:
           type: object
           description: The value's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -82714,6 +83500,9 @@ components:
         metadata:
           type: object
           description: The tag's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
       required:
         - id
         - value
@@ -82777,6 +83566,9 @@ components:
         metadata:
           type: object
           description: The product type's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -82860,6 +83652,9 @@ components:
         metadata:
           type: object
           description: The variant's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         id:
           type: string
           title: id
@@ -83011,6 +83806,9 @@ components:
         metadata:
           type: object
           description: The region's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -83190,6 +83988,9 @@ components:
         metadata:
           type: object
           description: The item's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
     StoreReturnReason:
       type: object
       description: The return reason's details.
@@ -83220,6 +84021,9 @@ components:
         metadata:
           type: object
           description: The return reason's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -83317,6 +84121,9 @@ components:
         metadata:
           type: object
           description: The shipping option's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
     StoreShippingOptionListResponse:
       type: object
       description: The shipping option's details.
@@ -83439,6 +84246,9 @@ components:
         metadata:
           type: object
           description: The store credit account's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
         created_at:
           type: string
           format: date-time
@@ -83527,6 +84337,9 @@ components:
         metadata:
           type: object
           description: The transaction group's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
       x-schemaName: StoreTransactionGroup
     StoreUpdateCartLineItem:
       type: object
@@ -83542,6 +84355,9 @@ components:
         metadata:
           type: object
           description: The item's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
     StoreUpdateCustomer:
       type: object
       description: The details to update in the customer.
@@ -83566,6 +84382,73 @@ components:
         metadata:
           type: object
           description: The customer's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
+    StoreUpdateCustomerAddress:
+      type: object
+      description: The properties to update in the address.
+      properties:
+        first_name:
+          type: string
+          title: first_name
+          description: The customer's first name.
+        last_name:
+          type: string
+          title: last_name
+          description: The customer's last name.
+        phone:
+          type: string
+          title: phone
+          description: The customer's phone.
+        company:
+          type: string
+          title: company
+          description: The address's company.
+        address_1:
+          type: string
+          title: address_1
+          description: The address's first line.
+        address_2:
+          type: string
+          title: address_2
+          description: The address's second line.
+        city:
+          type: string
+          title: city
+          description: The address's city.
+        country_code:
+          type: string
+          title: country_code
+          description: The address's country code.
+        province:
+          type: string
+          title: province
+          description: The address's ISO 3166-2 province code. Must be lower-case.
+          example: us-ca
+          externalDocs:
+            url: https://en.wikipedia.org/wiki/ISO_3166-2
+            description: Learn more about ISO 3166-2
+        postal_code:
+          type: string
+          title: postal_code
+          description: The address's postal code.
+        address_name:
+          type: string
+          title: address_name
+          description: The address's name.
+        is_default_shipping:
+          type: boolean
+          title: is_default_shipping
+          description: Whether the address is used by default for shipping during checkout.
+        is_default_billing:
+          type: boolean
+          title: is_default_billing
+          description: Whether the address is used by default for billing during checkout.
+        metadata:
+          type: object
+          description: Holds custom key-value pairs.
+      x-schemaName: StoreUpdateCustomerAddress
     UpdateAddress:
       type: object
       description: The details to update in the address.
@@ -83629,6 +84512,9 @@ components:
         metadata:
           type: object
           description: The address's metadata, can hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
     UpdateCartData:
       type: object
       description: The details to update in a cart.
@@ -83675,6 +84561,9 @@ components:
         metadata:
           type: object
           description: The cart's metadata, ca hold custom key-value pairs.
+          externalDocs:
+            url: https://docs.medusajs.com/api/store#manage-metadata
+            description: Learn how to manage metadata
     WorkflowExecutionContext:
       type: object
       description: The workflow execution's context.

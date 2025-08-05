@@ -35,7 +35,7 @@ By following this tutorial, you'll learn how to:
 
 You can follow this tutorial whether you're new to Medusa or an advanced Medusa developer.
 
-![Diagram showcasing the flow of the integration between Medusa and Slack](https://res.cloudinary.com/dza7lstvk/image/upload/v1748943447/slack-integration-overview_vkdijx.jpg)
+![Slack integration workflow diagram showing the complete integration flow: when ecommerce events occur in Medusa (such as order placement), the system automatically sends webhook notifications to Slack channels, enabling real-time team communication and order monitoring for business operations](https://res.cloudinary.com/dza7lstvk/image/upload/v1748943447/slack-integration-overview_vkdijx.jpg)
 
 <Card
   title="Example Repository"
@@ -481,27 +481,27 @@ To set the webhook URL, you need to create a Slack application and configure a w
 1. Go to your [Slack Apps](https://api.slack.com/apps) page.
 2. Click the "Create New App" button.
 
-![Create New App button on Slack Apps page](https://res.cloudinary.com/dza7lstvk/image/upload/v1748940543/Medusa%20Resources/CleanShot_2025-06-03_at_10.43.01_2x_zadmwn.png)
+![Slack Apps page interface showing the prominent green "Create New App" button in the top navigation area, which initiates the process of creating a new Slack application for integrating with external services like Medusa](https://res.cloudinary.com/dza7lstvk/image/upload/v1748940543/Medusa%20Resources/CleanShot_2025-06-03_at_10.43.01_2x_zadmwn.png)
 
 3. In the pop-up, choose "From scratch".
 4. Enter the app's name and select the workspace to install it in.
 5. Once you're done, click the "Create App" button.
 
-![Create App pop-up](https://res.cloudinary.com/dza7lstvk/image/upload/v1748940602/Medusa%20Resources/CleanShot_2025-06-03_at_10.43.52_2x_edqawv.png)
+![Slack app creation modal dialog with options to create app "From scratch" or "From an app manifest", including form fields for app name and workspace selection, with a "Create App" button to confirm the new Slack application setup](https://res.cloudinary.com/dza7lstvk/image/upload/v1748940602/Medusa%20Resources/CleanShot_2025-06-03_at_10.43.52_2x_edqawv.png)
 
 6. In the app's settings, go to the "Incoming Webhooks" section.
 7. Enable the "Activate Incoming Webhooks" toggle.
 
-![Enable Incoming Webhooks toggle](https://res.cloudinary.com/dza7lstvk/image/upload/v1748940647/Medusa%20Resources/CleanShot_2025-06-03_at_10.44.07_2x_rykabg.png)
+![Slack app configuration page showing the Incoming Webhooks settings with the "Activate Incoming Webhooks" toggle switch prominently displayed, which enables the app to receive webhook notifications from external services like Medusa](https://res.cloudinary.com/dza7lstvk/image/upload/v1748940647/Medusa%20Resources/CleanShot_2025-06-03_at_10.44.07_2x_rykabg.png)
 
 8. In the "Webhook URLs for Your Workspace" section, click the "Add New Webhook" button.
 
-![Add New Webhook button](https://res.cloudinary.com/dza7lstvk/image/upload/v1748940671/Medusa%20Resources/CleanShot_2025-06-03_at_10.44.33_2x_e7qk8o.png)
+![Webhook configuration section displaying the "Add New Webhook" button in the "Webhook URLs for Your Workspace" area, allowing users to create a new webhook endpoint for receiving automated notifications in their Slack workspace](https://res.cloudinary.com/dza7lstvk/image/upload/v1748940671/Medusa%20Resources/CleanShot_2025-06-03_at_10.44.33_2x_e7qk8o.png)
 
 9. Select the channel or conversation to send notifications to and click the "Allow" button.
 10. Copy the generated webhook URL.
 
-![Copy the generated webhook URL](https://res.cloudinary.com/dza7lstvk/image/upload/v1748940718/Medusa%20Resources/CleanShot_2025-06-03_at_10.45.51_2x_xet5u5.png)
+![Slack webhook URL generation interface showing the newly created webhook URL with a copy button, which provides the unique endpoint URL needed to configure Medusa for sending automated notifications to the selected Slack channel](https://res.cloudinary.com/dza7lstvk/image/upload/v1748940718/Medusa%20Resources/CleanShot_2025-06-03_at_10.45.51_2x_xet5u5.png)
 
 Then, in the `.env` file of your Medusa application, set the `SLACK_WEBHOOK_URL` and `SLACK_ADMIN_URL` environment variables:
 

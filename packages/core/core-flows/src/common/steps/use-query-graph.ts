@@ -7,9 +7,10 @@ import {
 import { createStep, StepFunction, StepResponse } from "@medusajs/workflows-sdk"
 import { ContainerRegistrationKeys } from "@medusajs/utils"
 
-export type UseQueryGraphStepInput<TEntry extends string> = RemoteQueryInput<TEntry> & {
-  options?: RemoteJoinerOptions
-}
+export type UseQueryGraphStepInput<TEntry extends string> =
+  RemoteQueryInput<TEntry> & {
+    options?: RemoteJoinerOptions
+  }
 
 const useQueryGraphStepId = "use-query-graph-step"
 
@@ -30,7 +31,7 @@ const step = createStep(
  * This step fetches data across modules using the Query.
  *
  * Learn more in the [Query documentation](https://docs.medusajs.com/learn/fundamentals/module-links/query).
- * 
+ *
  * @example
  * To retrieve a list of records of a data model:
  *
@@ -101,5 +102,7 @@ const step = createStep(
  */
 export const useQueryGraphStep = <const TEntry extends string>(
   input: UseQueryGraphStepInput<TEntry>
-): ReturnType<StepFunction<UseQueryGraphStepInput<TEntry>, GraphResultSet<TEntry>>> =>
-  step(input as any) as unknown as ReturnType<StepFunction<UseQueryGraphStepInput<TEntry>, GraphResultSet<TEntry>>>
+): ReturnType<StepFunction<any, GraphResultSet<TEntry>>> =>
+  step(input as any) as unknown as ReturnType<
+    StepFunction<any, GraphResultSet<TEntry>>
+  >

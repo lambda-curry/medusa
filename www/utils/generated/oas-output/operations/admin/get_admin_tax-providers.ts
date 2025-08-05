@@ -182,7 +182,7 @@
  *     $ref: "#/components/responses/invalid_request_error"
  *   "500":
  *     $ref: "#/components/responses/500_error"
- * x-version: 2.8.0
+ * x-since: 2.8.0
  * 
 */
 

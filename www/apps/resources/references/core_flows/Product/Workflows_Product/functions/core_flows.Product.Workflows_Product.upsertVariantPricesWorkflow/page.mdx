@@ -3,9 +3,9 @@ slug: /references/medusa-workflows/upsertVariantPricesWorkflow
 sidebar_label: upsertVariantPricesWorkflow
 sidebar_description: Create, update, or remove variants' prices.
 tags:
-  - link
   - remote query
   - pricing
+  - link
   - workflow
 ---
 
@@ -20,7 +20,7 @@ when updating a variant's prices.
 
 You can use this workflow within your own customizations or custom workflows to manage the prices of a variant.
 
-<SourceCodeLink link="https://github.com/medusajs/medusa/blob/e0b5bb0b224458ebc8c93111e72f9a10aecf0275/packages/core/core-flows/src/product/workflows/upsert-variant-prices.ts#L80" />
+<SourceCodeLink link="https://github.com/medusajs/medusa/blob/394226b5c18d11072da826ed6a07d4e602e62f18/packages/core/core-flows/src/product/workflows/upsert-variant-prices.ts#L80" />
 
 ## Examples
 
@@ -189,7 +189,7 @@ const myWorkflow = createWorkflow(
 
 ## Steps
 
-<WorkflowDiagram workflow={{"name":"upsertVariantPricesWorkflow","steps":[{"type":"step","name":"removeRemoteLinkStep","description":"This step deletes linked records of a record.\n\nLearn more in the [Remote Link documentation](https://docs.medusajs.com/learn/fundamentals/module-links/remote-link#cascade-delete-linked-records)","link":"../../../../Common/Steps_Common/functions/core_flows.Common.Steps_Common.removeRemoteLinkStep/page.mdx","depth":1},{"type":"step","name":"useRemoteQueryStep","description":"This step fetches data across modules using the remote query.\n\nLearn more in the [Remote Query documentation](https://docs.medusajs.com/learn/fundamentals/module-links/query).\n\n:::note\n\nThis step is deprecated. Use [useQueryGraphStep](../../../../Common/Steps_Common/functions/core_flows.Common.Steps_Common.useQueryGraphStep/page.mdx) instead.\n\n:::","link":"../../../../Common/Steps_Common/functions/core_flows.Common.Steps_Common.useRemoteQueryStep/page.mdx","depth":2},{"type":"step","name":"updatePriceSetsStep","description":"This step updates price sets.","link":"../../../../Pricing/Steps_Pricing/functions/core_flows.Pricing.Steps_Pricing.updatePriceSetsStep/page.mdx","depth":3},{"type":"step","name":"createPriceSetsStep","description":"This step creates one or more price sets.","link":"../../../../Pricing/Steps_Pricing/functions/core_flows.Pricing.Steps_Pricing.createPriceSetsStep/page.mdx","depth":4},{"type":"step","name":"createVariantPricingLinkStep","description":"This step creates links between variant and price set records.","link":"../../../Steps_Product/functions/core_flows.Product.Steps_Product.createVariantPricingLinkStep/page.mdx","depth":5}]}} />
+<WorkflowDiagram workflow={{"name":"upsertVariantPricesWorkflow","steps":[{"type":"step","name":"useRemoteQueryStep","description":"This step fetches data across modules using the remote query.\n\nLearn more in the [Remote Query documentation](https://docs.medusajs.com/learn/fundamentals/module-links/query).\n\n:::note\n\nThis step is deprecated. Use [useQueryGraphStep](../../../../Common/Steps_Common/functions/core_flows.Common.Steps_Common.useQueryGraphStep/page.mdx) instead.\n\n:::","link":"../../../../Common/Steps_Common/functions/core_flows.Common.Steps_Common.useRemoteQueryStep/page.mdx","depth":1},{"type":"step","name":"updatePriceSetsStep","description":"This step updates price sets.","link":"../../../../Pricing/Steps_Pricing/functions/core_flows.Pricing.Steps_Pricing.updatePriceSetsStep/page.mdx","depth":2},{"type":"step","name":"createPriceSetsStep","description":"This step creates one or more price sets.","link":"../../../../Pricing/Steps_Pricing/functions/core_flows.Pricing.Steps_Pricing.createPriceSetsStep/page.mdx","depth":3},{"type":"step","name":"createVariantPricingLinkStep","description":"This step creates links between variant and price set records.","link":"../../../Steps_Product/functions/core_flows.Product.Steps_Product.createVariantPricingLinkStep/page.mdx","depth":4}]}} />
 
 ## Input
 

@@ -31,16 +31,7 @@
  *   content:
  *     application/json:
  *       schema:
- *         type: object
- *         description: The properties to update in the product tag.
- *         properties:
- *           value:
- *             type: string
- *             title: value
- *             description: The product tag's value.
- *           metadata:
- *             type: object
- *             description: The product tag's metadata. Can hold custom key-value pairs.
+ *         $ref: "#/components/schemas/AdminUpdateProductTag"
  * x-codeSamples:
  *   - lang: JavaScript
  *     label: JS SDK

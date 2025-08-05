@@ -65,12 +65,10 @@ The created environment will appear in the [project's dashboard](../../projects/
 
 ### Trigger Environment Deployment
 
-After creating the environment, you need to trigger its deployment by pushing a commit to the environment's branch (in this example, `staging`).
+After creating the environment, Medusa will automatically trigger a deployment for the environment using the associated branch (for example, `staging`). This includes:
 
-The first time you push a commit, Medusa will:
-
-- Deploy the environment from the associated branch.
-- Set up the database and resources for the environment. These are different from the resources of other environments.
+- Deploying the environment from the associated branch.
+- Setting up the database and resources for the environment. These are different from the resources of other environments.
 
 After that, Medusa will automatically deploy the environment whenever you push a new commit to the associated branch.
 

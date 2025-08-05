@@ -84,3 +84,65 @@ npx medusa db:migrate
 ```
 
 The first command generates the migration under the `migrations` directory of your module's directory, and the second reflects it on the database.
+
+---
+
+## Examples
+
+This section covers common use cases where check constraints are particularly useful.
+
+### 1. Enforce Text Length
+
+Ensure that text properties meet minimum or maximum length requirements:
+
+```ts
+const User = model.define("user", {
+  username: model.text(),
+  password: model.text(),
+})
+.checks([
+  {
+    name: "password_length_check", 
+    expression: (columns) => `LENGTH(${columns.password}) >= 8`,
+  },
+])
+```
+
+In the above example, the check constraint fails if the `password` property is less than 8 characters long.
+
+### 2. Validate Email Format
+
+Ensure email addresses contain the `@` symbol:
+
+```ts
+const Customer = model.define("customer", {
+  email: model.text(),
+})
+.checks([
+  {
+    name: "email_format_check",
+    expression: (columns) => `${columns.email} LIKE '%@%'`,
+  },
+])
+```
+
+In the above example, the check constraint fails if the `email` property does not contain the `@` symbol.
+
+### 3. Enforce Date Ranges
+
+Ensure dates fall within valid ranges:
+
+```ts
+const Event = model.define("event", {
+  start_date: model.dateTime(),
+  end_date: model.dateTime(),
+})
+.checks([
+  {
+    name: "date_order_check",
+    expression: (columns) => `${columns.end_date} >= ${columns.start_date}`,
+  },
+])
+```
+
+In the above example, the check constraint fails if the `end_date` is earlier than the `start_date`.

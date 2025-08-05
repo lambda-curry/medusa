@@ -7,7 +7,7 @@ const EXCLUDED_TAGS = [
   "@featureFlag",
   "@category",
   "@typeParamDefinition",
-  "@version",
+  "@since",
   "@tags",
   "@summary",
   "@workflowEvent",

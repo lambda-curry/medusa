@@ -108,9 +108,9 @@ const TagsOperationDescriptionSectionEvent = ({
             ) : (
               <Badge variant="orange">Deprecated</Badge>
             ))}
-          {event.version && (
-            <Tooltip text={`This event is emitted since v${event.version}`}>
-              <Badge variant="blue">v{event.version}</Badge>
+          {event.since && (
+            <Tooltip text={`This event is emitted since v${event.since}`}>
+              <Badge variant="blue">v{event.since}</Badge>
             </Tooltip>
           )}
         </div>

@@ -1,5 +1,16 @@
 # @medusajs/workflow-engine-redis
 
+## 2.8.8
+
+### Patch Changes
+
+- [#12976](https://github.com/medusajs/medusa/pull/12976) [`eb83954f23077c0714125b6f2f19fd0ef0f288f9`](https://github.com/medusajs/medusa/commit/eb83954f23077c0714125b6f2f19fd0ef0f288f9) Thanks [@adrien2p](https://github.com/adrien2p)! - chore(workflow-engine-\*): Align event subscribers management
+
+- [#12982](https://github.com/medusajs/medusa/pull/12982) [`238e7d53c13a1c033886d7c33254919f8b5b22dc`](https://github.com/medusajs/medusa/commit/238e7d53c13a1c033886d7c33254919f8b5b22dc) Thanks [@adrien2p](https://github.com/adrien2p)! - fix(wfe): should notify when finished + add state info
+
+- Updated dependencies [[`43fb06ecc2d87ea2a11e12524679c142eb890ec7`](https://github.com/medusajs/medusa/commit/43fb06ecc2d87ea2a11e12524679c142eb890ec7)]:
+  - @medusajs/framework@2.8.8
+
 ## 2.8.7
 
 ### Patch Changes

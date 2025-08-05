@@ -3,13 +3,7 @@ slug: /references/medusa-workflows/processPaymentWorkflow
 sidebar_label: processPaymentWorkflow
 sidebar_description: Process a payment based on a webhook event.
 tags:
-  - query
-  - logger
-  - payment
   - workflow
-  - remote query
-  - order
-  - event bus
 ---
 
 import { TypeList, WorkflowDiagram } from "docs-ui"
@@ -25,7 +19,7 @@ capture the payment, or authorize the payment session. It's used when a
 You can use this workflow within your own customizations or custom workflows, allowing you
 to process a payment in your custom flows based on a webhook action.
 
-<SourceCodeLink link="https://github.com/medusajs/medusa/blob/e0b5bb0b224458ebc8c93111e72f9a10aecf0275/packages/core/core-flows/src/payment/workflows/process-payment.ts#L39" />
+<SourceCodeLink link="https://github.com/medusajs/medusa/blob/394226b5c18d11072da826ed6a07d4e602e62f18/packages/core/core-flows/src/payment/workflows/process-payment.ts#L39" />
 
 ## Examples
 
@@ -147,10 +141,6 @@ const myWorkflow = createWorkflow(
 
     </CodeTab>
   </CodeTabs>
-
-## Steps
-
-<WorkflowDiagram workflow={{"name":"processPaymentWorkflow","steps":[{"type":"step","name":"useQueryGraphStep","description":"This step fetches data across modules using the Query.\n\nLearn more in the [Query documentation](https://docs.medusajs.com/learn/fundamentals/module-links/query).","link":"../../../../Common/Steps_Common/functions/core_flows.Common.Steps_Common.useQueryGraphStep/page.mdx","depth":1},{"type":"step","name":"useQueryGraphStep","description":"This step fetches data across modules using the Query.\n\nLearn more in the [Query documentation](https://docs.medusajs.com/learn/fundamentals/module-links/query).","link":"../../../../Common/Steps_Common/functions/core_flows.Common.Steps_Common.useQueryGraphStep/page.mdx","depth":2},{"type":"step","name":"useQueryGraphStep","description":"This step fetches data across modules using the Query.\n\nLearn more in the [Query documentation](https://docs.medusajs.com/learn/fundamentals/module-links/query).","link":"../../../../Common/Steps_Common/functions/core_flows.Common.Steps_Common.useQueryGraphStep/page.mdx","depth":3},{"type":"when","condition":"{\n      return (\n        input.action === PaymentActions.SUCCESSFUL && !!paymentData.data.length\n      )\n    }","depth":"4","steps":[{"type":"workflow","name":"capturePaymentWorkflow","description":"Capture a payment.","link":"../core_flows.Payment.Workflows_Payment.capturePaymentWorkflow/page.mdx","depth":4}]},{"type":"when","condition":"{\n      // payment is captured with the provider but we dont't have any payment data which means we didn't call authorize yet - autocapture flow\n      return (\n        input.action === PaymentActions.SUCCESSFUL && !paymentData.data.length\n      )\n    }","depth":"5","steps":[{"type":"step","name":"authorizePaymentSessionStep","description":"This step authorizes a payment session.","link":"../../../Steps_Payment/functions/core_flows.Payment.Steps_Payment.authorizePaymentSessionStep/page.mdx","depth":5},{"type":"workflow","name":"capturePaymentWorkflow","description":"Capture a payment.","link":"../core_flows.Payment.Workflows_Payment.capturePaymentWorkflow/page.mdx","depth":5}]},{"type":"when","condition":"{\n        // Authorize payment session if no Cart is linked to the payment\n        // When associated with a Cart, the complete cart workflow will handle the authorization\n        return (\n          !cartPaymentCollection.data.length &&\n          input.action === PaymentActions.AUTHORIZED &&\n          !!input.data?.session_id\n        )\n      }","depth":"6","steps":[{"type":"step","name":"authorizePaymentSessionStep","description":"This step authorizes a payment session.","link":"../../../Steps_Payment/functions/core_flows.Payment.Steps_Payment.authorizePaymentSessionStep/page.mdx","depth":6}]}]}} />
 
 ## Input
 

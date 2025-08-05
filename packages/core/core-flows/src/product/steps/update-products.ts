@@ -11,9 +11,9 @@ import { StepResponse, createStep } from "@medusajs/framework/workflows-sdk"
  */
 export type UpdateProductsStepInput =
   | {
-    /**
-     * The filters to select the products to update.
-     */
+      /**
+       * The filters to select the products to update.
+       */
       selector: ProductTypes.FilterableProductProps
       /**
        * The data to update the products with.
@@ -21,19 +21,19 @@ export type UpdateProductsStepInput =
       update: ProductTypes.UpdateProductDTO
     }
   | {
-    /**
-     * The data to create or update products.
-     */
+      /**
+       * The data to create or update products.
+       */
       products: ProductTypes.UpsertProductDTO[]
     }
 
 export const updateProductsStepId = "update-products"
 /**
  * This step updates one or more products.
- * 
+ *
  * @example
  * To update products by their ID:
- * 
+ *
  * ```ts
  * const data = updateProductsStep({
  *   products: [
@@ -44,9 +44,9 @@ export const updateProductsStepId = "update-products"
  *   ]
  * })
  * ```
- * 
+ *
  * To update products matching a filter:
- * 
+ *
  * ```ts
  * const data = updateProductsStep({
  *   selector: {

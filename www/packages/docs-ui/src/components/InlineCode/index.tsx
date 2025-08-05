@@ -23,7 +23,7 @@ export const InlineCode = ({
       <code
         {...props}
         className={clsx(
-          "text-medusa-tag-neutral-text border",
+          "text-medusa-tag-neutral-text border whitespace-break-spaces",
           "font-monospace text-code-label rounded-docs_sm py-0 px-[5px]",
           variant === "default" && [
             "bg-medusa-tag-neutral-bg group-hover:bg-medusa-tag-neutral-bg-hover",

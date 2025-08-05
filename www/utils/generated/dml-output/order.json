@@ -35,7 +35,8 @@
 			"code": "The code of the promotion.",
 			"amount": "The amount of the adjustment",
 			"provider_id": "The ID of the provider used to apply the adjustment.",
-			"item": "The associated item that the adjustment is applied on.\n\n@expandable"
+			"item": "The associated item that the adjustment is applied on.\n\n@expandable",
+			"is_tax_inclusive": "Whether the order line item adjustment is tax inclusive."
 		}
 	},
 	"OrderLineItemTaxLine": {

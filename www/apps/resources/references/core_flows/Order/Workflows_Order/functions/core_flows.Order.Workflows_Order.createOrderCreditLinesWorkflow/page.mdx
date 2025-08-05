@@ -3,7 +3,6 @@ slug: /references/medusa-workflows/createOrderCreditLinesWorkflow
 sidebar_label: createOrderCreditLinesWorkflow
 sidebar_description: ""
 tags:
-  - query
   - order
   - workflow
 ---
@@ -14,7 +13,7 @@ import { TypeList, WorkflowDiagram } from "docs-ui"
 
 This documentation provides a reference to the `createOrderCreditLinesWorkflow`. It belongs to the `@medusajs/medusa/core-flows` package.
 
-<SourceCodeLink link="https://github.com/medusajs/medusa/blob/e0b5bb0b224458ebc8c93111e72f9a10aecf0275/packages/core/core-flows/src/order/workflows/create-order-credit-lines.ts#L83" />
+<SourceCodeLink link="https://github.com/medusajs/medusa/blob/394226b5c18d11072da826ed6a07d4e602e62f18/packages/core/core-flows/src/order/workflows/create-order-credit-lines.ts#L83" />
 
 ## Examples
 
@@ -35,7 +34,7 @@ export async function POST(
   const { result } = await createOrderCreditLinesWorkflow(req.scope)
     .run({
       input: {
-        "id": "id_dL7cdRocSaD4Myuv",
+        "id": "id_aewO47ddxySpaX",
         "credit_lines": [
           "{value}"
         ]
@@ -63,7 +62,7 @@ export default async function handleOrderPlaced({
   const { result } = await createOrderCreditLinesWorkflow(container)
     .run({
       input: {
-        "id": "id_dL7cdRocSaD4Myuv",
+        "id": "id_aewO47ddxySpaX",
         "credit_lines": [
           "{value}"
         ]
@@ -91,7 +90,7 @@ export default async function myCustomJob(
   const { result } = await createOrderCreditLinesWorkflow(container)
     .run({
       input: {
-        "id": "id_dL7cdRocSaD4Myuv",
+        "id": "id_aewO47ddxySpaX",
         "credit_lines": [
           "{value}"
         ]
@@ -120,7 +119,7 @@ const myWorkflow = createWorkflow(
     const result = createOrderCreditLinesWorkflow
       .runAsStep({
         input: {
-          "id": "id_dL7cdRocSaD4Myuv",
+          "id": "id_aewO47ddxySpaX",
           "credit_lines": [
             "{value}"
           ]
@@ -135,7 +134,7 @@ const myWorkflow = createWorkflow(
 
 ## Steps
 
-<WorkflowDiagram workflow={{"name":"createOrderCreditLinesWorkflow","steps":[{"type":"step","name":"useQueryGraphStep","description":"This step fetches data across modules using the Query.\n\nLearn more in the [Query documentation](https://docs.medusajs.com/learn/fundamentals/module-links/query).","link":"../../../../Common/Steps_Common/functions/core_flows.Common.Steps_Common.useQueryGraphStep/page.mdx","depth":1},{"type":"step","name":"validateOrderCreditLinesStep","description":"","link":"../core_flows.Order.Workflows_Order.validateOrderCreditLinesStep/page.mdx","depth":2},{"type":"step","name":"createOrderChangeStep","description":"This step creates an order change.","link":"../../../Steps_Order/functions/core_flows.Order.Steps_Order.createOrderChangeStep/page.mdx","depth":3},{"type":"workflow","name":"createOrderChangeActionsWorkflow","description":"Create an order change action.","link":"../core_flows.Order.Workflows_Order.createOrderChangeActionsWorkflow/page.mdx","depth":4},{"type":"step","name":"useQueryGraphStep","description":"This step fetches data across modules using the Query.\n\nLearn more in the [Query documentation](https://docs.medusajs.com/learn/fundamentals/module-links/query).","link":"../../../../Common/Steps_Common/functions/core_flows.Common.Steps_Common.useQueryGraphStep/page.mdx","depth":5},{"type":"hook","name":"creditLinesCreated","description":"This step is a hook that you can inject custom functionality into.","link":"#creditLinesCreated","depth":6}]}} />
+<WorkflowDiagram workflow={{"name":"createOrderCreditLinesWorkflow","steps":[{"type":"step","name":"validateOrderCreditLinesStep","description":"","link":"../core_flows.Order.Workflows_Order.validateOrderCreditLinesStep/page.mdx","depth":1},{"type":"step","name":"createOrderChangeStep","description":"This step creates an order change.","link":"../../../Steps_Order/functions/core_flows.Order.Steps_Order.createOrderChangeStep/page.mdx","depth":2},{"type":"workflow","name":"createOrderChangeActionsWorkflow","description":"Create an order change action.","link":"../core_flows.Order.Workflows_Order.createOrderChangeActionsWorkflow/page.mdx","depth":3},{"type":"hook","name":"creditLinesCreated","description":"This step is a hook that you can inject custom functionality into.","link":"#creditLinesCreated","depth":4}]}} />
 
 ## Input
 

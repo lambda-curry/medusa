@@ -4,8 +4,16 @@ export const howTo = [
     "path": "https://docs.medusajs.com/resources/commerce-modules/auth/create-actor-type"
   },
   {
-    "title": "Handle Password Reset Event",
+    "title": "Reset Password Email",
     "path": "https://docs.medusajs.com/resources/commerce-modules/auth/reset-password"
+  },
+  {
+    "title": "Retrieve Cart Totals",
+    "path": "https://docs.medusajs.com/resources/commerce-modules/cart/cart-totals"
+  },
+  {
+    "title": "Retrieve Order Totals",
+    "path": "https://docs.medusajs.com/resources/commerce-modules/order/order-totals"
   },
   {
     "title": "Get Variant Prices",
@@ -18,6 +26,10 @@ export const howTo = [
   {
     "title": "Get Variant Inventory",
     "path": "https://docs.medusajs.com/resources/commerce-modules/product/guides/variant-inventory"
+  },
+  {
+    "title": "Invite User Email",
+    "path": "https://docs.medusajs.com/resources/commerce-modules/user/invite-user-subscriber"
   },
   {
     "title": "Create Cache Module",

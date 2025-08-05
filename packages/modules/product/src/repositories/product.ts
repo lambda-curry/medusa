@@ -8,6 +8,7 @@ import {
   MedusaError,
   isPresent,
   mergeMetadata,
+  isDefined,
 } from "@medusajs/framework/utils"
 import { SqlEntityManager, wrap } from "@mikro-orm/postgresql"
 
@@ -57,10 +58,18 @@ export class ProductRepository extends DALUtils.mikroOrmBaseRepositoryFactory(
     height?: string | number
     width?: string | number
   }) {
-    productToUpdate.weight = productToUpdate.weight?.toString()
-    productToUpdate.length = productToUpdate.length?.toString()
-    productToUpdate.height = productToUpdate.height?.toString()
-    productToUpdate.width = productToUpdate.width?.toString()
+    if (isDefined(productToUpdate.weight)) {
+      productToUpdate.weight = productToUpdate.weight?.toString()
+    }
+    if (isDefined(productToUpdate.length)) {
+      productToUpdate.length = productToUpdate.length?.toString()
+    }
+    if (isDefined(productToUpdate.height)) {
+      productToUpdate.height = productToUpdate.height?.toString()
+    }
+    if (isDefined(productToUpdate.width)) {
+      productToUpdate.width = productToUpdate.width?.toString()
+    }
   }
 
   async deepUpdate(
@@ -72,6 +81,7 @@ export class ProductRepository extends DALUtils.mikroOrmBaseRepositoryFactory(
     context: Context = {}
   ): Promise<InferEntityType<typeof Product>[]> {
     const productIdsToUpdate: string[] = []
+
     productsToUpdate.forEach((productToUpdate) => {
       ProductRepository.#correctUpdateDTOTypes(productToUpdate)
       productIdsToUpdate.push(productToUpdate.id)
@@ -151,7 +161,10 @@ export class ProductRepository extends DALUtils.mikroOrmBaseRepositoryFactory(
       }
 
       if (isPresent(productToUpdate.metadata)) {
-        productToUpdate.metadata = mergeMetadata(product.metadata ?? {}, productToUpdate.metadata)
+        productToUpdate.metadata = mergeMetadata(
+          product.metadata ?? {},
+          productToUpdate.metadata
+        )
       }
 
       wrappedProduct.assign(productToUpdate)

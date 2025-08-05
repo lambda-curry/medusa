@@ -178,7 +178,16 @@ const generatedgeneratedRecipesSidebarSidebar = {
       "type": "link",
       "path": "/recipes/personalized-products",
       "title": "Personalized Products",
-      "children": []
+      "children": [
+        {
+          "loaded": true,
+          "isPathHref": true,
+          "type": "link",
+          "path": "/recipes/personalized-products/example",
+          "title": "Example",
+          "children": []
+        }
+      ]
     },
     {
       "loaded": true,

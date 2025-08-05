@@ -8,7 +8,7 @@ In this chapter, you'll learn about how to add new API routes for each HTTP meth
 
 ## HTTP Method Handler
 
-An API route is created for every HTTP method you export a handler function for in a route file.
+An API route is created for every HTTP method you export a handler function for in a `route.ts` or `route.js` file.
 
 Allowed HTTP methods are: `GET`, `POST`, `DELETE`, `PUT`, `PATCH`, `OPTIONS`, and `HEAD`.
 
@@ -39,7 +39,7 @@ export const POST = async (
 }
 ```
 
-This adds two API Routes:
+This file adds two API Routes:
 
-- A `GET` route at `http://localhost:9000/hello-world`.
-- A `POST` route at `http://localhost:9000/hello-world`.
+- A `GET` API route at `http://localhost:9000/hello-world`.
+- A `POST` API route at `http://localhost:9000/hello-world`.

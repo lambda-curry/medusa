@@ -46,7 +46,7 @@ export const MainNavItemDropdown = ({
     return (
       <div
         className={clsx(
-          "cursor-pointer flex gap-docs_0.25 items-center py-docs_0.25 px-docs_0.5",
+          "cursor-pointer flex gap-docs_0.25 items-center py-docs_0.25",
           isActive && "text-medusa-fg-base",
           !isActive && [
             "text-medusa-fg-muted hover:text-medusa-fg-subtle",

@@ -219,10 +219,8 @@ export function MedusaService<
           data = [],
           sharedContext: Context = {}
         ): Promise<T | T[]> {
-          const serviceData = Array.isArray(data) ? data : [data]
           const service = this.__container__[serviceRegistrationName]
-          const models = await service.create(serviceData, sharedContext)
-          const response = Array.isArray(data) ? models : models[0]
+          const response = await service.create(data, sharedContext)
 
           klassPrototype.aggregatedEvents.bind(this)({
             action: CommonEvents.CREATED,
@@ -243,9 +241,8 @@ export function MedusaService<
           data = [],
           sharedContext: Context = {}
         ): Promise<T | T[]> {
-          const serviceData = Array.isArray(data) ? data : [data]
           const service = this.__container__[serviceRegistrationName]
-          const response = await service.update(serviceData, sharedContext)
+          const response = await service.update(data, sharedContext)
 
           klassPrototype.aggregatedEvents.bind(this)({
             action: CommonEvents.UPDATED,

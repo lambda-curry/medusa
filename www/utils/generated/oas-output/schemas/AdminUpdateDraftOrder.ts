@@ -61,6 +61,9 @@
  *       metadata:
  *         type: object
  *         description: The shipping address's metadata, can hold custom key-value pairs.
+ *         externalDocs:
+ *           url: https://docs.medusajs.com/api/admin#manage-metadata
+ *           description: Learn how to manage metadata
  *   billing_address:
  *     type: object
  *     description: The draft order's billing address.
@@ -113,9 +116,15 @@
  *       metadata:
  *         type: object
  *         description: The billing address's metadata, can hold custom key-value pairs.
+ *         externalDocs:
+ *           url: https://docs.medusajs.com/api/admin#manage-metadata
+ *           description: Learn how to manage metadata
  *   metadata:
  *     type: object
  *     description: The draft order's metadata, can hold custom key-value pairs.
+ *     externalDocs:
+ *       url: https://docs.medusajs.com/api/admin#manage-metadata
+ *       description: Learn how to manage metadata
  *   customer_id:
  *     type: string
  *     title: customer_id

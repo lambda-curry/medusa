@@ -16,7 +16,7 @@ export interface GetItemTotalInput {
   quantity: BigNumber
   is_tax_inclusive?: boolean
   tax_lines?: Pick<TaxLineDTO, "rate">[]
-  adjustments?: Pick<AdjustmentLineDTO, "amount">[]
+  adjustments?: Pick<AdjustmentLineDTO, "amount" | "is_tax_inclusive">[]
   detail?: {
     fulfilled_quantity: BigNumber
     delivered_quantity: BigNumber
@@ -133,7 +133,6 @@ function getLineItemTotals(
     adjustmentsTaxTotal: discountTaxTotal,
   } = calculateAdjustmentTotal({
     adjustments: item.adjustments || [],
-    includesTax: isTaxInclusive,
     taxRate: sumTaxRate,
   })
 

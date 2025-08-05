@@ -39,6 +39,9 @@
  *   metadata:
  *     type: object
  *     description: The tax rate's metadata, can hold custom key-value pairs.
+ *     externalDocs:
+ *       url: https://docs.medusajs.com/api/admin#manage-metadata
+ *       description: Learn how to manage metadata
  *   tax_region_id:
  *     type: string
  *     title: tax_region_id

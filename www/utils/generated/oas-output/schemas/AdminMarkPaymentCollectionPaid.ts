@@ -1,0 +1,15 @@
+/**
+ * @schema AdminMarkPaymentCollectionPaid
+ * type: object
+ * description: The payment details.
+ * required:
+ *   - order_id
+ * properties:
+ *   order_id:
+ *     type: string
+ *     title: order_id
+ *     description: The ID of the order associated with the payment collection.
+ * x-schemaName: AdminMarkPaymentCollectionPaid
+ * 
+*/
+

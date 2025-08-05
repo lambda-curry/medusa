@@ -1,0 +1,144 @@
+type: object
+description: The service zone's details.
+required:
+  - name
+properties:
+  name:
+    type: string
+    title: name
+    description: The service zone's name.
+  geo_zones:
+    type: array
+    description: The service zone's geo zones.
+    items:
+      oneOf:
+        - type: object
+          description: A country geo zone.
+          required:
+            - metadata
+            - country_code
+            - type
+          properties:
+            metadata:
+              type: object
+              description: The geo zone's metadata.
+              externalDocs:
+                url: https://docs.medusajs.com/api/admin#manage-metadata
+                description: Learn how to manage metadata
+            country_code:
+              type: string
+              title: country_code
+              description: The geo zone's country code.
+            type:
+              type: string
+              title: type
+              description: The geo zone's type.
+              default: country
+        - type: object
+          description: A province geo zone.
+          required:
+            - metadata
+            - country_code
+            - type
+            - province_code
+          properties:
+            metadata:
+              type: object
+              description: The geo zone's metadata.
+              externalDocs:
+                url: https://docs.medusajs.com/api/admin#manage-metadata
+                description: Learn how to manage metadata
+            country_code:
+              type: string
+              title: country_code
+              description: The geo zone's country code.
+            type:
+              type: string
+              title: type
+              description: The geo zone's type.
+              default: province
+            province_code:
+              type: string
+              title: province_code
+              description: The geo zone's ISO 3166-2 province code. Must be lower-case.
+              example: us-ca
+              externalDocs:
+                url: https://en.wikipedia.org/wiki/ISO_3166-2
+                description: Learn more about ISO 3166-2
+        - type: object
+          description: A city geo zone
+          required:
+            - metadata
+            - country_code
+            - type
+            - province_code
+            - city
+          properties:
+            metadata:
+              type: object
+              description: The geo zone's metadata.
+              externalDocs:
+                url: https://docs.medusajs.com/api/admin#manage-metadata
+                description: Learn how to manage metadata
+            country_code:
+              type: string
+              title: country_code
+              description: The geo zone's country code.
+            type:
+              type: string
+              title: type
+              description: The geo zone's type.
+              default: city
+            province_code:
+              type: string
+              title: province_code
+              description: The geo zone's ISO 3166-2 province code. Must be lower-case.
+              example: us-ca
+              externalDocs:
+                url: https://en.wikipedia.org/wiki/ISO_3166-2
+                description: Learn more about ISO 3166-2
+            city:
+              type: string
+              title: city
+              description: The geo zone's city.
+        - type: object
+          description: A ZIP geo zone.
+          required:
+            - metadata
+            - country_code
+            - type
+            - province_code
+            - city
+            - postal_expression
+          properties:
+            metadata:
+              type: object
+              description: The geo zone's metadata.
+              externalDocs:
+                url: https://docs.medusajs.com/api/admin#manage-metadata
+                description: Learn how to manage metadata
+            country_code:
+              type: string
+              title: country_code
+              description: The geo zone's country code.
+            type:
+              type: string
+              title: type
+              description: The geo zone's type.
+              default: zip
+            province_code:
+              type: string
+              title: province_code
+              description: The geo zone's ISO 3166-2 province code. Must be lower-case.
+              example: us-ca
+              externalDocs:
+                url: https://en.wikipedia.org/wiki/ISO_3166-2
+                description: Learn more about ISO 3166-2
+            city:
+              type: string
+              title: city
+              description: The geo zone's city.
+            postal_expression:
+              type: object
+              description: The geo zone's postal expression or ZIP code.
+x-schemaName: AdminCreateFulfillmentSetServiceZones

@@ -1,0 +1,362 @@
+---
+tags:
+  - order
+  - name: how to
+    label: Retrieve Order Totals
+  - server
+---
+
+import { CodeTabs, CodeTab } from "docs-ui"
+
+export const metadata = {
+  title: `Retrieve Order Totals Using Query`,
+}
+
+# {metadata.title}
+
+In this guide, you'll learn how to retrieve order totals in your Medusa application using [Query](!docs!/learn/fundamentals/module-links/query).
+
+You may need to retrieve order totals in your Medusa customizations, such as workflows or custom API routes, to perform custom actions with them. The ideal way to retrieve totals is using Query.
+
+<Note title="Looking for a storefront guide?">
+
+Refer to the [Order Confirmation in Storefront](../../../storefront-development/checkout/order-confirmation/page.mdx#show-order-totals) guide for a storefront-specific approach.
+
+</Note>
+
+## How to Retrieve Order Totals with Query
+
+To retrieve order totals, you mainly need to pass the `total` field within the `fields` option of the Query. This will return the order's grand total, along with the totals of its line items and shipping methods. You can also pass additional total fields that you need for your use case.
+
+For example, to retrieve all totals of an order:
+
+<Note title="Tip">
+
+Use `useQueryGraphStep` in workflows, and `query.graph` in custom API routes, scheduled jobs, and subscribers.
+
+</Note>
+
+<CodeTabs group="query-type">
+  <CodeTab label="useQueryGraphStep" value="useQueryGraphStep">
+
+```ts highlights={[["12"]]}
+import { createWorkflow } from "@medusajs/framework/workflows-sdk"
+import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
+
+export const myWorkflow = createWorkflow(
+  "my-workflow",
+  () => {
+    const { data: orders } = useQueryGraphStep({
+      entity: "order",
+      fields: [
+        "id",
+        "currency_code",
+        "total",
+        "subtotal",
+        "tax_total",
+        "original_total",
+        "original_subtotal",
+        "original_tax_total",
+        "discount_total",
+        "discount_tax_total",
+        "shipping_total",
+        "shipping_subtotal",
+        "shipping_tax_total",
+        "original_shipping_total",
+        "original_shipping_subtotal",
+        "original_shipping_tax_total",
+        "item_total",
+        "item_tax_total",
+        "item_subtotal",
+        "original_item_total",
+        "original_item_tax_total",
+        "original_item_subtotal",
+        "gift_card_total",
+        "gift_card_tax_total",
+        "items.*",
+        "shipping_methods.*",
+        "summary.*",
+      ],
+      filters: {
+        id: "order_123", // Specify the order ID
+      },
+    })
+  }
+)
+```
+  </CodeTab>
+  <CodeTab label="query.graph" value="query.graph">
+
+```ts highlights={[["8"]]}
+const query = container.resolve("query") // or req.scope.resolve in API routes
+
+const { data: [order] } = await query.graph({
+  entity: "order",
+  fields: [
+    "id",
+    "currency_code",
+    "total",
+    "subtotal",
+    "tax_total",
+    "original_total",
+    "original_subtotal",
+    "original_tax_total",
+    "discount_total",
+    "discount_tax_total",
+    "shipping_total",
+    "shipping_subtotal",
+    "shipping_tax_total",
+    "original_shipping_total",
+    "original_shipping_subtotal",
+    "original_shipping_tax_total",
+    "item_total",
+    "item_tax_total",
+    "item_subtotal",
+    "original_item_total",
+    "original_item_tax_total",
+    "original_item_subtotal",
+    "gift_card_total",
+    "gift_card_tax_total",
+    "items.*",
+    "shipping_methods.*",
+    "summary.*",
+  ],
+  filters: {
+    id: "order_123", // Specify the order ID
+  },
+})
+```
+  </CodeTab>
+</CodeTabs>
+
+The returned `order` object will look like this:
+
+```json
+{
+  "id": "order_01K1GEZ6Y1V9651AJNYG1WV3TC",
+  "currency_code": "eur",
+  "total": 20,
+  "subtotal": 20,
+  "tax_total": 0,
+  "original_total": 20,
+  "original_tax_total": 0,
+  "discount_total": 0,
+  "discount_tax_total": 0,
+  "shipping_total": 10,
+  "shipping_subtotal": 10,
+  "shipping_tax_total": 0,
+  "original_shipping_total": 10,
+  "original_shipping_subtotal": 10,
+  "original_shipping_tax_total": 0,
+  "item_total": 10,
+  "item_tax_total": 0,
+  "item_subtotal": 10,
+  "original_item_total": 10,
+  "original_item_tax_total": 0,
+  "original_item_subtotal": 10,
+  "items": [
+    {
+      "subtotal": 10,
+      "total": 10,
+      "original_total": 10,
+      "discount_total": 0,
+      "discount_subtotal": 0,
+      "discount_tax_total": 0,
+      "tax_total": 0,
+      "original_tax_total": 0,
+      "refundable_total_per_unit": 10,
+      "refundable_total": 10,
+      "fulfilled_total": 0,
+      "shipped_total": 0,
+      "return_requested_total": 0,
+      "return_received_total": 0,
+      "return_dismissed_total": 0,
+      "write_off_total": 0,
+      // ...
+    }
+  ],
+  "shipping_methods": [
+    {
+      "subtotal": 10,
+      "total": 10,
+      "original_total": 10,
+      "discount_total": 0,
+      "discount_subtotal": 0,
+      "discount_tax_total": 0,
+      "tax_total": 0,
+      "original_tax_total": 0,
+      // ...
+    }
+  ],
+  "summary": {
+    "paid_total": 0,
+    "refunded_total": 0,
+    "accounting_total": 20,
+    "credit_line_total": 0,
+    "transaction_total": 0,
+    "pending_difference": 20,
+    "current_order_total": 20,
+    "original_order_total": 20
+  }
+}
+```
+
+### Order Totals
+
+The order will include the following total fields:
+
+- `total`: The grand total of the order, including all line items, shipping methods, taxes, and discounts.
+- `subtotal`: The order's total excluding taxes, including promotions.
+- `tax_total`: The order's tax total including promotions.
+- `original_total`: The order's total including taxes, excluding promotions.
+- `original_subtotal`: The order's total excluding taxes, including promotions.
+- `original_tax_total`: The order's tax total excluding promotions.
+- `discount_total`: The order's discount or promotions total.
+- `discount_tax_total`: The tax total of the order's discount or promotion.
+- `shipping_total`: The order's shipping total including taxes and promotions.
+- `shipping_subtotal`: The order's shipping total excluding taxes, including promotions.
+- `shipping_tax_total`: The tax total of the order's shipping.
+- `original_shipping_total`: The order's shipping total including taxes, excluding promotions.
+- `original_shipping_subtotal`: The order's shipping total excluding taxes, including promotions.
+- `original_shipping_tax_total`: The tax total of the order's shipping excluding promotions.
+- `item_total`: The total of all line items in the order, including taxes and promotions.
+- `item_tax_total`: The tax total of all line items in the order, including promotions.
+- `item_subtotal`: The subtotal of all line items in the order, excluding taxes, including promotions.
+- `original_item_total`: The total of all line items in the order, including taxes, excluding promotions.
+- `original_item_tax_total`: The tax total of all line items in the order, excluding promotions.
+- `original_item_subtotal`: The subtotal of all line items in the order, excluding taxes, including promotions.
+- `gift_card_total`: The total amount of gift cards applied to the order.
+- `gift_card_tax_total`: The tax total of the gift cards applied to the order.
+
+### Order Line Item Totals
+
+The `items` array in the `order` object contains total fields for each line item:
+
+- `unit_price`: The price of a single unit of the line item. This field is not calculated and is stored in the database.
+- `subtotal`: The total price of the line item before any discounts or taxes.
+- `total`: The total price of the line item after applying discounts and taxes.
+- `original_total`: The total price of the line item before any discounts.
+- `discount_total`: The total amount of discounts applied to the line item.
+- `discount_subtotal`: The total amount of discounts applied to the line item's subtotal.
+- `discount_tax_total`: The total amount of discounts applied to the line item's tax.
+- `tax_total`: The total tax amount applied to the line item.
+- `original_tax_total`: The total tax amount applied to the line item before any discounts.
+- `refundable_total_per_unit`: The total amount that can be refunded per unit of the line item.
+- `refundable_total`: The total amount that can be refunded for the line item.
+- `fulfilled_total`: The total amount of the line item that has been fulfilled.
+- `shipped_total`: The total amount of the line item that has been shipped.
+- `return_requested_total`: The total amount of the line item that has been requested for return.
+- `return_received_total`: The total amount of the line item that has been received from a return.
+- `return_dismissed_total`: The total amount of the line item that has been dismissed by a return.
+    - These items are considered damaged and are not returned to the inventory.
+- `write_off_total`: The total amount of the line item that has been written off.
+    - For example, if the order is edited and the line item is removed or its quantity has changed.
+
+### Order Shipping Method Totals
+
+The `shipping_methods` array in the `order` object contains total fields for each shipping method:
+
+- `amount`: The amount charged for the shipping method. This field is not calculated and is stored in the database.
+- `subtotal`: The total price of the shipping method before any discounts or taxes.
+- `total`: The total price of the shipping method after applying discounts and taxes.
+- `original_total`: The total price of the shipping method before any discounts.
+- `discount_total`: The total amount of discounts applied to the shipping method.
+- `discount_subtotal`: The total amount of discounts applied to the shipping method's subtotal.
+- `discount_tax_total`: The total amount of discounts applied to the shipping method's tax.
+- `tax_total`: The total tax amount applied to the shipping method.
+- `original_tax_total`: The total tax amount applied to the shipping method before any discounts.
+
+### Order Summary Totals
+
+The `summary` object in the `order` object provides an overview of the order's transactions. It includes the following fields:
+
+- `paid_total`: The total amount that has been paid for the order.
+- `refunded_total`: The total amount that has been refunded for the order.
+- `accounting_total`: The order's total without the credit-line total.
+- `credit_line_total`: The total amount of credit lines applied to the order.
+- `transaction_total`: The total amount of transactions associated with the order.
+- `pending_difference`: The difference between the order's total and the paid total.
+- `current_order_total`: The current total of the order. It's useful if the order has been edited or modified.
+- `original_order_total`: The original total of the order before any modifications.
+
+---
+
+## Caveats of Retrieving Order Totals
+
+### Using Asterisk (*) in Order Query
+
+Order totals are calculated based on the order's line items, shipping methods, taxes, and any discounts applied. They are not stored in the `Order` data model.
+
+For that reason, you cannot retrieve order totals by passing `*` to the Query's fields. For example, the following query will not return order totals:
+
+<CodeTabs group="query-type">
+  <CodeTab label="useQueryGraphStep" value="useQueryGraphStep">
+
+```ts
+const { data: orders } = useQueryGraphStep({
+  entity: "order",
+  fields: ["*"],
+  filters: {
+    id: "order_123",
+  },
+})
+
+// orders don't include order totals
+```
+  </CodeTab>
+  <CodeTab label="query.graph" value="query.graph">
+
+```ts
+const { data: [order] } = await query.graph({
+  entity: "order",
+  fields: ["*"],
+  filters: {
+    id: "order_123",
+  },
+})
+
+// order doesn't include order totals
+```
+  </CodeTab>
+</CodeTabs>
+
+This will return the order data stored in the database, but not the calculated totals.
+
+You also can't pass `*` along with `total` in the Query's fields option. Passing `*` will override the `total` field, and you will not retrieve order totals. For example, the following query will not return order totals:
+
+<CodeTabs group="query-type">
+  <CodeTab label="useQueryGraphStep" value="useQueryGraphStep">
+
+```ts
+const { data: orders } = useQueryGraphStep({
+  entity: "order",
+  fields: ["*", "total"],
+  filters: {
+    id: "order_123",
+  },
+})
+
+// orders don't include order totals
+```
+  </CodeTab>
+  <CodeTab label="query.graph" value="query.graph">
+
+```ts
+const { data: [order] } = await query.graph({
+  entity: "order",
+  fields: ["*", "total"],
+  filters: {
+    id: "order_123",
+  },
+})
+
+// order doesn't include order totals
+```
+  </CodeTab>
+</CodeTabs>
+
+Instead, when you need to retrieve order totals, explicitly pass the `total` field in the Query's fields option, as shown in [the previous section](#how-to-retrieve-order-totals-with-query). You can also include other fields and relations you need, such as `email` and `items.*`.
+
+### Applying Filters on Order Totals
+
+You can't apply filters directly on the order totals, as they are not stored in the `Order` data model. You can still filter the order based on its properties, such as `id`, `email`, or `currency_code`, but not on the calculated totals.

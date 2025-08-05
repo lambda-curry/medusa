@@ -3,7 +3,6 @@ slug: /references/medusa-workflows/updateDraftOrderItemWorkflow
 sidebar_label: updateDraftOrderItemWorkflow
 sidebar_description: Update an item in a draft order edit.
 tags:
-  - remote query
   - order
   - workflow
 ---
@@ -20,7 +19,7 @@ This workflow updates an item in a draft order edit. It's used by the
 You can use this workflow within your customizations or your own custom workflows, allowing you to wrap custom logic around
 updating an item in a draft order edit.
 
-<SourceCodeLink link="https://github.com/medusajs/medusa/blob/e0b5bb0b224458ebc8c93111e72f9a10aecf0275/packages/core/core-flows/src/draft-order/workflows/update-draft-order-item.ts#L53" />
+<SourceCodeLink link="https://github.com/medusajs/medusa/blob/394226b5c18d11072da826ed6a07d4e602e62f18/packages/core/core-flows/src/draft-order/workflows/update-draft-order-item.ts#L53" />
 
 ## Examples
 
@@ -133,7 +132,7 @@ const myWorkflow = createWorkflow(
 
 ## Steps
 
-<WorkflowDiagram workflow={{"name":"updateDraftOrderItemWorkflow","steps":[{"type":"step","name":"useRemoteQueryStep","description":"This step fetches data across modules using the remote query.\n\nLearn more in the [Remote Query documentation](https://docs.medusajs.com/learn/fundamentals/module-links/query).\n\n:::note\n\nThis step is deprecated. Use [useQueryGraphStep](../../../../Common/Steps_Common/functions/core_flows.Common.Steps_Common.useQueryGraphStep/page.mdx) instead.\n\n:::","link":"../../../../Common/Steps_Common/functions/core_flows.Common.Steps_Common.useRemoteQueryStep/page.mdx","depth":1},{"type":"step","name":"useRemoteQueryStep","description":"This step fetches data across modules using the remote query.\n\nLearn more in the [Remote Query documentation](https://docs.medusajs.com/learn/fundamentals/module-links/query).\n\n:::note\n\nThis step is deprecated. Use [useQueryGraphStep](../../../../Common/Steps_Common/functions/core_flows.Common.Steps_Common.useQueryGraphStep/page.mdx) instead.\n\n:::","link":"../../../../Common/Steps_Common/functions/core_flows.Common.Steps_Common.useRemoteQueryStep/page.mdx","depth":2},{"type":"workflow","name":"createOrderChangeActionsWorkflow","description":"Create an order change action.","link":"../../../../Order/Workflows_Order/functions/core_flows.Order.Workflows_Order.createOrderChangeActionsWorkflow/page.mdx","depth":3},{"type":"step","name":"previewOrderChangeStep","description":"This step retrieves a preview of an order change.","link":"../../../../Order/Steps_Order/functions/core_flows.Order.Steps_Order.previewOrderChangeStep/page.mdx","depth":5}]}} />
+<WorkflowDiagram workflow={{"name":"updateDraftOrderItemWorkflow","steps":[{"type":"workflow","name":"createOrderChangeActionsWorkflow","description":"Create an order change action.","link":"../../../../Order/Workflows_Order/functions/core_flows.Order.Workflows_Order.createOrderChangeActionsWorkflow/page.mdx","depth":1},{"type":"step","name":"previewOrderChangeStep","description":"This step retrieves a preview of an order change.","link":"../../../../Order/Steps_Order/functions/core_flows.Order.Steps_Order.previewOrderChangeStep/page.mdx","depth":3}]}} />
 
 ## Input
 

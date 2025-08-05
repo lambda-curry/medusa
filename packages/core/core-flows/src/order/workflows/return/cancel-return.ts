@@ -32,14 +32,14 @@ export type CancelReturnValidateOrderInput = {
  * This step validates that a return can be canceled.
  * If the return is canceled, its fulfillment aren't canceled,
  * or it has received items, the step will throw an error.
- * 
+ *
  * :::note
- * 
+ *
  * You can retrieve a return details using [Query](https://docs.medusajs.com/learn/fundamentals/module-links/query),
  * or [useQueryGraphStep](https://docs.medusajs.com/resources/references/medusa-workflows/steps/useQueryGraphStep).
- * 
+ *
  * :::
- * 
+ *
  * @example
  * const data = cancelReturnValidateOrder({
  *   orderReturn: {
@@ -53,9 +53,7 @@ export type CancelReturnValidateOrderInput = {
  */
 export const cancelReturnValidateOrder = createStep(
   "validate-return",
-  ({
-    orderReturn,
-  }: CancelReturnValidateOrderInput) => {
+  ({ orderReturn }: CancelReturnValidateOrderInput) => {
     const orderReturn_ = orderReturn as ReturnDTO & {
       payment_collections: PaymentCollectionDTO[]
       fulfillments: FulfillmentDTO[]
@@ -92,12 +90,12 @@ export const cancelReturnValidateOrder = createStep(
 
 export const cancelReturnWorkflowId = "cancel-return"
 /**
- * This workflow cancels a return. It's used by the 
+ * This workflow cancels a return. It's used by the
  * [Cancel Return Admin API Route](https://docs.medusajs.com/api/admin#returns_postreturnsidcancel).
- * 
+ *
  * You can use this workflow within your customizations or your own custom workflows, allowing you
  * to cancel a return in your custom flow.
- * 
+ *
  * @example
  * const { result } = await cancelReturnWorkflow(container)
  * .run({
@@ -105,9 +103,9 @@ export const cancelReturnWorkflowId = "cancel-return"
  *     return_id: "return_123",
  *   }
  * })
- * 
+ *
  * @summary
- * 
+ *
  * Cancel a return.
  */
 export const cancelReturnWorkflow = createWorkflow(

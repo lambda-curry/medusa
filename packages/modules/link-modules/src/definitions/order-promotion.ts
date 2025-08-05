@@ -48,6 +48,13 @@ export const OrderPromotion: ModuleJoinerConfig = {
           path: "promotion_link.promotions",
           isList: true,
         },
+        /**
+         * @deprecated use the promotions field alias instead
+         */
+        promotion: {
+          path: "promotion_link.promotions",
+          isList: true,
+        },
       },
       relationship: {
         serviceName: LINKS.OrderPromotion,
@@ -55,6 +62,16 @@ export const OrderPromotion: ModuleJoinerConfig = {
         foreignKey: "id",
         alias: "promotion_link",
         isList: true,
+      },
+    },
+    {
+      serviceName: Modules.PROMOTION,
+      entity: "Promotion",
+      relationship: {
+        serviceName: LINKS.OrderPromotion,
+        primaryKey: "promotion_id",
+        foreignKey: "id",
+        alias: "order_link",
       },
     },
   ],

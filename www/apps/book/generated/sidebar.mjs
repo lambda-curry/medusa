@@ -25,7 +25,18 @@ export const generatedSidebars = [
             "type": "link",
             "path": "/learn/installation",
             "title": "Installation",
-            "children": [],
+            "children": [
+              {
+                "loaded": true,
+                "isPathHref": true,
+                "type": "link",
+                "path": "/learn/installation/docker",
+                "title": "Install with Docker",
+                "children": [],
+                "chapterTitle": "1.2.1. Install with Docker",
+                "number": "1.2.1."
+              }
+            ],
             "chapterTitle": "1.2. Installation",
             "number": "1.2."
           },
@@ -48,6 +59,16 @@ export const generatedSidebars = [
             "children": [],
             "chapterTitle": "1.4. AI Assistants and LLMs",
             "number": "1.4."
+          },
+          {
+            "loaded": true,
+            "isPathHref": true,
+            "type": "link",
+            "title": "From v1 to v2",
+            "path": "/learn/introduction/from-v1-to-v2",
+            "children": [],
+            "chapterTitle": "1.5. From v1 to v2",
+            "number": "1.5."
           }
         ],
         "chapterTitle": "1. Getting Started",
@@ -496,11 +517,21 @@ export const generatedSidebars = [
                 "loaded": true,
                 "isPathHref": true,
                 "type": "link",
+                "path": "/learn/fundamentals/data-models/json-properties",
+                "title": "JSON Properties",
+                "children": [],
+                "chapterTitle": "3.5.3. JSON Properties",
+                "number": "3.5.3."
+              },
+              {
+                "loaded": true,
+                "isPathHref": true,
+                "type": "link",
                 "path": "/learn/fundamentals/data-models/relationships",
                 "title": "Relationships",
                 "children": [],
-                "chapterTitle": "3.5.3. Relationships",
-                "number": "3.5.3."
+                "chapterTitle": "3.5.4. Relationships",
+                "number": "3.5.4."
               },
               {
                 "loaded": true,
@@ -509,8 +540,8 @@ export const generatedSidebars = [
                 "path": "/learn/fundamentals/data-models/manage-relationships",
                 "title": "Manage Relationships",
                 "children": [],
-                "chapterTitle": "3.5.4. Manage Relationships",
-                "number": "3.5.4."
+                "chapterTitle": "3.5.5. Manage Relationships",
+                "number": "3.5.5."
               },
               {
                 "loaded": true,
@@ -519,8 +550,8 @@ export const generatedSidebars = [
                 "path": "/learn/fundamentals/data-models/index",
                 "title": "Define Index",
                 "children": [],
-                "chapterTitle": "3.5.5. Define Index",
-                "number": "3.5.5."
+                "chapterTitle": "3.5.6. Define Index",
+                "number": "3.5.6."
               },
               {
                 "loaded": true,
@@ -529,8 +560,8 @@ export const generatedSidebars = [
                 "path": "/learn/fundamentals/data-models/check-constraints",
                 "title": "Check Constraints",
                 "children": [],
-                "chapterTitle": "3.5.6. Check Constraints",
-                "number": "3.5.6."
+                "chapterTitle": "3.5.7. Check Constraints",
+                "number": "3.5.7."
               },
               {
                 "loaded": true,
@@ -539,8 +570,8 @@ export const generatedSidebars = [
                 "path": "/learn/fundamentals/data-models/write-migration",
                 "title": "Migrations",
                 "children": [],
-                "chapterTitle": "3.5.7. Migrations",
-                "number": "3.5.7."
+                "chapterTitle": "3.5.8. Migrations",
+                "number": "3.5.8."
               }
             ],
             "chapterTitle": "3.5. Data Models",
@@ -809,9 +840,9 @@ export const generatedSidebars = [
                 "isPathHref": true,
                 "type": "link",
                 "path": "/learn/fundamentals/workflows/execute-another-workflow",
-                "title": "Execute Another Workflow",
+                "title": "Execute Nested Workflows",
                 "children": [],
-                "chapterTitle": "3.7.13. Execute Another Workflow",
+                "chapterTitle": "3.7.13. Execute Nested Workflows",
                 "number": "3.7.13."
               },
               {
@@ -823,6 +854,16 @@ export const generatedSidebars = [
                 "children": [],
                 "chapterTitle": "3.7.14. Multiple Step Usage",
                 "number": "3.7.14."
+              },
+              {
+                "loaded": true,
+                "isPathHref": true,
+                "type": "ref",
+                "path": "/learn/debugging-and-testing/debug-workflows",
+                "title": "Debug Workflows",
+                "children": [],
+                "chapterTitle": "3.7.15. Debug Workflows",
+                "number": "3.7.15."
               }
             ],
             "chapterTitle": "3.7. Workflows",
@@ -921,6 +962,16 @@ export const generatedSidebars = [
             ],
             "chapterTitle": "3.11. Custom CLI Scripts",
             "number": "3.11."
+          },
+          {
+            "loaded": true,
+            "isPathHref": true,
+            "type": "link",
+            "path": "/learn/fundamentals/generated-types",
+            "title": "Auto-Generated Types",
+            "children": [],
+            "chapterTitle": "3.12. Auto-Generated Types",
+            "number": "3.12."
           }
         ],
         "chapterTitle": "3. Framework",
@@ -1117,20 +1168,19 @@ export const generatedSidebars = [
             "type": "link",
             "path": "/learn/debugging-and-testing/testing-tools/modules-tests",
             "title": "Modules Tests",
-            "children": [
-              {
-                "loaded": true,
-                "isPathHref": true,
-                "type": "link",
-                "path": "/learn/debugging-and-testing/testing-tools/modules-tests/module-example",
-                "title": "Example",
-                "children": [],
-                "chapterTitle": "7.3.1. Example",
-                "number": "7.3.1."
-              }
-            ],
+            "children": [],
             "chapterTitle": "7.3. Modules Tests",
             "number": "7.3."
+          },
+          {
+            "loaded": true,
+            "isPathHref": true,
+            "type": "link",
+            "path": "/learn/debugging-and-testing/debug-workflows",
+            "title": "Debug Workflows",
+            "children": [],
+            "chapterTitle": "7.4. Debug Workflows",
+            "number": "7.4."
           },
           {
             "loaded": true,
@@ -1146,12 +1196,12 @@ export const generatedSidebars = [
                 "path": "/resources/integrations/guides/sentry",
                 "title": "Guide: Sentry",
                 "children": [],
-                "chapterTitle": "7.4.1. Guide: Sentry",
-                "number": "7.4.1."
+                "chapterTitle": "7.5.1. Guide: Sentry",
+                "number": "7.5.1."
               }
             ],
-            "chapterTitle": "7.4. Instrumentation",
-            "number": "7.4."
+            "chapterTitle": "7.5. Instrumentation",
+            "number": "7.5."
           },
           {
             "loaded": true,
@@ -1160,8 +1210,8 @@ export const generatedSidebars = [
             "path": "/learn/debugging-and-testing/logging",
             "title": "Logging",
             "children": [],
-            "chapterTitle": "7.5. Logging",
-            "number": "7.5."
+            "chapterTitle": "7.6. Logging",
+            "number": "7.6."
           }
         ],
         "chapterTitle": "7. Debugging & Testing",

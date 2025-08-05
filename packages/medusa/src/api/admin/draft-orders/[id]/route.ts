@@ -57,7 +57,7 @@ export const POST = async (
 }
 
 /**
- * @version 2.8.4
+ * @since 2.8.4
  */
 export const DELETE = async (
   req: AuthenticatedMedusaRequest,

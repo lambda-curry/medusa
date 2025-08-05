@@ -474,6 +474,12 @@ const redirects = async () => {
       destination: "/resources/js-client/:path*",
       permanent: true,
     },
+    {
+      source:
+        "/learn/debugging-and-testing/testing-tools/modules-tests/module-example",
+      destination: "/learn/debugging-and-testing/testing-tools/modules-tests",
+      permanent: true,
+    },
   ]
 }
 

@@ -20,7 +20,7 @@ const ExclamationCircle = React.forwardRef<SVGSVGElement, IconProps>(
           />
           <path
             strokeWidth={0.9}
-            d="M7.5 10.976a.44.44 0 0 1 0-.878.44.44 0 0 1 0 .878Z"
+            d="M7.5 10.099a.44.44 0 0 1 .44.438.44.44 0 0 1-.44.44.44.44 0 0 1 0-.878Z"
           />
         </g>
         <defs>

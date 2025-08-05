@@ -223,6 +223,14 @@ const generatedgeneratedTroubleshootingSidebarSidebar = {
           "path": "/troubleshooting/s3",
           "title": "S3 Module Provider Errors",
           "children": []
+        },
+        {
+          "loaded": true,
+          "isPathHref": true,
+          "type": "link",
+          "path": "/troubleshooting/payment",
+          "title": "Payment Provider Errors",
+          "children": []
         }
       ]
     },

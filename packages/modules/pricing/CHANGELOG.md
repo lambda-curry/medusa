@@ -1,5 +1,14 @@
 # @medusajs/pricing
 
+## 2.8.8
+
+### Patch Changes
+
+- [#12981](https://github.com/medusajs/medusa/pull/12981) [`822217fa366d4399d3f6a0407451c9649197d5d9`](https://github.com/medusajs/medusa/commit/822217fa366d4399d3f6a0407451c9649197d5d9) Thanks [@riqwan](https://github.com/riqwan)! - fix(pricing): fix pricing query when max_quantity is null
+
+- Updated dependencies [[`43fb06ecc2d87ea2a11e12524679c142eb890ec7`](https://github.com/medusajs/medusa/commit/43fb06ecc2d87ea2a11e12524679c142eb890ec7)]:
+  - @medusajs/framework@2.8.8
+
 ## 2.8.7
 
 ### Patch Changes

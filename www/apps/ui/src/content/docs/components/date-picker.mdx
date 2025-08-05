@@ -23,3 +23,47 @@ import { DatePicker } from "@medusajs/ui"
 ---
 
 <ComponentReference mainComponent="DatePicker" />
+
+## Examples
+
+---
+
+### Controlled Date Picker
+
+Manage and store the value of the date picker in a state variable for controlled behavior. This is also useful for form integration.
+
+<ComponentExample name="date-picker-controlled" />
+
+### Date Picker With Time
+
+Enable time selection with different granularity levels for precise scheduling.
+
+<ComponentExample name="date-picker-with-time" />
+
+### Min/Max Values
+
+Restrict date selection to a specific range by setting minimum and maximum values.
+
+In the example below, you can only select dates within the next 30 days. Dates outside the range are disabled.
+
+<ComponentExample name="date-picker-min-max" />
+
+### Disabled Dates
+
+Disable specific dates like weekends and holidays to prevent selection of unavailable dates.
+
+The example below disables weekends and holidays like Christmas.
+
+<ComponentExample name="date-picker-business-hours" />
+
+### Granularity Options
+
+Different levels of time precision from date-only to second-precision selection.
+
+<ComponentExample name="date-picker-granularity" />
+
+### Form Integration
+
+The following example shows how to use the date picker in a form, with simulated form submission.
+
+<ComponentExample name="date-picker-form" />

@@ -35,6 +35,10 @@ export default class AuthProviderService {
         const errMessage = `
 Unable to retrieve the auth provider with id: ${providerId}
 Please make sure that the provider is registered in the container and it is configured correctly in your project configuration file.`
+
+        // Log full error for debugging
+        this.#logger.error(`AwilixResolutionError: ${err.message}`, err)
+
         throw new Error(errMessage)
       }
 

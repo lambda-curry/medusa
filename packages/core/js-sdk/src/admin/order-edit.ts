@@ -188,6 +188,8 @@ export class OrderEdit {
    * [Update Item Quantity](https://docs.medusajs.com/api/admin#order-edits_postordereditsiditemsitemitem_id)
    * API route.
    * 
+   * You can also use this method to remove an item from an order by setting the `quantity` to `0`.
+   * 
    * @param id - The order edit's ID.
    * @param itemId - The item's ID in the order.
    * @param body - The data to edit in the item.

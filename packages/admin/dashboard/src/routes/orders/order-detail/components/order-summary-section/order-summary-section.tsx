@@ -51,6 +51,7 @@ import { useReturns } from "../../../../../hooks/api/returns"
 import { useDate } from "../../../../../hooks/use-date"
 import { getTotalCreditLines } from "../../../../../lib/credit-line"
 import { formatCurrency } from "../../../../../lib/format-currency"
+import { getReservationsLimitCount } from "../../../../../lib/orders"
 import {
   getLocaleAmount,
   getStylizedAmount,
@@ -78,6 +79,7 @@ export const OrderSummarySection = ({
   const { reservations } = useReservationItems(
     {
       line_item_id: order?.items?.map((i) => i.id),
+      limit: getReservationsLimitCount(order),
     },
     { enabled: Array.isArray(order?.items) }
   )

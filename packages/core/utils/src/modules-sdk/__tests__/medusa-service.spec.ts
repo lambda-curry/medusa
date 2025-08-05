@@ -29,6 +29,14 @@ describe("Abstract Module Service Factory", () => {
     mainModelMockService: {
       retrieve: jest.fn().mockResolvedValue({ id: "1", name: "Item" }),
       list: jest.fn().mockResolvedValue([{ id: "1", name: "Item" }]),
+      create: jest.fn().mockImplementation((data) => {
+        // Return single object if single object passed, array if array passed
+        return Array.isArray(data) ? data.map(item => ({ ...item, id: "1" })) : { ...data, id: "1" }
+      }),
+      update: jest.fn().mockImplementation((data) => {
+        // Return single object if single object passed, array if array passed
+        return Array.isArray(data) ? data.map(item => ({ ...item, updated: true })) : { ...data, updated: true }
+      }),
       delete: jest.fn().mockResolvedValue([]),
       softDelete: jest.fn().mockResolvedValue([[], {}]),
       restore: jest.fn().mockResolvedValue([[], {}]),
@@ -36,6 +44,12 @@ describe("Abstract Module Service Factory", () => {
     otherModelMock1Service: {
       retrieve: jest.fn().mockResolvedValue({ id: "1", name: "Item" }),
       list: jest.fn().mockResolvedValue([{ id: "1", name: "Item" }]),
+      create: jest.fn().mockImplementation((data) => {
+        return Array.isArray(data) ? data.map(item => ({ ...item, id: "1" })) : { ...data, id: "1" }
+      }),
+      update: jest.fn().mockImplementation((data) => {
+        return Array.isArray(data) ? data.map(item => ({ ...item, updated: true })) : { ...data, updated: true }
+      }),
       delete: jest.fn().mockResolvedValue([]),
       softDelete: jest.fn().mockResolvedValue([[], {}]),
       restore: jest.fn().mockResolvedValue([[], {}]),
@@ -43,6 +57,12 @@ describe("Abstract Module Service Factory", () => {
     otherModelMock2Service: {
       retrieve: jest.fn().mockResolvedValue({ id: "1", name: "Item" }),
       list: jest.fn().mockResolvedValue([{ id: "1", name: "Item" }]),
+      create: jest.fn().mockImplementation((data) => {
+        return Array.isArray(data) ? data.map(item => ({ ...item, id: "1" })) : { ...data, id: "1" }
+      }),
+      update: jest.fn().mockImplementation((data) => {
+        return Array.isArray(data) ? data.map(item => ({ ...item, updated: true })) : { ...data, updated: true }
+      }),
       delete: jest.fn().mockResolvedValue([]),
       softDelete: jest.fn().mockResolvedValue([[], {}]),
       restore: jest.fn().mockResolvedValue([[], {}]),
@@ -122,6 +142,77 @@ describe("Abstract Module Service Factory", () => {
         defaultTransactionContext
       )
     })
+
+    it("should have create method that handles single object input", async () => {
+      const inputData = { name: "Test Item" }
+      const result = await instance.createMainModelMocks(inputData)
+      
+      // Should return single object when single object is passed
+      expect(result).toEqual({ name: "Test Item", id: "1" })
+      expect(Array.isArray(result)).toBe(false)
+      
+      // Should call underlying service with single object (not wrapped in array)
+      expect(containerMock.mainModelMockService.create).toHaveBeenCalledWith(
+        inputData,
+        defaultTransactionContext
+      )
+    })
+
+    it("should have create method that handles array input", async () => {
+      const inputData = [{ name: "Test Item 1" }, { name: "Test Item 2" }]
+      const result = await instance.createMainModelMocks(inputData)
+      
+      // Should return array when array is passed
+      expect(result).toEqual([
+        { name: "Test Item 1", id: "1" },
+        { name: "Test Item 2", id: "1" }
+      ])
+      expect(Array.isArray(result)).toBe(true)
+      expect(result).toHaveLength(2)
+      
+      // Should call underlying service with array
+      expect(containerMock.mainModelMockService.create).toHaveBeenCalledWith(
+        inputData,
+        defaultTransactionContext
+      )
+    })
+
+    it("should have update method that handles single object input", async () => {
+      const inputData = { id: "1", name: "Updated Item" }
+      const result = await instance.updateMainModelMocks(inputData)
+      
+      // Should return single object when single object is passed
+      expect(result).toEqual({ id: "1", name: "Updated Item", updated: true })
+      expect(Array.isArray(result)).toBe(false)
+      
+      // Should call underlying service with single object (not wrapped in array)
+      expect(containerMock.mainModelMockService.update).toHaveBeenCalledWith(
+        inputData,
+        defaultTransactionContext
+      )
+    })
+
+    it("should have update method that handles array input", async () => {
+      const inputData = [
+        { id: "1", name: "Updated Item 1" },
+        { id: "2", name: "Updated Item 2" }
+      ]
+      const result = await instance.updateMainModelMocks(inputData)
+      
+      // Should return array when array is passed
+      expect(result).toEqual([
+        { id: "1", name: "Updated Item 1", updated: true },
+        { id: "2", name: "Updated Item 2", updated: true }
+      ])
+      expect(Array.isArray(result)).toBe(true)
+      expect(result).toHaveLength(2)
+      
+      // Should call underlying service with array
+      expect(containerMock.mainModelMockService.update).toHaveBeenCalledWith(
+        inputData,
+        defaultTransactionContext
+      )
+    })
   })
 
   describe("Other Models Methods", () => {
@@ -185,6 +276,77 @@ describe("Abstract Module Service Factory", () => {
         defaultTransactionContext
       )
     })
+
+    it("should have create method for other models that handles single object input", async () => {
+      const inputData = { name: "Test Other Item" }
+      const result = await instance.createOtherModelMock1s(inputData)
+      
+      // Should return single object when single object is passed
+      expect(result).toEqual({ name: "Test Other Item", id: "1" })
+      expect(Array.isArray(result)).toBe(false)
+      
+      // Should call underlying service with single object (not wrapped in array)
+      expect(containerMock.otherModelMock1Service.create).toHaveBeenCalledWith(
+        inputData,
+        defaultTransactionContext
+      )
+    })
+
+    it("should have create method for other models that handles array input", async () => {
+      const inputData = [{ name: "Test Other Item 1" }, { name: "Test Other Item 2" }]
+      const result = await instance.createOtherModelMock1s(inputData)
+      
+      // Should return array when array is passed
+      expect(result).toEqual([
+        { name: "Test Other Item 1", id: "1" },
+        { name: "Test Other Item 2", id: "1" }
+      ])
+      expect(Array.isArray(result)).toBe(true)
+      expect(result).toHaveLength(2)
+      
+      // Should call underlying service with array
+      expect(containerMock.otherModelMock1Service.create).toHaveBeenCalledWith(
+        inputData,
+        defaultTransactionContext
+      )
+    })
+
+    it("should have update method for other models that handles single object input", async () => {
+      const inputData = { id: "1", name: "Updated Other Item" }
+      const result = await instance.updateOtherModelMock1s(inputData)
+      
+      // Should return single object when single object is passed
+      expect(result).toEqual({ id: "1", name: "Updated Other Item", updated: true })
+      expect(Array.isArray(result)).toBe(false)
+      
+      // Should call underlying service with single object (not wrapped in array)
+      expect(containerMock.otherModelMock1Service.update).toHaveBeenCalledWith(
+        inputData,
+        defaultTransactionContext
+      )
+    })
+
+    it("should have update method for other models that handles array input", async () => {
+      const inputData = [
+        { id: "1", name: "Updated Other Item 1" },
+        { id: "2", name: "Updated Other Item 2" }
+      ]
+      const result = await instance.updateOtherModelMock1s(inputData)
+      
+      // Should return array when array is passed
+      expect(result).toEqual([
+        { id: "1", name: "Updated Other Item 1", updated: true },
+        { id: "2", name: "Updated Other Item 2", updated: true }
+      ])
+      expect(Array.isArray(result)).toBe(true)
+      expect(result).toHaveLength(2)
+      
+      // Should call underlying service with array
+      expect(containerMock.otherModelMock1Service.update).toHaveBeenCalledWith(
+        inputData,
+        defaultTransactionContext
+      )
+    })
   })
 
   describe("Custom configuration using DML", () => {
@@ -196,6 +358,12 @@ describe("Abstract Module Service Factory", () => {
       houseService: {
         retrieve: jest.fn().mockResolvedValue({ id: "1", name: "Item" }),
         list: jest.fn().mockResolvedValue([{ id: "1", name: "Item" }]),
+        create: jest.fn().mockImplementation((data) => {
+          return Array.isArray(data) ? data.map(item => ({ ...item, id: "1" })) : { ...data, id: "1" }
+        }),
+        update: jest.fn().mockImplementation((data) => {
+          return Array.isArray(data) ? data.map(item => ({ ...item, updated: true })) : { ...data, updated: true }
+        }),
         delete: jest.fn().mockResolvedValue(undefined),
         softDelete: jest.fn().mockResolvedValue([[], {}]),
         restore: jest.fn().mockResolvedValue([[], {}]),
@@ -203,6 +371,12 @@ describe("Abstract Module Service Factory", () => {
       carService: {
         retrieve: jest.fn().mockResolvedValue({ id: "1", name: "Item" }),
         list: jest.fn().mockResolvedValue([{ id: "1", name: "Item" }]),
+        create: jest.fn().mockImplementation((data) => {
+          return Array.isArray(data) ? data.map(item => ({ ...item, id: "1" })) : { ...data, id: "1" }
+        }),
+        update: jest.fn().mockImplementation((data) => {
+          return Array.isArray(data) ? data.map(item => ({ ...item, updated: true })) : { ...data, updated: true }
+        }),
         delete: jest.fn().mockResolvedValue(undefined),
         softDelete: jest.fn().mockResolvedValue([[], {}]),
         restore: jest.fn().mockResolvedValue([[], {}]),
@@ -210,6 +384,12 @@ describe("Abstract Module Service Factory", () => {
       userService: {
         retrieve: jest.fn().mockResolvedValue({ id: "1", name: "Item" }),
         list: jest.fn().mockResolvedValue([{ id: "1", name: "Item" }]),
+        create: jest.fn().mockImplementation((data) => {
+          return Array.isArray(data) ? data.map(item => ({ ...item, id: "1" })) : { ...data, id: "1" }
+        }),
+        update: jest.fn().mockImplementation((data) => {
+          return Array.isArray(data) ? data.map(item => ({ ...item, updated: true })) : { ...data, updated: true }
+        }),
         delete: jest.fn().mockResolvedValue(undefined),
         softDelete: jest.fn().mockResolvedValue([[], {}]),
         restore: jest.fn().mockResolvedValue([[], {}]),

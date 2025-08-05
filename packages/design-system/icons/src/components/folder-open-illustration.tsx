@@ -31,7 +31,7 @@ const FolderOpenIllustration = React.forwardRef<SVGSVGElement, IconProps>(
             strokeLinejoin="round"
             strokeOpacity={0.15}
             strokeWidth={0.5}
-            d="M7.034 2.922a.25.25 0 0 0 .196.094h4.387c1.142 0 2.068.926 2.068 2.068v6.067a2.07 2.07 0 0 1-2.068 2.068H3.383a2.07 2.07 0 0 1-2.068-2.068V3.784c0-1.142.926-2.068 2.068-2.068h1.691c.628 0 1.22.284 1.613.773z"
+            d="M3.383 1.716h1.69c.55 0 1.073.218 1.458.6l.156.173.348.433a.25.25 0 0 0 .195.094h4.387c1.142 0 2.068.926 2.068 2.068v6.067a2.07 2.07 0 0 1-2.068 2.068H3.383a2.07 2.07 0 0 1-2.068-2.068V3.783c0-1.142.926-2.068 2.068-2.068"
           />
           <g fillRule="evenodd" clipRule="evenodd" filter="url(#c)">
             <path

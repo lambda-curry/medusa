@@ -10,7 +10,7 @@ export const ContainerRegistrationKeys = {
    */
   REMOTE_LINK: "remoteLink",
   /**
-   * @version 2.2.0
+   * @since 2.2.0
    */
   LINK: "link",
   FEATURE_FLAG_ROUTER: "featureFlagRouter",

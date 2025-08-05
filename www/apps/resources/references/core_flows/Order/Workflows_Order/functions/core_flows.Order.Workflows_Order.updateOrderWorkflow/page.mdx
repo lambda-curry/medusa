@@ -3,7 +3,6 @@ slug: /references/medusa-workflows/updateOrderWorkflow
 sidebar_label: updateOrderWorkflow
 sidebar_description: Update an order's details.
 tags:
-  - query
   - order
   - event bus
   - workflow
@@ -21,7 +20,7 @@ This workflow updates an order's general details, such as its email or addresses
 You can use this workflow within your customizations or your own custom workflows, allowing you to update an
 order's details in your custom flows.
 
-<SourceCodeLink link="https://github.com/medusajs/medusa/blob/e0b5bb0b224458ebc8c93111e72f9a10aecf0275/packages/core/core-flows/src/order/workflows/update-order.ts#L120" />
+<SourceCodeLink link="https://github.com/medusajs/medusa/blob/394226b5c18d11072da826ed6a07d4e602e62f18/packages/core/core-flows/src/order/workflows/update-order.ts#L120" />
 
 ## Examples
 
@@ -138,7 +137,7 @@ const myWorkflow = createWorkflow(
 
 ## Steps
 
-<WorkflowDiagram workflow={{"name":"updateOrderWorkflow","steps":[{"type":"step","name":"useQueryGraphStep","description":"This step fetches data across modules using the Query.\n\nLearn more in the [Query documentation](https://docs.medusajs.com/learn/fundamentals/module-links/query).","link":"../../../../Common/Steps_Common/functions/core_flows.Common.Steps_Common.useQueryGraphStep/page.mdx","depth":1},{"type":"step","name":"updateOrderValidationStep","description":"This step validates that an order can be updated with provided input. If the order is cancelled,\nthe email is invalid, or the country code is being changed in the shipping or billing addresses, the step will throw an error.\n\n:::note\n\nYou can retrieve an order's details using [Query](https://docs.medusajs.com/learn/fundamentals/module-links/query),\nor [useQueryGraphStep](https://docs.medusajs.com/resources/references/medusa-workflows/steps/useQueryGraphStep).\n\n:::","link":"../core_flows.Order.Workflows_Order.updateOrderValidationStep/page.mdx","depth":2},{"type":"step","name":"updateOrdersStep","description":"This step updates orders matching the specified filters.","link":"../../../Steps_Order/functions/core_flows.Order.Steps_Order.updateOrdersStep/page.mdx","depth":3},{"type":"step","name":"registerOrderChangesStep","description":"This step registers an order changes.","link":"../../../Steps_Order/functions/core_flows.Order.Steps_Order.registerOrderChangesStep/page.mdx","depth":4},{"type":"step","name":"emitEventStep","description":"Emit an event.","link":"../../../../Common/Steps_Common/functions/core_flows.Common.Steps_Common.emitEventStep/page.mdx","depth":5},{"type":"step","name":"previewOrderChangeStep","description":"This step retrieves a preview of an order change.","link":"../../../Steps_Order/functions/core_flows.Order.Steps_Order.previewOrderChangeStep/page.mdx","depth":6}]}} />
+<WorkflowDiagram workflow={{"name":"updateOrderWorkflow","steps":[{"type":"step","name":"updateOrderValidationStep","description":"This step validates that an order can be updated with provided input. If the order is cancelled,\nthe email is invalid, or the country code is being changed in the shipping or billing addresses, the step will throw an error.\n\n:::note\n\nYou can retrieve an order's details using [Query](https://docs.medusajs.com/learn/fundamentals/module-links/query),\nor [useQueryGraphStep](https://docs.medusajs.com/resources/references/medusa-workflows/steps/useQueryGraphStep).\n\n:::","link":"../core_flows.Order.Workflows_Order.updateOrderValidationStep/page.mdx","depth":1},{"type":"step","name":"updateOrdersStep","description":"This step updates orders matching the specified filters.","link":"../../../Steps_Order/functions/core_flows.Order.Steps_Order.updateOrdersStep/page.mdx","depth":2},{"type":"step","name":"registerOrderChangesStep","description":"This step registers an order changes.","link":"../../../Steps_Order/functions/core_flows.Order.Steps_Order.registerOrderChangesStep/page.mdx","depth":3},{"type":"step","name":"emitEventStep","description":"Emit an event.","link":"../../../../Common/Steps_Common/functions/core_flows.Common.Steps_Common.emitEventStep/page.mdx","depth":4},{"type":"step","name":"previewOrderChangeStep","description":"This step retrieves a preview of an order change.","link":"../../../Steps_Order/functions/core_flows.Order.Steps_Order.previewOrderChangeStep/page.mdx","depth":5}]}} />
 
 ## Input
 

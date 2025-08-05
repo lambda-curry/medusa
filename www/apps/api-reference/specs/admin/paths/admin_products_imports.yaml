@@ -47,4 +47,4 @@ post:
       $ref: ../components/responses/500_error.yaml
   x-workflow: importProductsAsChunksWorkflow
   x-events: []
-  x-version: 2.8.5
+  x-since: 2.8.5

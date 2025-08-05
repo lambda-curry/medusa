@@ -72,7 +72,6 @@ export function getShippingMethodTotals(
     adjustmentsTaxTotal: discountsTaxTotal,
   } = calculateAdjustmentTotal({
     adjustments: shippingMethod.adjustments || [],
-    includesTax: isTaxInclusive,
     taxRate: sumTaxRate,
   })
 

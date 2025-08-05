@@ -1813,6 +1813,110 @@ medusaIntegrationTestRunner({
           )
         })
 
+        it("updates products relations and attributes", async () => {
+          const shortsCategory = (
+            await api.post(
+              "/admin/product-categories",
+              { name: "Shorts", is_internal: false, is_active: true },
+              adminHeaders
+            )
+          ).data.product_category
+
+          const pantsCategory = (
+            await api.post(
+              "/admin/product-categories",
+              { name: "Pants", is_internal: false, is_active: true },
+              adminHeaders
+            )
+          ).data.product_category
+
+          const payload = {
+            title: "Test an update",
+            weight: 100,
+            length: 100,
+            width: 100,
+            height: 100,
+            options: [{ title: "size", values: ["large", "small"] }],
+            variants: [
+              {
+                options: { size: "large" },
+                title: "New variant",
+                prices: [
+                  {
+                    currency_code: "usd",
+                    amount: 200,
+                  },
+                ],
+              },
+            ],
+          }
+
+          const createdProduct = (
+            await api.post("/admin/products", payload, adminHeaders)
+          ).data.product
+
+          let updatedProduct = (
+            await api.post(
+              `/admin/products/${createdProduct.id}`,
+              { weight: 20, length: null },
+              adminHeaders
+            )
+          ).data.product
+
+          expect(updatedProduct).toEqual(
+            expect.objectContaining({
+              weight: "20",
+              length: null,
+              width: "100",
+              height: "100",
+            })
+          )
+
+          updatedProduct = (
+            await api.post(
+              `/admin/products/${createdProduct.id}?fields=+categories.id`,
+              { categories: [{ id: pantsCategory.id }] },
+              adminHeaders
+            )
+          ).data.product
+
+          expect(updatedProduct).toEqual(
+            expect.objectContaining({
+              weight: "20",
+              length: null,
+              width: "100",
+              height: "100",
+              categories: expect.arrayContaining([
+                expect.objectContaining({
+                  id: pantsCategory.id,
+                }),
+              ]),
+            })
+          )
+
+          updatedProduct = (
+            await api.post(
+              `/admin/products/${createdProduct.id}?fields=+categories.id`,
+              { weight: null, length: 20, width: 50 },
+              adminHeaders
+            )
+          ).data.product
+
+          expect(updatedProduct).toEqual(
+            expect.objectContaining({
+              weight: null,
+              length: "20",
+              width: "50",
+              height: "100",
+              categories: expect.arrayContaining([
+                expect.objectContaining({
+                  id: pantsCategory.id,
+                }),
+              ]),
+            })
+          )
+        })
+
         it("updates a product (update prices, tags, update status, delete collection, delete type, replaces images)", async () => {
           const payload = {
             collection_id: null,
@@ -2157,6 +2261,99 @@ medusaIntegrationTestRunner({
             "test-key-2": null, // updated
             "test-key-3": "test-value-3", // preserved
           })
+        })
+
+        it("should recreate a variant with the same sku after deletion", async () => {
+          const payload = {
+            title: "Test sku",
+            shipping_profile_id: shippingProfile.id,
+            variants: [
+              {
+                sku: "test-sku-should-persist",
+                manage_inventory: true,
+                title: "Recreate variant",
+                prices: [
+                  {
+                    currency_code: "usd",
+                    amount: 100,
+                  },
+                ],
+              },
+            ],
+          }
+
+          const created = (
+            await api.post(
+              "/admin/products?fields=*variants.inventory_items.inventory",
+              getProductFixture(payload),
+              adminHeaders
+            )
+          ).data.product
+
+          const createdVariant = created.variants.find(
+            (v) => v.sku === "test-sku-should-persist"
+          )
+
+          const inventoryItem = createdVariant.inventory_items[0]
+
+          expect(created).toEqual(
+            expect.objectContaining({
+              variants: expect.arrayContaining([
+                expect.objectContaining({
+                  sku: "test-sku-should-persist",
+                  inventory_items: expect.arrayContaining([
+                    expect.objectContaining({
+                      inventory: expect.objectContaining({
+                        sku: "test-sku-should-persist",
+                      }),
+                    }),
+                  ]),
+                  title: "Recreate variant",
+                }),
+              ]),
+            })
+          )
+
+          await api.delete(
+            `/admin/products/${created.id}/variants/${createdVariant.id}`,
+            adminHeaders
+          )
+
+          const recreated = (
+            await api.post(
+              `/admin/products/${created.id}/variants?fields=+variants.inventory_items.inventory.sku`,
+              {
+                sku: "test-sku-should-persist",
+                manage_inventory: true,
+                title: "Recreate variant",
+                prices: [
+                  {
+                    currency_code: "usd",
+                    amount: 100,
+                  },
+                ],
+              },
+              adminHeaders
+            )
+          ).data.product
+
+          expect(recreated).toEqual(
+            expect.objectContaining({
+              variants: expect.arrayContaining([
+                expect.objectContaining({
+                  sku: "test-sku-should-persist",
+                  inventory_items: expect.arrayContaining([
+                    expect.objectContaining({
+                      inventory: expect.objectContaining({
+                        sku: "test-sku-should-persist",
+                      }),
+                    }),
+                  ]),
+                  title: "Recreate variant",
+                }),
+              ]),
+            })
+          )
         })
 
         it("updates products sales channels", async () => {

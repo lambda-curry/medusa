@@ -135,7 +135,9 @@ const Vendor = model.define("vendor", {
   handle: model.text().unique(),
   name: model.text(),
   logo: model.text().nullable(),
-  admins: model.hasMany(() => VendorAdmin),
+  admins: model.hasMany(() => VendorAdmin, {
+    mappedBy: "vendor",
+  }),
 })
 
 export default Vendor
@@ -1643,8 +1645,8 @@ export const createVendorOrdersWorkflowHighlights = [
   ["30", "completeCartWorkflow", "Create the parent order from the cart."],
   ["36", "groupVendorItemsStep", "Group the items by their vendor."],
   ["40", "getOrderDetailWorkflow", "Retrieve the parent order's details."],
-  ["59", "createVendorOrdersStep", "Create child orders for each vendor"],
-  ["64", "createRemoteLinkStep", "Create the links returned by the previous step."]
+  ["61", "createVendorOrdersStep", "Create child orders for each vendor"],
+  ["66", "createRemoteLinkStep", "Create the links returned by the previous step."]
 ]
 
 ```ts title="src/workflows/marketplace/create-vendor-orders/index.ts" collapsibleLines="1-13" expandMoreLabel="Show Imports"
@@ -1699,6 +1701,8 @@ const createVendorOrdersWorkflow = createWorkflow(
           "shipping_address.*",
           "billing_address.*",
           "shipping_methods.*",
+          "shipping_methods.tax_lines.*",
+          "shipping_methods.adjustments.*",
         ],
       },
     })

@@ -1,9 +1,9 @@
+import { ErrorRequestHandler, NextFunction, Response } from "express"
 import { fromZodIssue } from "zod-validation-error"
-import { NextFunction, ErrorRequestHandler, Response } from "express"
 
 import { ContainerRegistrationKeys, MedusaError } from "@medusajs/utils"
-import { formatException } from "./exception-formatter"
 import { MedusaRequest } from "../types"
+import { formatException } from "./exception-formatter"
 
 const QUERY_RUNNER_RELEASED = "QueryRunnerAlreadyReleasedError"
 const TRANSACTION_STARTED = "TransactionAlreadyStartedError"
@@ -31,7 +31,6 @@ export function errorHandler() {
     }
 
     err = formatException(err)
-    logger.error(err)
 
     const errorType = err.type || err.name
     const errObj = {
@@ -80,6 +79,12 @@ export function errorHandler() {
         errObj.message = "An unknown error occurred."
         errObj.type = "unknown_error"
         break
+    }
+
+    if (statusCode >= 500) {
+      logger.error(err)
+    } else {
+      logger.info(err.message)
     }
 
     if ("issues" in err && Array.isArray(err.issues)) {

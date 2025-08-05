@@ -235,8 +235,8 @@ export const applyFirstPurchasePromoWorkflow = createWorkflow(
       entity: "promotion",
       fields: ["code"],
       filters: {
-        code: FIRST_PURCHASE_PROMOTION_CODE
-      }
+        code: FIRST_PURCHASE_PROMOTION_CODE,
+      },
     }).config({ name: "retrieve-promotions" })
 
     when({ 

@@ -1,13 +1,13 @@
 import { raw } from "express"
-import { MedusaRequest, MedusaResponse, MedusaNextFunction } from "../../types"
+import { z } from "zod"
+import { MedusaNextFunction, MedusaRequest, MedusaResponse } from "../../types"
+import { defineMiddlewares } from "../../utils/define-middlewares"
 import {
   customersCreateMiddlewareMock,
-  customersGlobalMiddlewareMock,
   customersCreateMiddlewareValidatorMock,
+  customersGlobalMiddlewareMock,
   storeGlobalMiddlewareMock,
 } from "../mocks"
-import z from "zod"
-import { defineMiddlewares } from "../../utils/define-middlewares"
 
 const customersGlobalMiddleware = (
   req: MedusaRequest,

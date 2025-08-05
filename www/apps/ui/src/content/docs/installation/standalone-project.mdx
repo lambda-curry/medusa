@@ -1,44 +1,58 @@
 ---
-title: "Standalone Project"
-description: "How to install and use Medusa UI in a standalone project."
+title: "Medusa UI Installation in Standalone Projects"
+description: "Learn how to install and use Medusa UI in a standalone project."
 ---
 
-## Installation
+Medusa UI is a React UI library that, while intended for usage within Medusa projects, can also be used in any React project.
+
+<Note>
+
+The icons package is installed independently from Medusa UI. Learn how to install it in the [Icons](../icons/overview.mdx) guide.
+
+</Note>
+
+## Medusa UI Compatibility
+
+To use Medusa UI in your standalone project, you must have:
+
+- React 18+ installed. Most React-based frameworks and libraries, such as Next.js and Vite, are compatible with this requirement.
+- [Tailwind CSS](https://v3.tailwindcss.com/) installed. The components in Medusa UI are styled using Tailwind CSS, so you will need to install it in your project as well.
+    - Medusa UI was built with Tailwind CSS v3, but it may generally support v4 as well.
 
 ---
 
-Medusa UI is a React UI library and while it's intended for usage within Medusa projects, it can also be used in any React project.
+## Step 1: Install Medusa UI
 
-### Install Medusa UI
-
-Install the React UI library with the following command:
+In your standalone project, install the Medusa UI package with the following command:
 
 <PackageInstall packageName="@medusajs/ui" />
 
-### Configuring Tailwind CSS
+---
 
-The components are styled using Tailwind CSS, and in order to use them, you will need to install Tailwind CSS in your project as well.
-For more information on how to install Tailwind CSS, please refer to the [Tailwind CSS documentation](https://tailwindcss.com/docs/installation).
+## Step 2: Install UI Presets
 
-All of the classes used for Medusa UI are shipped as a Tailwind CSS customization.
-You can install it with the following command:
+Medusa UI customizes Tailwind CSS classes to implement its design system. So, you must also install the Medusa UI preset package.
+
+To install the Medusa UI preset, run the following command:
 
 <PackageInstall packageName="@medusajs/ui-preset" devDependency />
 
-After you have installed Tailwind CSS and the Medusa UI preset, you need to add the following to your `tailwind.config.js`file:
+---
 
-```tsx
+## Step 3: Configure Tailwind CSS
+
+Next, you'll need to configure Tailwind CSS to use the Medusa UI preset and explicitly add the paths to the Medusa UI components as content files.
+
+### Tailwind CSS v3 Configurations
+
+In Tailwind CSS v3, which is the recommended version to use with Medusa UI, you need to add the following configurations to your `tailwind.config.js` or `tailwind.config.ts` file:
+
+1. Add the Medusa UI preset to the `presets` array.
+2. Ensure that the `content` field includes the path to the Medusa UI package.
+
+```js title="tailwind.config.js"
 module.exports = {
   presets: [require("@medusajs/ui-preset")],
-  // ...
-}
-```
-
-In order for the styles to be applied correctly to the components, you will also need to ensure that
-`@medusajs/ui` is included in the content field of your `tailwind.config.js` file:
-
-```tsx
-module.exports = {
   content: [
     // ...
     "./node_modules/@medusajs/ui/dist/**/*.{js,jsx,ts,tsx}",
@@ -47,9 +61,9 @@ module.exports = {
 }
 ```
 
-If you are working within a monorepo, you may need to add the path to the `@medusajs/ui` package in your `tailwind.config.js` like so:
+If your project is in a monorepo, you'll need to resolve the path to the `@medusajs/ui` package from the monorepo root:
 
-```tsx
+```tsx title="tailwind.config.js"
 const path = require("path")
 
 const uiPath = path.resolve(
@@ -59,6 +73,7 @@ const uiPath = path.resolve(
 )
 
 module.exports = {
+  presets: [require("@medusajs/ui-preset")],
   content: [
     // ...
     uiPath,
@@ -68,24 +83,55 @@ module.exports = {
 
 ```
 
-## Start building
+### Tailwind CSS v4 Configurations
+
+Medusa UI isn't officially compatible with Tailwind CSS v4 yet, so use it with caution.
+
+In your CSS file that imports Tailwind CSS, add the following `@config` and `@source` directives:
+
+```css
+@import "tailwindcss";
+@source "../node_modules/@medusajs/ui";
+@config "@medusajs/ui-preset";
+```
+
+This will explicitly include the Medusa UI preset and its components in your Tailwind CSS build, and will apply the preset styles to your project.
 
 ---
 
-You are now ready to start building your application with Medusa UI. You can import the components like so:
+## Step 4: Use Medusa UI in Standalone Projects
+
+You can now start building your application with Medusa UI.
+
+For example, you can use the `Button` in your custom components:
 
 ```tsx
-import { Button, Drawer } from "@medusajs/ui"
+import { Button } from "@medusajs/ui"
+
+export function ButtonDemo() {
+  return <Button>Button</Button>
+}
 ```
+
+Refer to the documentation of each component to learn about its props and usage.
 
 <Feedback title={"Install in Standalone Project"} />
 
-## Updating UI Packages
-
 ---
 
-Medusa's design-system packages, including `@medusajs/ui`, `@medusajs/ui-preset`, and `@medusajs/ui-icons`, are versioned independently. However, they're still part of the latest Medusa release. So, you can browse the [release notes](https://github.com/medusajs/medusa/releases) to see if there are any breaking changes to these packages.
+## Update UI Packages in Standalone Projects
 
-To update these packages, update their version in your `package.json` file and re-install dependencies. For example:
+Medusa's design-system packages, including `@medusajs/ui` and `@medusajs/ui-preset`, are versioned independently from other `@medusajs/*` packages. However, they're still released as part of Medusa's releases.
 
-<PackageInstall packageName="@medusajs/ui" />
+So, to find latest updates and breaking changes to any of these packages, refer to the [release notes in the Medusa GitHub repository](https://github.com/medusajs/medusa/releases).
+
+To update these packages in your standalone project, update their version in your `package.json` file and re-install dependencies. For example:
+
+```json title="package.json"
+{
+  "dependencies": {
+    "@medusajs/ui": "4.0.0",
+    "@medusajs/ui-preset": "4.0.0"
+  }
+}
+```

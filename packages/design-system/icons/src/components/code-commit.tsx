@@ -16,7 +16,7 @@ const CodeCommit = React.forwardRef<SVGSVGElement, IconProps>(
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={1.5}
-          d="M.833 7.5h3.959M14.167 7.5h-3.959M7.5 10.209a2.708 2.708 0 1 0 0-5.417 2.708 2.708 0 0 0 0 5.417"
+          d="M7.5 14.167v-3.958M7.5.834v3.958M10.208 7.5a2.708 2.708 0 1 0-5.416 0 2.708 2.708 0 0 0 5.416 0"
         />
       </svg>
     )

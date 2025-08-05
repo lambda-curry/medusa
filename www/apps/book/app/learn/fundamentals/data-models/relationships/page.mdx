@@ -39,8 +39,9 @@ For example:
 
 export const oneToOneHighlights = [
   ["5", "hasOne", "A user has one email."],
-  ["10", "belongsTo", "An email belongs to a user."],
-  ["11", `"email"`, "The relationship's name in the `User` data model."]
+  ["6", `"user"`, "The relationship's name in the `Email` data model."],
+  ["12", "belongsTo", "An email belongs to a user."],
+  ["13", `"email"`, "The relationship's name in the `User` data model."]
 ]
 
 ```ts highlights={oneToOneHighlights}
@@ -48,7 +49,9 @@ import { model } from "@medusajs/framework/utils"
 
 const User = model.define("user", {
   id: model.id().primaryKey(),
-  email: model.hasOne(() => Email),
+  email: model.hasOne(() => Email, {
+    mappedBy: "user",
+  }),
 })
 
 const Email = model.define("email", {
@@ -63,15 +66,68 @@ In the example above, a user has one email, and an email belongs to one user.
 
 The `hasOne` and `belongsTo` methods accept a function as the first parameter. The function returns the associated data model.
 
-The `belongsTo` method also requires passing as a second parameter an object with the property `mappedBy`. Its value is the name of the relationship property in the other data model.
+Both methods also accept a second parameter object with the property `mappedBy`. Its value is the name of the relationship property in the other data model.
 
 ### Optional Relationship
 
 To make the relationship optional on the `hasOne` or `belongsTo` side, use the `nullable` method on either property as explained in [this chapter](../properties/page.mdx#make-property-optional).
 
+### One-to-One Relationship in the Database
+
+When you generate the migrations of data models that have a one-to-one relationship, the migration adds to the table of the data model that has the `belongsTo` property:
+
+1. A column of the format `{relation_name}_id` to store the ID of the record of the related data model. For example, the `email` table will have a `user_id` column.
+2. A foreign key on the `{relation_name}_id` column to the table of the related data model.
+
+![Diagram illustrating the relation between user and email records in the database](https://res.cloudinary.com/dza7lstvk/image/upload/v1726733492/Medusa%20Book/one-to-one_cj5np3.jpg)
+
 ### One-sided One-to-One Relationship
 
-If the one-to-one relationship is only defined on one side, pass `undefined` to the `mappedBy` property in the `belongsTo` method.
+In some use cases, you may want to define a one-to-one relationship only on one side. This means that the other data model does not have a relationship property pointing to the first one.
+
+You can do this either from the `hasOne` or the `belongsTo` side.
+
+#### hasOne Side
+
+By default, the foreign key column is added to the table of the data model that has the `belongsTo` property. For example, if the `Email` data model belongs to the `User` data model, then the foreign key column is added to the `email` table.
+
+If you want to define a one-to-one relationship only on the `User` data model's side (`hasOne` side), you can do so by passing the following properties to the second parameter of the `hasOne` method:
+
+- `foreignKey`: A boolean indicating whether the foreign key column should be added to the table of the data model.
+- `mappedBy`: Set to `undefined`, since the relationship is only defined on one side.
+
+For example:
+
+export const oneToOneForeignKeyHighlights = [
+  ["5", "hasOne", "A user has one email."],
+  ["6", "foreignKey", "Add the foreign key column to the `user` table."],
+  ["7", "mappedBy", "Set to `undefined` since the relationship is only defined on the `User` data model."],
+]
+
+```ts highlights={oneToOneForeignKeyHighlights}
+import { model } from "@medusajs/framework/utils"
+
+const User = model.define("user", {
+  id: model.id().primaryKey(),
+  email: model.hasOne(() => Email, {
+    foreignKey: true,
+    mappedBy: undefined,
+  }),
+})
+
+const Email = model.define("email", {
+  id: model.id().primaryKey(),
+})
+```
+
+In the example above, you add a one-to-one relationship from the `User` data model to the `Email` data model.
+
+The foreign key column is added to the `user` table, and the `Email` data model does not have a relationship property pointing to the `User` data model.
+
+
+#### belongsTo Side
+
+To define the one-to-one relationship on the `belongsTo` side, pass `undefined` to the `mappedBy` property in the `belongsTo` method's second parameter.
 
 For example:
 
@@ -94,14 +150,9 @@ const Email = model.define("email", {
 })
 ```
 
-### One-to-One Relationship in the Database
+In the example above, you add a one-to-one relationship from the `Email` data model to the `User` data model.
 
-When you generate the migrations of data models that have a one-to-one relationship, the migration adds to the table of the data model that has the `belongsTo` property:
-
-1. A column of the format `{relation_name}_id` to store the ID of the record of the related data model. For example, the `email` table will have a `user_id` column.
-2. A foreign key on the `{relation_name}_id` column to the table of the related data model.
-
-![Diagram illustrating the relation between user and email records in the database](https://res.cloudinary.com/dza7lstvk/image/upload/v1726733492/Medusa%20Book/one-to-one_cj5np3.jpg)
+The `User` data model does not have a relationship property pointing to the `Email` data model.
 
 ---
 
@@ -118,8 +169,9 @@ For example:
 
 export const oneToManyHighlights = [
   ["5", "hasMany", "A store has many products."],
-  ["10", "belongsTo", "A product has one store."],
-  ["11", `"products"`, "The relationship's name in the `Store` data model."]
+  ["6", `"store"`, "The relationship's name in the `Product` data model."],
+  ["12", "belongsTo", "A product has one store."],
+  ["13", `"products"`, "The relationship's name in the `Store` data model."]
 ]
 
 ```ts highlights={oneToManyHighlights}
@@ -127,7 +179,9 @@ import { model } from "@medusajs/framework/utils"
 
 const Store = model.define("store", {
   id: model.id().primaryKey(),
-  products: model.hasMany(() => Product),
+  products: model.hasMany(() => Product, {
+    mappedBy: "store",
+  }),
 })
 
 const Product = model.define("product", {
@@ -165,7 +219,7 @@ For example:
 
 export const manyToManyHighlights = [
   ["5", "manyToMany", "An order is associated with many products."],
-  ["12", "manyToMany", "A product is associated with many orders."]
+  ["15", "manyToMany", "A product is associated with many orders."]
 ]
 
 ```ts highlights={manyToManyHighlights}
@@ -275,43 +329,6 @@ The `OrderProduct` model defines, aside from the ID, the following properties:
 - `order`: A relation that indicates this model belongs to the `Order` data model. You set the `mappedBy` option to the many-to-many relation's name in the `Order` data model.
 - `product`: A relation that indicates this model belongs to the `Product` data model. You set the `mappedBy` option to the many-to-many relation's name in the `Product` data model.
 - `metadata`: An extra column to add to the pivot table of type `json`. You can add other columns as well to the model.
-
----
-
-## Set Relationship Name in the Other Model
-
-The relationship property methods accept as a second parameter an object of options. The `mappedBy` property defines the name of the relationship in the other data model.
-
-This is useful if the relationship property’s name is different from that of the associated data model.
-
-As seen in previous examples, the `mappedBy` option is required for the `belongsTo` method.
-
-For example:
-
-export const relationNameHighlights = [
-  ["6", `"owner"`, "The relationship's name in the `Email` data model."],
-  ["13", `"email"`, "The relationship's name in the `User` data model."]
-]
-
-```ts highlights={relationNameHighlights}
-import { model } from "@medusajs/framework/utils"
-
-const User = model.define("user", {
-  id: model.id().primaryKey(),
-  email: model.hasOne(() => Email, {
-    mappedBy: "owner",
-  }),
-})
-
-const Email = model.define("email", {
-  id: model.id().primaryKey(),
-  owner: model.belongsTo(() => User, {
-    mappedBy: "email",
-  }),
-})
-```
-
-In this example, you specify in the `User` data model’s relationship property that the name of the relationship in the `Email` data model is `owner`.
 
 ---
 

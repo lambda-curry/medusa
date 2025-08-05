@@ -3,7 +3,6 @@ slug: /references/medusa-workflows/createReturnFulfillmentWorkflow
 sidebar_label: createReturnFulfillmentWorkflow
 sidebar_description: Create a fulfillment for a return.
 tags:
-  - remote query
   - fulfillment
   - workflow
 ---
@@ -27,7 +26,7 @@ or [useQueryGraphStep](https://docs.medusajs.com/resources/references/medusa-wor
 
 :::
 
-<SourceCodeLink link="https://github.com/medusajs/medusa/blob/e0b5bb0b224458ebc8c93111e72f9a10aecf0275/packages/core/core-flows/src/fulfillment/workflows/create-return-fulfillment.ts#L65" />
+<SourceCodeLink link="https://github.com/medusajs/medusa/blob/394226b5c18d11072da826ed6a07d4e602e62f18/packages/core/core-flows/src/fulfillment/workflows/create-return-fulfillment.ts#L65" />
 
 ## Examples
 
@@ -216,7 +215,7 @@ const myWorkflow = createWorkflow(
 
 ## Steps
 
-<WorkflowDiagram workflow={{"name":"createReturnFulfillmentWorkflow","steps":[{"type":"step","name":"useRemoteQueryStep","description":"This step fetches data across modules using the remote query.\n\nLearn more in the [Remote Query documentation](https://docs.medusajs.com/learn/fundamentals/module-links/query).\n\n:::note\n\nThis step is deprecated. Use [useQueryGraphStep](../../../../Common/Steps_Common/functions/core_flows.Common.Steps_Common.useQueryGraphStep/page.mdx) instead.\n\n:::","link":"../../../../Common/Steps_Common/functions/core_flows.Common.Steps_Common.useRemoteQueryStep/page.mdx","depth":1},{"type":"step","name":"createReturnFulfillmentStep","description":"This step creates a fulfillment for a return.","link":"../../../Steps_Fulfillment/functions/core_flows.Fulfillment.Steps_Fulfillment.createReturnFulfillmentStep/page.mdx","depth":2}]}} />
+<WorkflowDiagram workflow={{"name":"createReturnFulfillmentWorkflow","steps":[{"type":"step","name":"createReturnFulfillmentStep","description":"This step creates a fulfillment for a return.","link":"../../../Steps_Fulfillment/functions/core_flows.Fulfillment.Steps_Fulfillment.createReturnFulfillmentStep/page.mdx","depth":1}]}} />
 
 ## Input
 

@@ -97,7 +97,7 @@
  *       ```
  *     description: Emitted when the customer in the cart is transferred.
  *     deprecated: false
- *     version: 2.8.0
+ *     since: 2.8.0
  * 
 */
 
